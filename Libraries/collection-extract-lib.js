@@ -242,7 +242,7 @@ function fixColourName(colourName) {
 	return colourName;
 }
 
-function formatCSVOutput(collection) {
+async function formatCSVOutput(collection) {
 	let items = 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'Description' + '\t' + 'WebName' + '\t' + 'WebDescription' + '\t' + 'Delivery' + '\t' + 'PurchaseCode' + '\t' + 'WebCategory' + '\n';
 	items += 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'CodeBars' + '\t' + 'ItemName' + '\t' + 'ForeignName' + '\t' + 'User_Text' + '\t' + 'U_Stuff' + '\t' + 'SuppCatNum' + '\t' + 'U_WebCategory3' + '\n';
 	let count = 0;
