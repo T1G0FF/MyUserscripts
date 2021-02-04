@@ -19,7 +19,7 @@ let isSearch = false;
 	createButton('Sort Codes', sortSearch, getTitleElement(), 'beforeEnd');
 	isSearch = !hasParam(window.location.search, 'Category');
 })();
-//'body > div:nth-child(5) > div:nth-child(1) > div:nth-child(1) > div > b'
+
 let hoffmanRegEx = /(([A-z]{1,2}|[A-z]{3})?([0-9]+))-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
 let RegexEnum = {
 	'Collection': 1,
