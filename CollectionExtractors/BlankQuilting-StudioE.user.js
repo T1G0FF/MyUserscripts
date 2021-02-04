@@ -68,38 +68,27 @@ function getCollection() {
 	return collection;
 }
 
-function formatInformation(item) {
-	let title = getTitle();
-	let company = getCompany();
-
+function getItemObject(item) {
 	if (isCollectionPage) {
 		let collElement = item.querySelector('div.card-title > a');
 		return { 'description': collElement.innerText.trim() };
 	}
 
 	let codeElement = isSearch ? item.querySelector('span.snize-title') : item.querySelector('h4.card-title > a');
-	let descElement = isSearch ? item.querySelector('span.snize-description') : item.querySelector('h4.card-title > p.card-text');
-	if (!codeElement || !descElement) {
-		Notify.log('One or More Elements Not Found!', item);
+	if (!codeElement) {
+		Notify.log('Code elements not found!', item);
 		return;
 	}
-
 	let givenCode = codeElement.innerText.trim().toUpperCase();
-	let givenDesc = descElement.innerText.trim();
-
-	let itemCode = '';
-	let barCode = '';
-	let purchaseCode = '';
-	let material = 'C100%';
-	let width = title.includes('108') ? 'W108in' : 'W45in';
-	let special = '';
-
+	
 	blankRegEx.lastIndex = 0;
 	let matches = blankRegEx.exec(givenCode);
 	if (!matches || matches.length <= 1) {
 		Notify.log('No matches found for Item!', item);
 		return;
 	}
+
+	let prefix = 'BQ';
 
 	let collectionCode = matches[RegexEnum.Collection];
 	if (matches[RegexEnum.LetterBefore]) {
@@ -110,7 +99,6 @@ function formatInformation(item) {
 	if (matches[RegexEnum.ColourCode] && matches[RegexEnum.ColourCode].length > 0) {
 		colourCode = padWithZeros(matches[RegexEnum.ColourCode], 3);
 	}
-
 	if (matches[RegexEnum.LetterAfter]) {
 		colourCode = colourCode + matches[RegexEnum.LetterAfter];
 	}
@@ -118,58 +106,79 @@ function formatInformation(item) {
 	let colourName = '';
 	if (matches[RegexEnum.ColourName] && matches[RegexEnum.ColourName].length > 0) {
 		colourName = fixColourName(matches[RegexEnum.ColourName]);
-		if (colourCode.length > 0) {
-			colourName = ' ' + colourName;
-		}
+		colourName = colourName.trim().toTitleCase(false);
 	}
-	let givenCodeColour = (colourCode + colourName).toUpperCase();
 
-	itemCode = formatItemCode('BQ', collectionCode + ' ' + givenCodeColour);
-	barCode = formatBarCode(itemCode);
-
-	let tempGivenCode = givenCode;
+	let purchaseCode = givenCode;
 	if (matches[RegexEnum.ColourName] && matches[RegexEnum.ColourName].length > 0 && matches[RegexEnum.ColourCode] && matches[RegexEnum.ColourCode].length > 0) {
-		tempGivenCode = tempGivenCode.replaceAll(matches[RegexEnum.ColourName].toUpperCase(), '').trim();
+		purchaseCode = purchaseCode.replaceAll(matches[RegexEnum.ColourName].toUpperCase(), '').trim();
 	}
-	purchaseCode = formatPurchaseCode(tempGivenCode.trim());
+	purchaseCode = formatPurchaseCode(purchaseCode.trim());
 
+	let descElement = isSearch ? item.querySelector('span.snize-description') : item.querySelector('h4.card-title > p.card-text');
+	if (!descElement) {
+		Notify.log('Description element not found!', item);
+		return;
+	}
+	let givenDesc = descElement.innerText.trim();
+
+	let patternName = givenDesc.replaceAll('["]', 'in').toTitleCase();
+
+	let title = getTitle();
+	let special = '';
 	if (title.indexOf(' - ') > 0) {
 		let dash = title.indexOf(' - ');
 		special = title.substr(dash + 3);
 		title = title.substr(0, dash)
 	}
 
-	let titleString = title;
-	if (company === 'Studio E') {
-		titleString = company + ' ' + title;
-	}
-
-	let nameString = givenDesc.toTitleCase() + ' - ' + titleString;
-	if (givenDesc.toUpperCase() === title.replaceAll('108', '').trim().toUpperCase()) {
-		nameString = titleString;
-	}
-	nameString = nameString.replaceAll('["]', 'in');
-
-	let colourString = colourName.trim().toTitleCase(false);
-	let patternString = givenDesc.replaceAll('["]', 'in').toTitleCase();
-	let webName = colourString;
-	webName += webName.length > 0 ? ' - ' : '';
-	webName += patternString;
-	let description = formatSapDescription({ 'Colour': colourString, 'Pattern': patternString, 'Collection': title, 'Special': special, 'Material': material, 'Width': width, 'Repeat': null })
+	let material = 'C100%';
+	let width = title.includes('108') ? 'W108in' : 'W45in';
+	let repeat = '';
 
 	let dates = getReleaseDates();
-	let relDate = toReleaseString(dates);
-	let delDate = toDeliveryString(dates);
-	let webDesc = formatWebDescription({ 'Collection': title, 'Notes': special, 'Fibre': material, 'Width': width, 'Release': relDate, 'Delivery From': dates.Delivery });
 
-	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode, 'webCategory': title };
-	return result;
+	return {
+		'Prefix': prefix,
+		'CollectionCode': collectionCode,
+		'ColourCode': colourCode,
+		'ColourName': colourName,
+		'PurchaseCode': purchaseCode,
+		'PatternName': patternName,
+		'CollectionName': title,
+		'SpecialNotes': special,
+		'Material': material,
+		'Width': width,
+		'Repeat': repeat,
+		'ReleaseDates': dates,
+	};
 }
 
-function toReleaseString(dates) {
-	let result = getQuarter(dates.Received);
-	let relDate = getCompany() + ' ' + result.Quarter + 'Q' + result.Year;
-	return relDate;
+function formatInformation(item) {
+	let itemObject = getItemObject(item);
+
+	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + item.ColourName).toUpperCase();
+	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
+	
+	let barCode = formatBarCode(itemCode);
+	
+	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company === 'Studio E') ? getCompany() + ' ' + item.Collection : item.Collection, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': item.Width, 'Repeat': item.Repeat })
+
+	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
+
+	let relDateString = toReleaseString(item.ReleaseDates);
+	let webDesc = formatWebDescription({ 'Collection': item.Collection, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': item.Width, 'Release': relDateString, 'Delivery From': dates.Delivery });
+	let delDateString = toDeliveryString(item.ReleaseDates);
+
+	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': purchaseCode, 'webCategory': item.Collection };
+	return result;
+
+	//////////////////////////////////////////////
+	//let nameString = givenDesc.toTitleCase() + ' - ' + titleString;
+	//if (givenDesc.toUpperCase() === title.replaceAll('108', '').trim().toUpperCase()) {
+	//	nameString = titleString;
+	//}
+	//nameString = nameString.replaceAll('["]', 'in');
 }
 
 // https://cdn7.bigcommerce.com/s-par0o0ta6b/images/stencil/500x659/products/1517/14348/9422-44__27613.1526386264.jpg
