@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      4.6.2
+// @version      4.7.0
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -135,6 +135,15 @@ function padWithZeros(number, numZeros = 3) {
 	if (number.length > numZeros) return number;
 	number = (zeros + number);
 	return number.substr(number.length - numZeros);
+}
+
+function isArray(obj) {
+	return Object.prototype.toString(obj) === '[object Array]';
+}
+
+function isNumeric(obj) {
+	var realStringObj = obj && obj.toString();
+	return !isArray(obj) && (realStringObj - parseFloat(realStringObj) + 1) >= 0;
 }
 
 function stripParams(path) {
