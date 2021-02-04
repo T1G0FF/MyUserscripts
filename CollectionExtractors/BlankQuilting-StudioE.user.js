@@ -121,8 +121,7 @@ function getItemObject(item) {
 		return;
 	}
 	let givenDesc = descElement.innerText.trim();
-
-	let patternName = givenDesc.replaceAll('["]', 'in').toTitleCase();
+	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 
 	let title = getTitle();
 	let special = '';
