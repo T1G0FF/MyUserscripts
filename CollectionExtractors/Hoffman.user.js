@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.1.0
+// @version      3.1.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
@@ -91,7 +91,8 @@ function getItemObject(item) {
 	let special = '';
 	
 	let material = 'C100%';
-	let width = title.includes('108') ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
+	let isWideback = title.includes('108') || (collectionCode[0] == 'W' && isNumeric(collectionCode[1]));
+	let width = isWideback ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
 
 	let dates = getReleaseDates();
