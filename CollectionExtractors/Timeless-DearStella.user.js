@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      4.0.0
+// @version      4.1.0
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -12,8 +12,8 @@
 // @match        *://www.dearstelladesign.com/category/*
 // @match        *://dearstelladesign.com/advanced_search_result.php?*
 // @match        *://www.dearstelladesign.com/advanced_search_result.php?*
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
 // @runat        document-idle
@@ -94,12 +94,12 @@ function getItemObject(item) {
 	}
 	let givenCode = codeElements[0].innerText.trim().toUpperCase();
 	
-	let isTonga = (collectionFuzz.indexOf('TONGA') >= 0);
-
 	let prefix = isStella ? 'DS ' : isTonga ? 'JN ' : 'TT';
 
 	let collectionFuzz = givenCode.substring(0, givenCode.indexOf('-'));
 	let collectionCode = givenCode.substring(givenCode.indexOf('-') + 1);
+
+	let isTonga = (collectionFuzz.indexOf('TONGA') >= 0);
 
 	let colourCode = '';
 
@@ -187,6 +187,7 @@ function getItemObject(item) {
 		'Repeat': repeat,
 		'ReleaseDates': dates,
 		'CollectionFuzz': collectionFuzz,
+		'IsTonga': isTonga,
 	};
 }
 
@@ -209,7 +210,7 @@ function formatInformation(itemElement) {
 	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
 	let delDateString = toDeliveryString(item.ReleaseDates);
 
-	let webCategory = isStella || isTonga ? title : 'TT ' + collectionFuzz.toTitleCase();
+	let webCategory = isStella || item.IsTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': webCategory };
 	return result;
