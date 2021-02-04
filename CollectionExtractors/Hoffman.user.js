@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2.0
+// @version      3.0.0
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
@@ -18,6 +18,15 @@
 	createButton('Sort Codes', sortSearch, getTitleElement(), 'beforeEnd');
 })();
 
+let hoffmanRegEx = /((?:[A-z]{1,2}|[A-z]{3})?[0-9]+)-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
+let RegexEnum = {
+	'Collection': 1,
+	'LetterBefore': 2,
+	'ColourCode': 3,
+	'LetterAfter': 4,
+	'ColourName': 5,
+}
+
 function getCompany() {
 	let company = 'Hoffman';
 	return company;
@@ -33,77 +42,114 @@ function getCollection() {
 	return collection;
 }
 
-let hoffmanRegEx = /((?:[A-z]{1,2}|[A-z]{3})?[0-9]+)-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
-let RegexEnum = {
-	'Collection': 1,
-	'LetterBefore': 2,
-	'ColourCode': 3,
-	'LetterAfter': 4,
-	'ColourName': 5,
-}
-
-function formatInformation(item) {
-	let title = getTitle();
-	let company = getCompany();
+function getItemObject(item) {
 	let codeElement = item.querySelector('span:nth-child(3)');
-	let givenCode = codeElement ? codeElement.innerText : item.innerText;
-
-	let itemCode = '';
-	let barCode = '';
-	let purchaseCode = '';
-	let material = 'C100%';
-	let width = title.includes('108') ? 'W108in' : 'W45in';
-
+	if (!codeElement) {
+		Notify.log('Code elements not found!', item);
+		return;
+	}
+	let givenCode = (codeElement ? codeElement.innerText : item.innerText).trim().toUpperCase();
+	
 	hoffmanRegEx.lastIndex = 0;
 	let matches = hoffmanRegEx.exec(givenCode);
 	if (!matches || matches.length <= 1) {
 		Notify.log('No matches found for Item!', item);
 		return;
 	}
+
+	let prefix = 'H';
+
 	let collectionCode = matches[RegexEnum.Collection];
 
-	let colourCode = padWithZeros(matches[RegexEnum.ColourCode], 3);
+	let colourCode = '';
+	if (matches[RegexEnum.ColourCode] && matches[RegexEnum.ColourCode].length > 0) {
+		colourCode = padWithZeros(matches[RegexEnum.ColourCode], 3);
+	}
 	if (matches[RegexEnum.LetterBefore]) {
 		colourCode = matches[RegexEnum.LetterBefore].toUpperCase() + colourCode;
 	}
 	if (matches[RegexEnum.LetterAfter]) {
 		colourCode = colourCode + matches[RegexEnum.LetterAfter].toUpperCase();
 	}
-	let colourName = fixColourName(matches[RegexEnum.ColourName]);
-	let givenCodeColour = (colourCode + ' ' + colourName).toUpperCase();
 
-	itemCode = formatItemCode('H', collectionCode + ' ' + givenCodeColour);
-	barCode = formatBarCode(itemCode).replaceAll(' ', '-');
-	purchaseCode = formatPurchaseCode(givenCode.replaceAll('-' + matches[RegexEnum.ColourName], ''));
+	let colourName = '';
+	if (matches[RegexEnum.ColourName] && matches[RegexEnum.ColourName].length > 0) {
+		colourName = fixColourName(matches[RegexEnum.ColourName]);
+		colourName = colourName.trim().toTitleCase(false);
+	}
 
-	let currentTitle = title;
+	let purchaseCode = givenCode;
+	if (matches[RegexEnum.ColourName] && matches[RegexEnum.ColourName].length > 0 && matches[RegexEnum.ColourCode] && matches[RegexEnum.ColourCode].length > 0) {
+		purchaseCode = purchaseCode.replaceAll('-' + matches[RegexEnum.ColourName].toUpperCase(), '');
+	}
+	purchaseCode = formatPurchaseCode(purchaseCode.trim());
+
+	let title = getTitle();
+	let special = '';
+	
+	let material = 'C100%';
+	let width = title.includes('108') ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
+	let repeat = '';
+
+	let dates = getReleaseDates();
+
+	return {
+		'Prefix': prefix,
+		'CollectionCode': collectionCode,
+		'ColourCode': colourCode,
+		'ColourName': colourName,
+		'PurchaseCode': purchaseCode,
+		'PatternName': patternName,
+		'CollectionName': title,
+		'SpecialNotes': special,
+		'Material': material,
+		'Width': width,
+		'Repeat': repeat,
+		'ReleaseDates': dates,
+	};
+}
+
+function formatInformation(item) {
+	let item = getItemObject(itemElement);
+	if (!item) return;
+
+	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + item.ColourName).toUpperCase();
+	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
+
+	let barCode = formatBarCode(itemCode.replaceAll(' ', '-'));
+
+	let company = getCompany();
+	let widthString = item.Width.Measurement + item.Width.Unit;
+	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company === 'Studio E') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+
+	let collectionName = title;
 	switch (collectionCode) {
 		case '839':
-			currentTitle = 'Bali Mottles';
+			collectionName = 'Bali Mottles';
 			break;
 		case '884':
-			currentTitle = 'Bali Batiks Sunflowers';
+			collectionName = 'Bali Batiks Sunflowers';
 			break;
 		case '885':
-			currentTitle = 'Bali Dot Batiks';
+			collectionName = 'Bali Dot Batiks';
 			break;
 		case '1384':
-			currentTitle = 'Bali Smoothies';
+			collectionName = 'Bali Smoothies';
 			break;
 		case '1895':
-			currentTitle = 'Bali Watercolours';
+			collectionName = 'Bali Watercolours';
 			break;
 		default:
 			break;
 	}
 
-	let webName = colourName.toTitleCase() + ' - ' + currentTitle;
-	let webDesc = material + ' - ' + width;
-	let description = webName + ' - ' + webDesc;
+	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + collectionName);
 
-	let delDate = "Not Given - " + getDeliveryString();
+	let relDateString = toReleaseString(item.ReleaseDates);
+	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
 
-	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode, 'webCategory': title };
+	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': item.CollectionName };
 	return result;
 }
 
