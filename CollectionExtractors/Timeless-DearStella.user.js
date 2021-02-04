@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      4.1.1
+// @version      4.1.4
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -94,12 +94,12 @@ function getItemObject(item) {
 	}
 	let givenCode = codeElements[0].innerText.trim().toUpperCase();
 	
-	let prefix = isStella ? 'DS ' : isTonga ? 'JN ' : 'TT';
-
 	let collectionFuzz = givenCode.substring(0, givenCode.indexOf('-'));
 	let collectionCode = givenCode.substring(givenCode.indexOf('-') + 1);
 
 	let isTonga = (collectionFuzz.indexOf('TONGA') >= 0);
+
+	let prefix = isStella ? 'DS ' : isTonga ? 'JN ' : 'TT';
 
 	let colourCode = '';
 
@@ -119,7 +119,7 @@ function getItemObject(item) {
 	let givenDesc = descElement.innerText.trim();
 	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 
-	let title = '';
+	let title = getTitle();
 	let special = '';
 	if (collections.hasOwnProperty(collectionCode)) {
 		if (CONFIG_IGNORE_BASICS && title !== collections[collectionCode].title) return undefined;
@@ -128,13 +128,14 @@ function getItemObject(item) {
 	}
 
 	let material = 'C100%';
-	let width = 'W45in';
+	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
+	 
 
 	if (isStella) {
 		if (givenCode[0].toUpperCase() == 'W' && givenCode[1].toUpperCase() != 'W') {
 			prefix += 'W';
-			width = 'W60in';
+			width = { 'Measurement': '60', 'Unit': 'in' };
 			material = 'P100%';
 		}
 		if (collectionCode[0].toUpperCase() == 'K' && collectionCode[1].toUpperCase() != 'K') {
@@ -163,11 +164,11 @@ function getItemObject(item) {
 		if (collectionFuzz.indexOf('SOFTIE') >= 0) {
 			collectionFuzz = 'SOFTIE';
 			material = 'P100%';
-			width = 'W60in';
+			width = { 'Measurement': '60', 'Unit': 'in' };
 		}
 		if (givenCode[0].toUpperCase() == 'X' && givenCode[1].toUpperCase() != 'X') {
 			prefix += 'X';
-			width = 'W106in';
+			width = { 'Measurement': '106', 'Unit': 'in' };
 		}
 	}
 
@@ -208,7 +209,7 @@ function formatInformation(itemElement) {
 
 	let relDateString = toReleaseString(item.ReleaseDates);
 	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
-	let delDateString = toDeliveryString(item.ReleaseDates);
+	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
 
 	let webCategory = isStella || item.IsTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
 
