@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.1.2
+// @version      3.2.0
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
@@ -18,13 +18,15 @@
 	createButton('Sort Codes', sortSearch, getTitleElement(), 'beforeEnd');
 })();
 
-let hoffmanRegEx = /((?:[A-z]{1,2}|[A-z]{3})?[0-9]+)-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
+let hoffmanRegEx = /([A-z]{1,2}|[A-z]{3})?([0-9]+)-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
 let RegexEnum = {
 	'Collection': 1,
-	'LetterBefore': 2,
-	'ColourCode': 3,
-	'LetterAfter': 4,
-	'ColourName': 5,
+	'CollectionPrefix': 2,
+	'CollectionCode': 3,
+	'LetterBefore': 4,
+	'ColourCode': 5,
+	'LetterAfter': 6,
+	'ColourName': 7,
 }
 
 function getCompany() {
@@ -60,7 +62,7 @@ function getItemObject(item) {
 
 	let prefix = 'H';
 
-	let collectionCode = matches[RegexEnum.Collection];
+	let collectionCode = matches[RegexEnum.Collection].toUpperCase();
 
 	let colourCode = '';
 	if (matches[RegexEnum.ColourCode] && matches[RegexEnum.ColourCode].length > 0) {
@@ -91,7 +93,7 @@ function getItemObject(item) {
 	let special = '';
 	
 	let material = 'C100%';
-	let isWideback = title.includes('108') || (collectionCode[0] == 'W' && !isNumeric(collectionCode[1]));
+	let isWideback = title.includes('108') || (matches[RegexEnum.CollectionPrefix] && matches[RegexEnum.CollectionPrefix].startsWith('W'));
 	let width = isWideback ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
 
