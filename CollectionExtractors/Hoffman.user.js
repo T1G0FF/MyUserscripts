@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.2.0
+// @version      3.3.0
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
-// @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
+// @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
@@ -12,13 +12,15 @@
 // @runat        document-idle
 // ==/UserScript==
 
+let isSearch = false;
 (function () {
 	'use strict';
 	createButtons();
 	createButton('Sort Codes', sortSearch, getTitleElement(), 'beforeEnd');
+	isSearch = !hasParam(window.location.search, 'Category');
 })();
-
-let hoffmanRegEx = /([A-z]{1,2}|[A-z]{3})?([0-9]+)-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
+//'body > div:nth-child(5) > div:nth-child(1) > div:nth-child(1) > div > b'
+let hoffmanRegEx = /(([A-z]{1,2}|[A-z]{3})?([0-9]+))-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
 let RegexEnum = {
 	'Collection': 1,
 	'CollectionPrefix': 2,
@@ -35,7 +37,7 @@ function getCompany() {
 }
 
 function getTitleElement() {
-	let titleElement = document.querySelector('.section.title h3');
+	let titleElement = isSearch ? document.querySelector('.section.page .container:first-of-type b') : document.querySelector('.section.title h3');
 	return titleElement;
 }
 
