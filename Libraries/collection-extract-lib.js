@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      4.0.0
+// @version      4.1.0
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -162,6 +162,12 @@ function getDeliveryString(availDate = getAvailabilityDate(), delDelay = 3) {
 
 function toDeliveryString(dates) {
 	return 'Rec ' + dates.Received + '; Del ' + dates.Delivery;
+}
+
+function toReleaseString(dates) {
+	let result = getQuarter(dates.Received);
+	let relDate = getCompany() + ' ' + result.Quarter + 'Q' + result.Year;
+	return relDate;
 }
 
 async function getCollection() {
