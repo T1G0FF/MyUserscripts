@@ -9,8 +9,9 @@
 
 let CONFIG_ADD_COPYINFO = true;
 let CONFIG_ADD_COPYHTML = true;
-let CONFIG_ADD_SAVEIMGS = true;
+let CONFIG_ADD_SAVEIMGS = !true;
 
+// Creates default buttons used by all.
 function createButtons(element = getTitleElement(), location = 'beforeEnd', foreground = 'white', background = 'black') {
 	if (!element) return;
 	let buttonCSS = `
@@ -37,6 +38,7 @@ function createButtons(element = getTitleElement(), location = 'beforeEnd', fore
 	if (CONFIG_ADD_SAVEIMGS) createButton('Save Images', saveImages, element, location);
 }
 
+// Creates a single button with the given parameters.
 function createButton(text, func, element, location = 'beforeEnd') {
 	let newButton = document.createElement('button');
 	newButton.innerText = text;
@@ -45,11 +47,13 @@ function createButton(text, func, element, location = 'beforeEnd') {
 	element.insertAdjacentElement(location, newButton);
 }
 
+// Resets the Show Warning toggle so that they only show once per button click. 
 function resetWarnings() {
 	WARN_INFO_ITEMOBJECT = true;
 	WARN_INFO_FORMATINFO = true;
 }
 
+// Performs func on the collection, and copies output to the clipboard.
 async function copyFromCollection(func) {
 	let collection = getCollection();
 
@@ -67,30 +71,35 @@ async function copyFromCollection(func) {
 	await Notify.log(msg);
 }
 
-// Parameterless function used by button
+// Parameterless function used by 'Copy Info' button.
 async function copyCollection() {
-	await copyFromCollection(getInformation);
+	await copyFromCollection(formatCSVOutput);
 }
 
+// This should be redefined for every Collection Extractor.
 function getCompany() {
 	console.warn('WARN: Redefine getCompany() such that it returns the name of the company as a String.');
 	return undefined;
 }
 
+// This should be redefined for every Collection Extractor.
 function getTitleElement() {
 	console.warn('WARN: Redefine getTitleElement() such that it returns the Element containing the Title.');
 	return undefined;
 }
 
+// TODO Replace this with getFormattedTitle or remove entirely.
 function getTitle(titleElement = getTitleElement()) {
 	return formatTitle(_getTitle(titleElement));
 }
 
+// Gets title without any formatting so that you can do you own formatting.
 function _getTitle(titleElement = getTitleElement()) {
 	let title = !titleElement ? '' : titleElement.innerText.trim();
 	return title;
 }
 
+// Removes strings known to accompany title.
 function formatTitle(title) {
 	title = title.replaceAll('["â€³]', '');
 	title = title.replaceAll('Search Results: ', '');
@@ -116,10 +125,11 @@ function formatTitle(title) {
 	return title;
 }
 
+// This should be redefined for every Collection Extractor.
 let WARN_INFO_ITEMOBJECT = true;
 async function getItemObject(item) {
 	if (WARN_INFO_ITEMOBJECT) {
-		console.warn('WARN: Redefine formatInformation() such that it returns the following object:'
+		console.warn('WARN: Redefine getItemObject(item) such that it returns the following object:'
 			+ '\n\t' + '{'
 			+ '\n\t\t' + '\'Prefix\': PREFIX,' + '\t\t\t\t\t' + '// Where PREFIX is the SAP Item Code prefix to use. (eg "DS" for Dear Stella.)'
 			+ '\n\t\t' + '\'CollectionCode\': COLLECTIONCODE,' + '\t' + '// Where COLLECTIONCODE is the Collection portion of the code. (eg "S7736" for "S7736-4G-Black-Gold")'
@@ -138,10 +148,11 @@ async function getItemObject(item) {
 	return undefined;
 }
 
+// This should be redefined for every Collection Extractor.
 let WARN_INFO_FORMATINFO = true;
 async function formatInformation(itemElement) {
 	if (WARN_INFO_FORMATINFO) {
-		console.warn('WARN: Redefine formatInformation() such that it returns the following object:'
+		console.warn('WARN: Redefine formatInformation(itemElement) such that it returns the following object:'
 			+ '\n\t' + '{'
 			+ '\n\t\t' + '\'itemCode\': ITEMCODE,' + '\t\t\t' + '// Where ITEMCODE is the SAP Item Code to use. Must be no greater than 50 characters.'
 			+ '\n\t\t' + '\'barCode\': BARCODE,' + '\t\t\t\t' + '// Where BARCODE is the SAP Barcode to use. Must be no greater than 14 characters and have all spaces removed.'
@@ -157,11 +168,14 @@ async function formatInformation(itemElement) {
 	return undefined;
 }
 
+// This should preferably be redefined for every Collection Extractor.
 function getAvailabilityDate() {
 	console.warn('WARN: Redefine getAvailabilityDate() such that it returns the Month and Year the collection is expected to be available as a String or undefined');
 	return undefined;
 }
 
+// Receive date is current date.
+// Delivery date uses current date, unless one is provided.
 function getReleaseDates(availDate = getAvailabilityDate(), delDelay = 3) {
 	let recDate = new Date();
 	let recMonth = recDate.toLocaleString('en-au', { month: 'short' });
@@ -182,26 +196,31 @@ function getReleaseDates(availDate = getAvailabilityDate(), delDelay = 3) {
 	};
 }
 
+// TODO Remove this backwards compatibility.
 function getDeliveryString(availDate = getAvailabilityDate(), delDelay = 3) {
 	let result = getReleaseDate(availDate, delDelay);
 	return toDeliveryString(result);
 }
 
+// Returns release dates in the form used in SAP (eg Rec Mar 2019; Del Jul 2019)
 function toDeliveryString(dates) {
 	return 'Rec ' + dates.Received + '; Del ' + dates.Delivery;
 }
 
+// Returns release quarter used in the form used on the website (eg 3Q20)
 function toReleaseString(dates) {
 	let result = getQuarter(dates.Received);
 	let relDate = getCompany() + ' ' + result.Quarter + 'Q' + result.Year;
 	return relDate;
 }
 
+// This should be redefined for every Collection Extractor.
 async function getCollection() {
 	console.warn('WARN: Redefine getCollection() such that it returns an array containing the elements of the collection.');
 	return undefined;
 }
 
+// Returns formatted html used in Web Description
 function toWebDescriptionItem(title, info) {
 	return `<b>${title}: </b>${info}<br>`;
 }
@@ -214,6 +233,7 @@ let specialCaseStrings = {
 	'metal': 'Metallic',
 }
 
+// Combines as many of the following into the form used by SAP's ItemName
 var SapDescriptionOrder = ['Colour', 'Pattern', 'Collection', 'Special', 'Material', 'Width', 'Repeat'];
 function formatSapDescription(dictionary) {
 	let result = "";
@@ -223,6 +243,7 @@ function formatSapDescription(dictionary) {
 	return result.substring(0, result.length - 3);
 }
 
+// Combines as many of the following into the form used by the website html description
 var WebDescriptionOrder = ['Collection', 'Notes', 'Fibre', 'Width', 'Release', 'Delivery From'];
 function formatWebDescription(dictionary) {
 	let result = "";
@@ -232,6 +253,7 @@ function formatWebDescription(dictionary) {
 	return result.substring(0, result.length - 4);
 }
 
+// This should be redefined for every Collection Extractor.
 async function formatImage(item) {
 	console.warn('WARN: Redefine formatImage() such that it returns an array of image URLs as a Strings.');
 	return undefined;
@@ -298,11 +320,6 @@ async function formatCSVOutput(collection) {
 	}
 	items = items.trim() + '\n';
 	return { info: items, count: count };
-}
-
-// TODO Remove temporary backward compatibility
-async function getInformation(collection) {
-	return formatCSVOutput(collection);
 }
 
 async function copyHTML() {
