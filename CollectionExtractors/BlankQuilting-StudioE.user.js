@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      3.1.0
+// @version      3.2.0
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
 // @match        *://blankquilting.net/*
 // @match        *://www.studioefabrics.net/*
 // @match        *://studioefabrics.net/*
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
 // @runat        document-idle
@@ -133,7 +133,7 @@ function getItemObject(item) {
 	}
 
 	let material = 'C100%';
-	let width = title.includes('108') ? 'W108in' : 'W45in';
+	let width = title.includes('108') ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
 
 	let dates = getReleaseDates();
@@ -167,7 +167,7 @@ function formatInformation(item) {
 	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
 
 	let relDateString = toReleaseString(item.ReleaseDates);
-	let webDesc = formatWebDescription({ 'Collection': item.Collection, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': item.Width, 'Release': relDateString, 'Delivery From': dates.Delivery });
+	let webDesc = formatWebDescription({ 'Collection': item.Collection, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': item.Width.Measurement + item.Width.Unit, 'Release': relDateString, 'Delivery From': dates.Delivery });
 	let delDateString = toDeliveryString(item.ReleaseDates);
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': purchaseCode, 'webCategory': item.Collection };
