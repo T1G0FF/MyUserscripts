@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      3.2.1
+// @version      3.2.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -156,6 +156,7 @@ function getItemObject(item) {
 
 function formatInformation(itemElement) {
 	let item = getItemObject(itemElement);
+	if (!item) return;
 
 	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + item.ColourName).toUpperCase();
 	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
