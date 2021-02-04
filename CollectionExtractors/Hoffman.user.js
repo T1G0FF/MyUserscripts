@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.0.1
+// @version      3.0.2
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
@@ -44,11 +44,12 @@ function getCollection() {
 
 function getItemObject(item) {
 	let codeElement = item.querySelector('span:nth-child(3)');
-	if (!codeElement) {
+	let givenCode = (codeElement ? codeElement.innerText : item.innerText).trim().toUpperCase();
+	if (givenCode && givenCode.trim().length < 1) {
 		Notify.log('Code elements not found!', item);
 		return;
 	}
-	let givenCode = (codeElement ? codeElement.innerText : item.innerText).trim().toUpperCase();
+	givenCode = givenCode.trim().toUpperCase();
 	
 	hoffmanRegEx.lastIndex = 0;
 	let matches = hoffmanRegEx.exec(givenCode);
