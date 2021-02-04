@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.0.0
+// @version      3.0.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
 // @runat        document-idle
@@ -109,7 +109,7 @@ function getItemObject(item) {
 	};
 }
 
-function formatInformation(item) {
+function formatInformation(itemElement) {
 	let item = getItemObject(itemElement);
 	if (!item) return;
 
