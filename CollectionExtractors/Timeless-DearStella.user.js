@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      4.1.4
+// @version      4.1.5
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -130,7 +130,6 @@ function getItemObject(item) {
 	let material = 'C100%';
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
-	 
 
 	if (isStella) {
 		if (givenCode[0].toUpperCase() == 'W' && givenCode[1].toUpperCase() != 'W') {
@@ -196,7 +195,7 @@ function formatInformation(itemElement) {
 	let item = getItemObject(itemElement);
 	if (!item) return;
 
-	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + item.ColourName).toUpperCase();
+	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
 	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
 
 	let barCode = formatBarCode(itemCode);
