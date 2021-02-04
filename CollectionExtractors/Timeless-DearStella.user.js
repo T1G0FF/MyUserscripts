@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      4.1.0
+// @version      4.1.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -150,8 +150,8 @@ function getItemObject(item) {
 		}
 	} else {
 		if (collectionFuzz === 'HUE') {
-			if (givenColour.toUpperCase() === 'BLACK' || givenColour.toUpperCase() === 'WHITE') {
-				title = givenColour + 'out';
+			if (colourName.toUpperCase() === 'BLACK' || colourName.toUpperCase() === 'WHITE') {
+				title = colourName + 'out';
 			}
 		}
 		if (collectionFuzz === 'XTONGA') {
