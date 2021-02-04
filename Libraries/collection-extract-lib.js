@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      4.2.0
+// @version      4.3.0
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -41,8 +41,13 @@ function createButton(text, func, element, location = 'beforeEnd') {
 	let newButton = document.createElement('button');
 	newButton.innerText = text;
 	newButton.classList.add('tgButton');
-	newButton.onclick = function () { WARN_INFO = true; func(); };
+	newButton.onclick = function () { resetWarnings(); func(); };
 	element.insertAdjacentElement(location, newButton);
+}
+
+function resetWarnings() {
+	WARN_INFO_ITEMOBJECT = true;
+	WARN_INFO_FORMATINFO = true;
 }
 
 async function copyFromCollection(func) {
@@ -111,22 +116,44 @@ function formatTitle(title) {
 	return title;
 }
 
-let WARN_INFO = true;
-async function formatInformation(item) {
-	if (WARN_INFO) {
+let WARN_INFO_ITEMOBJECT = true;
+async function getItemObject(item) {
+	if (WARN_INFO_ITEMOBJECT) {
+		console.warn('WARN: Redefine formatInformation() such that it returns the following object:'
+			+ '\n\t' + '{'
+			+ '\n\t\t' + '\'Prefix\': PREFIX,' + '\t\t\t\t\t' + '// Where PREFIX is the SAP Item Code prefix to use. (eg "DS" for Dear Stella.)'
+			+ '\n\t\t' + '\'CollectionCode\': COLLECTIONCODE,' + '\t' + '// Where COLLECTIONCODE is the Collection portion of the code. (eg "S7736" for "S7736-4G-Black-Gold")'
+			+ '\n\t\t' + '\'ColourCode\': COLOURCODE,' + '\t\t\t' + '// Where COLOURCODE is the colour portion of the code padded to 3 digits. (eg "004G" for "S7736-4G-Black-Gold")'
+			+ '\n\t\t' + '\'ColourName\': COLOURNAME,' + '\t\t\t' + '// Where COLOURNAME is the name of the colour in title case. (eg "Black Gold" for "S7736-4G-Black-Gold")'
+			+ '\n\t\t' + '\'PatternName\': PATTERNNAME,' + '\t\t\t' + '// Where PATTERNNAME is the pattern name/description, if available. (eg "Hedgehogs" for "STELLA-DNS1909")'
+			+ '\n\t\t' + '\'CollectionName\': COLLECTIONNAME,' + '\t' + '// Where COLLECTIONNAME is the name of the collection. (eg "Cosmic Skies" for "S7736-4G-Black-Gold")'
+			+ '\n\t\t' + '\'SpecialNotes\': SPECIALNOTES' + '\t\t' + '// Where SPECIALNOTES is anything special about the item. (eg "Digital", "Flannel", "Glow", "Metallic")'
+			+ '\n\t\t' + '\'Material\': MATERIAL' + '\t\t\t\t' + '// Where MATERIAL is the fibre composition. (eg "C80% L20%")'
+			+ '\n\t\t' + '\'Width\': WIDTH' + '\t\t\t\t\t\t' + '// Where WIDTH is the width of fabric expressed as an object like this: { "Measurement": "108", "Unit": "in" }'
+			+ '\n\t\t' + '\'Repeat\': REPEAT' + '\t\t\t\t\t' + '// Where REPEAT is the width of a patterns repeat expressed as an object like this: { "Measurement": "15", "Unit": "cm" }, if available'
+			+ '\n\t\t' + '\'ReleaseDates\': RELEASEDATES' + '\t\t' + '// Where RELEASEDATES is an object like this: { "Received": "[Short Received Month] [4 Digit Received Year]", "Delivery": "[Short Delivery Month] [4 Digit Delivery Year]" }'
+			+ '\n\t' + '}');
+	}
+	WARN_INFO_ITEMOBJECT = false;
+	return undefined;
+}
+
+let WARN_INFO_FORMATINFO = true;
+async function formatInformation(itemElement) {
+	if (WARN_INFO_FORMATINFO) {
 		console.warn('WARN: Redefine formatInformation() such that it returns the following object:'
 			+ '\n\t' + '{'
 			+ '\n\t\t' + '\'itemCode\': ITEMCODE,' + '\t\t\t' + '// Where ITEMCODE is the SAP Item Code to use. Must be no greater than 50 characters.'
 			+ '\n\t\t' + '\'barCode\': BARCODE,' + '\t\t\t\t' + '// Where BARCODE is the SAP Barcode to use. Must be no greater than 14 characters and have all spaces removed.'
 			+ '\n\t\t' + '\'description\': DESCRIPTION,' + '\t\t' + '// Where DESCRIPTION contains as many of the following: [Colour] - [Pattern] - [Collection] - [Composition] - [Width]'
-			+ '\n\t\t' + '\'webName\': WEBNAME,' + '\t\t' + '// Where WEBNAME contains as many of the following: [Colour] - [Pattern]'
-			+ '\n\t\t' + '\'webDesc\': WEBDESC,' + '\t\t' + '// Where WEBDESC contains as many of the following: [Collection] [Notes] [Fibre] [Width] [Release] [Delivery]'
-			+ '\n\t\t' + '\'delDate\': DELDATE,' + '\t\t' + '// Where DELDATE is "Rec [Short Received Month] [4 Digit Received Year]; Del [Short Delivery Month] [4 Digit Delivery Year]" or an empty string (eg. Rec Mar 2019; Del Jul 2019)'
+			+ '\n\t\t' + '\'webName\': WEBNAME,' + '\t\t\t\t' + '// Where WEBNAME contains as many of the following: [Colour] - [Pattern]'
+			+ '\n\t\t' + '\'webDesc\': WEBDESC,' + '\t\t\t\t' + '// Where WEBDESC contains as many of the following: [Collection] [Notes] [Fibre] [Width] [Release] [Delivery]'
+			+ '\n\t\t' + '\'delDate\': DELDATE,' + '\t\t\t\t' + '// Where DELDATE is "Rec [Short Received Month] [4 Digit Received Year]; Del [Short Delivery Month] [4 Digit Delivery Year]" or an empty string (eg. Rec Mar 2019; Del Jul 2019)'
 			+ '\n\t\t' + '\'purchaseCode\': PURCHASECODE' + '\t' + '// Where PURCHASECODE is the company\'s item code. Must be no greater than 50 characters.'
-			+ '\n\t\t' + '\'webCategory\': WEBCATEGORY' + '\t' + '// Where WEBCATEGORY is the collections category on the Victorian Textiles website. Must be no greater than 25 characters'
+			+ '\n\t\t' + '\'webCategory\': WEBCATEGORY' + '\t\t' + '// Where WEBCATEGORY is the collections category on the Victorian Textiles website. Must be no greater than 25 characters'
 			+ '\n\t' + '}');
 	}
-	WARN_INFO = false;
+	WARN_INFO_FORMATINFO = false;
 	return undefined;
 }
 
