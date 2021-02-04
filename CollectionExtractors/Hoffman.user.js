@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.0.5
+// @version      3.1.0
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
@@ -116,7 +116,7 @@ function formatInformation(itemElement) {
 	let item = getItemObject(itemElement);
 	if (!item) return;
 
-	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + item.ColourName).toUpperCase();
+	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
 	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
 
 	let barCode = formatBarCode(itemCode.replaceAll(' ', '-'));

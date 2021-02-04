@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      4.1.0
+// @version      4.2.0
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -235,10 +235,14 @@ function fixColourName(colourName) {
 	colourName = colourName.replaceAll('-', ' ');   // Remove Dashes
 	colourName = colourName.replaceAll('[.]', ' '); // Remove Periods
 	colourName = colourName.replaceAll('[ ]+', ' ');  // Replace Double Spaces
-	colourName = colourName.replaceAll('Light ', 'Lt ');
-	colourName = colourName.replaceAll('Dark ', 'Dk ');
 	colourName = colourName.replaceAll('Gray', 'Grey');
 	colourName = colourName.toTitleCase();
+	return colourName;
+}
+function shortenColourName(colourName) {
+	colourName = colourName.trim();
+	colourName = colourName.replaceAll('Light ', 'Lt ');
+	colourName = colourName.replaceAll('Dark ', 'Dk ');
 	return colourName;
 }
 
