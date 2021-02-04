@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.3.1
+// @version      3.4.2
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 let isSearch = false;
+let isCollectionPage = false;
 (function () {
 	'use strict';
 	createButtons();
@@ -20,7 +21,7 @@ let isSearch = false;
 	isSearch = !hasParam(window.location.search, 'Category');
 })();
 
-let hoffmanRegEx = /(([A-z]{1,2}|[A-z]{3})?([0-9]+))-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
+let hoffmanRegEx = /(([A-z]{1,3})?([0-9]+))-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
 let RegexEnum = {
 	'Collection': 1,
 	'CollectionPrefix': 2,
@@ -43,10 +44,19 @@ function getTitleElement() {
 
 function getCollection() {
 	let collection = document.querySelectorAll('div.page > div.container > .masonbox.masoncol5');
+	if (!collection || collection.length < 1) {
+		collection = document.querySelectorAll('body > div.container > .masonbox.masoncol4');
+		isCollectionPage = collection.length > 0;
+	}
 	return collection;
 }
 
 function getItemObject(item) {
+	if (isCollectionPage) {
+		let collElement = item.querySelector('div[style*="font-weight: bold"] > a');
+		return { 'CollectionName': collElement.innerText.trim() };
+	}
+
 	let codeElement = item.querySelector('span:nth-child(3)');
 	let givenCode = (codeElement ? codeElement.innerText : item.innerText).trim().toUpperCase();
 	if (givenCode && givenCode.trim().length < 1) {
@@ -121,6 +131,10 @@ function formatInformation(itemElement) {
 	let item = getItemObject(itemElement);
 	if (!item) return;
 
+	if (isCollectionPage) {
+		return { 'description': item.CollectionName };
+	}
+	
 	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
 	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
 
@@ -164,7 +178,8 @@ function formatInformation(itemElement) {
 // http://hoffmancaliforniafabrics.net/fabricshop/categories/546/thumbs/tn_9500-01.jpg
 // http://hoffmancaliforniafabrics.net/fabricshop/categories/546/media/9500-01.jpg
 function formatImage(item) {
-	let result = item.querySelector('img').getAttribute('src');
+	let imgElement = item.querySelector('img')
+	let result = imgElement ? imgElement.getAttribute('src') : '';
 	result = result.replaceAll(/(thumbs\/)(tn_)?/, 'media\/');
 	return result;
 }
