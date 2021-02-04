@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      3.2.0
+// @version      4.0.0
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -43,8 +43,6 @@ function getTitleElement() {
 function getTitle() {
 	let elem = getTitleElement();
 	let title = isSearch ? getParam(window.location.search, 'search-key') : formatTitle(_getTitle(elem));
-	// 'Search Results For Cd8776:'
-	//title = isSearch ? title.substring(0, title.length - 1).replace('Search Results For ', '') : title;
 	return title;
 }
 
@@ -88,41 +86,50 @@ let collections = {
 	'SOHO': { 'title': 'Soho Basic', 'desc': 'Solid' },
 };
 
-function formatInformation(item) {
-	let title = getTitle();
-	let company = getCompany();
-
-	let descElement = isStella ? item.querySelector('td.ItemsListingInfo span.CustomeFieldFormatB') : item.querySelector('td.ItemsListingInfo span.CustomeFieldFormatR');
+function getItemObject(item) {
 	let codeElements = isStella ? item.querySelectorAll('td.ItemsListingInfo > table td') : item.querySelectorAll('td.ItemsListingInfo span.CustomeFieldFormatB');
-
-	if (!codeElements || !descElement || codeElements.length < 2) {
-		Notify.log('One or More Elements Not Found!', item);
+	if (!codeElements || codeElements.length < 2) {
+		Notify.log('Code elements not found!', item);
 		return;
 	}
 	let givenCode = codeElements[0].innerText.trim().toUpperCase();
-	let collectionFuzz = givenCode.substring(0, givenCode.indexOf('-'));
-	let collectionCode = givenCode.substring(givenCode.indexOf('-') + 1);
-	let givenColour = codeElements[1].innerText.trim();
-	let givenDesc = descElement.innerText.trim();
-
+	
 	let isTonga = (collectionFuzz.indexOf('TONGA') >= 0);
 
 	let prefix = isStella ? 'DS ' : isTonga ? 'JN ' : 'TT';
-	let itemCode = '';
-	let barCode = '';
-	let purchaseCode = '';
-	let material = 'C100%';
-	let width = 'W45in';
-	let special = '';
 
+	let collectionFuzz = givenCode.substring(0, givenCode.indexOf('-'));
+	let collectionCode = givenCode.substring(givenCode.indexOf('-') + 1);
+
+	let colourCode = '';
+
+	let colourName = codeElements[1].innerText.trim();
+	if (colourName && colourName.length > 0) {
+		colourName = fixColourName(colourName);
+		colourName = colourName.trim().toTitleCase(false);
+	}
+
+	let purchaseCode = formatPurchaseCode(givenCode + '-' + colourName);
+
+	let descElement = isStella ? item.querySelector('td.ItemsListingInfo span.CustomeFieldFormatB') : item.querySelector('td.ItemsListingInfo span.CustomeFieldFormatR');
+	if (!descElement) {
+		Notify.log('Description element not found!', item);
+		return;
+	}
+	let givenDesc = descElement.innerText.trim();
+	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
+
+	let title = '';
+	let special = '';
 	if (collections.hasOwnProperty(collectionCode)) {
 		if (CONFIG_IGNORE_BASICS && title !== collections[collectionCode].title) return undefined;
 		title = collections[collectionCode].title;
-		givenDesc = collections[collectionCode].desc;
+		patternName = collections[collectionCode].desc;
 	}
 
-	let colourCode = givenCode + '-' + givenColour;
-	purchaseCode = formatPurchaseCode(colourCode);
+	let material = 'C100%';
+	let width = 'W45in';
+	let repeat = '';
 
 	if (isStella) {
 		if (givenCode[0].toUpperCase() == 'W' && givenCode[1].toUpperCase() != 'W') {
@@ -142,8 +149,6 @@ function formatInformation(item) {
 			prefix += 'P';
 		}
 	} else {
-		collectionFuzz;
-
 		if (collectionFuzz === 'HUE') {
 			if (givenColour.toUpperCase() === 'BLACK' || givenColour.toUpperCase() === 'WHITE') {
 				title = givenColour + 'out';
@@ -166,26 +171,47 @@ function formatInformation(item) {
 		}
 	}
 
+	let dates = getReleaseDates();
+
+	return {
+		'Prefix': prefix,
+		'CollectionCode': collectionCode,
+		'ColourCode': colourCode,
+		'ColourName': colourName,
+		'PurchaseCode': purchaseCode,
+		'PatternName': patternName,
+		'CollectionName': title,
+		'SpecialNotes': special,
+		'Material': material,
+		'Width': width,
+		'Repeat': repeat,
+		'ReleaseDates': dates,
+		'CollectionFuzz': collectionFuzz,
+	};
+}
+
+function formatInformation(itemElement) {
+	let item = getItemObject(itemElement);
+	if (!item) return;
+
+	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + item.ColourName).toUpperCase();
+	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
+
+	let barCode = formatBarCode(itemCode);
+
+	let company = getCompany();
+	let widthString = item.Width.Measurement + item.Width.Unit;
+	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+
+	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
+
+	let relDateString = toReleaseString(item.ReleaseDates);
+	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	let delDateString = toDeliveryString(item.ReleaseDates);
+
 	let webCategory = isStella || isTonga ? title : 'TT ' + collectionFuzz.toTitleCase();
 
-	let colourName = '';
-	if (givenColour && givenColour.length > 0) {
-		colourName = fixColourName(givenColour);
-	}
-
-	itemCode = formatItemCode(prefix, collectionCode + ' ' + colourName).toUpperCase();
-	barCode = formatBarCode(itemCode);
-
-	let webName = colourName.trim().toTitleCase() + ' - ' + givenDesc.replaceAll('["″]', 'in').toTitleCase();
-	let webDesc = material + ' - ' + width;
-	if (special && special !== '') webDesc = special + ' - ' + webDesc;
-	if (title.toUpperCase() !== givenDesc.toUpperCase()) webDesc = title + ' - ' + webDesc;
-
-	let description = webName + ' - ' + webDesc;
-
-	let delDate = getDeliveryString();
-
-	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode, 'webCategory': webCategory };
+	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': webCategory };
 	return result;
 }
 
