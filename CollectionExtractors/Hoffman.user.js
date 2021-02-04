@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.0.3
+// @version      3.0.4
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
@@ -125,7 +125,7 @@ function formatInformation(itemElement) {
 	let widthString = item.Width.Measurement + item.Width.Unit;
 	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company === 'Studio E') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
 
-	let collectionName = title;
+	let collectionName = item.CollectionName;
 	switch (collectionCode) {
 		case '839':
 			collectionName = 'Bali Mottles';
