@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      3.0.2
+// @version      3.0.3
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php?a=sc&Category=*
@@ -84,6 +84,8 @@ function getItemObject(item) {
 		purchaseCode = purchaseCode.replaceAll('-' + matches[RegexEnum.ColourName].toUpperCase(), '');
 	}
 	purchaseCode = formatPurchaseCode(purchaseCode.trim());
+
+	let patternName = '';
 
 	let title = getTitle();
 	let special = '';
