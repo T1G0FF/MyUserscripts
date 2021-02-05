@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Stof
 // @namespace    http://www.tgoff.me/
-// @version      2.0
+// @version      3.0.0
 // @description  Gets the names and codes from a Stof Collection
 // @author       www.tgoff.me
 // @match        *://www.stoffabrics.com/theme/*
 // @match        *://www.stoffabrics.com/collection/*
 // @match        *://www.stoffabrics.com/catalogsearch/result/*
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
 // @runat        document-idle
@@ -18,6 +18,12 @@
 	'use strict';
 	createButtons();
 })();
+
+let stofRegEx = /([0-9]+)-([0-9]+)/;
+let RegexEnum = {
+	'Collection': 1,
+	'ColourCode': 2,
+};
 
 function getCompany() {
 	let company = 'Stof';
@@ -34,30 +40,13 @@ function getCollection() {
 	return collection;
 }
 
-let stofRegEx = /([0-9]+)-([0-9]+)/;
-let RegexEnum = {
-	'Collection': 1,
-	'ColourCode': 2,
-};
-
-function formatInformation(item) {
-	let title = getTitle();
-	let company = getCompany();
+function getItemObject(item) {
 	let codeElement = item.querySelector('#grid-sku');
-	let descElement = item.querySelector('.product-name > a');
-	if (!codeElement || !descElement) {
-		Notify.log('One or More Elements Not Found!', item);
+	if (!codeElement) {
+		Notify.log('Code element not found!', item);
 		return;
 	}
-
-	let givenCode = codeElement.innerText.toUpperCase();
-	let givenDesc = descElement.innerText;
-
-	let itemCode = '';
-	let barCode = '';
-	let purchaseCode = '';
-	let material = 'C100%';
-	let width = 'W112cm';
+	let givenCode = codeElement.innerText.trim().toUpperCase();
 
 	stofRegEx.lastIndex = 0;
 	let matches = stofRegEx.exec(givenCode);
@@ -66,23 +55,68 @@ function formatInformation(item) {
 		return;
 	}
 
+	let prefix = ''; // Stof has no prefix
+
 	let collectionCode = matches[RegexEnum.Collection];
+
 	let colourCode = padWithZeros(matches[RegexEnum.ColourCode], 3);
 
-	// Stof has no prefix
-	itemCode = formatItemCode('', collectionCode + ' ' + colourCode);
-	barCode = formatBarCode(itemCode);
-	purchaseCode = formatPurchaseCode(givenCode);
+	let colourName = '';
 
-	let nameString = givenDesc.toTitleCase().replaceAll(collectionCode, '').trim();
+	let purchaseCode = formatPurchaseCode(givenCode.trim());
 
-	let webName = givenDesc.replaceAll('["]', 'in').toTitleCase();
-	let webDesc = nameString + ' - ' + material + ' - ' + width;
-	let description = 'Stof ' + webName + ' - ' + webDesc;
+	let descElement = item.querySelector('.product-name > a');
+	if (!descElement) {
+		Notify.log('Description element not found!', item);
+		return;
+	}
+	let givenDesc = descElement.innerText.trim();
+	let patternName = '';
 
-	let delDate = 'Not Given' - getDeliveryString();
+	let title = givenDesc.toTitleCase().replaceAll(collectionCode, '').trim();
+	let special = '';
 
-	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
+	let material = 'C100%';
+	let width = { 'Measurement': '112', 'Unit': 'cm' };
+	let repeat = '';
+
+	let dates = getReleaseDates();
+
+	return {
+		'Prefix': prefix,
+		'CollectionCode': collectionCode,
+		'ColourCode': colourCode,
+		'ColourName': colourName,
+		'PurchaseCode': purchaseCode,
+		'PatternName': patternName,
+		'CollectionName': title,
+		'SpecialNotes': special,
+		'Material': material,
+		'Width': width,
+		'Repeat': repeat,
+		'ReleaseDates': dates,
+	};
+}
+
+function formatInformation(itemElement) {
+	let item = getItemObject(itemElement);
+	if (!item) return;
+
+	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + item.ColourCode);
+
+	let barCode = formatBarCode(itemCode);
+
+	let company = getCompany();
+	let widthString = item.Width.Measurement + item.Width.Unit;
+	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': company + ' ' + item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+
+	let webName = item.CollectionName.replaceAll('["″]', 'in').toTitleCase();
+
+	let relDateString = toReleaseString(item.ReleaseDates);
+	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	let delDateString = 'Not Given - ' + toDeliveryString(item.ReleaseDates);
+
+	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': item.CollectionName };
 	return result;
 }
 
