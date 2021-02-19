@@ -2,10 +2,11 @@
 // @name         VicText Collection Extractor - Quiltworx / Judy Niemeyer Quilting
 // @namespace    http://www.tgoff.me/
 // @version      1.0.0
-// @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
+// @description  Gets the names and codes from Quiltworx
 // @author       www.tgoff.me
 // @match        *://quiltworx.com/patterns/*
 // @match        *://www.quiltworx.com/patterns/*
+// @noframes
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
@@ -105,18 +106,20 @@ async function scrapeItemInfo(item) {
 		ScraperIFrame.style.visibility = 'visible';
 		ScraperIFrame.src = item.getAttribute('href');
 		ScraperIFrame.addEventListener("load", function () {
-			let doc;
-			do {
-				doc = ScraperIFrame.contentDocument;
-			} while (doc == null);
-			let rows = doc.querySelectorAll('form.search_results_section table.v65-productDisplay table.v65-productDisplay > tbody > tr');
+			if (ScraperIFrame.src != 'about:blank') {
+				let doc;
+				do {
+					doc = ScraperIFrame.contentDocument;
+				} while (doc == null);
+				let rows = doc.querySelectorAll('form.search_results_section table.v65-productDisplay table.v65-productDisplay > tbody > tr');
 
-			if (rows.length > 0 && rows.length % 6) {
-				//let link = img.getAttribute('data-src');
-				returnedData = rows;
-				ScraperIFrame.src = 'about:blank';
-				ScraperIFrame.style.visibility = 'hidden';
-				resolve();
+				if (rows.length > 0 && rows.length % 6) {
+					//let link = img.getAttribute('data-src');
+					returnedData = rows;
+					ScraperIFrame.src = 'about:blank';
+					ScraperIFrame.style.visibility = 'hidden';
+					resolve();
+				}
 			}
 		});
 	});
