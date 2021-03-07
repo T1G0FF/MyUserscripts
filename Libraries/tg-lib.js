@@ -302,6 +302,9 @@ function initDropdownContainer(element, direction = 'right') {
 	}
 	if (!dropdownContainers[element]) {
 		let dropdownContainer = document.createElement('span');
+		dropdownContainer.style.float = 'none';
+		dropdownContainer.style.padding = '2px 10px';
+		dropdownContainer.style.whiteSpace = 'nowrap';
 		dropdownContainer.classList.add('tg-dropdown-container');
 		switch (direction) {
 			case 'down':
@@ -342,6 +345,8 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 	let inputContainer = initDropdownContainer(locationElement);
 	if (showIf) {
 		let thisContainer = document.createElement('span');
+		thisContainer.style.float = 'none';
+		thisContainer.style.padding = '2px 10px';
 		thisContainer.style.whiteSpace = 'nowrap';
 
 		if (Array.isArray(elementsToAdd)) {
