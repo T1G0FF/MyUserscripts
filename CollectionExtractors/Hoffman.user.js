@@ -17,7 +17,7 @@ let isCollectionPage = false;
 (function () {
 	'use strict';
 	createButtons();
-	createButton('Sort Codes', sortSearch, getTitleElement(), 'beforeEnd');
+	createButton('Sort Codes', sortCollection, getTitleElement(), 'beforeEnd');
 	isSearch = !hasParam(window.location.search, 'Category');
 })();
 
@@ -184,10 +184,13 @@ function formatImage(item) {
 	return result;
 }
 
-let sortDirection = -1;
-function sortSearch() {
-	let itemContainer = document.querySelector('body > div:nth-child(5) > div:nth-child(3)');
-	let itemList = Array.from(getCollection());
+let sortDirection = 1;
+function sortCollection() {
+	_sortCollection(document.querySelector('body > div:nth-child(5) > div:nth-child(3)'));
+}
+
+async function _sortCollection(itemContainer) {
+	let itemList = Array.from(await getCollection());
 	itemList.sort(function (a, b) {
 		let result = 0;
 		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * sortDirection;
@@ -195,11 +198,20 @@ function sortSearch() {
 	});
 	sortDirection *= -1;
 
-	itemContainer.innerHtml = '';
+	var children = itemContainer.children;
+	for (let i = children.length - 1; i >= 0; i--) {
+		var child = children[i];
+		// Do stuff
+		if (itemList.includes(child)) {
+			itemContainer.removeChild(child);
+		}
+	}
 
-	for (var i = itemList.length - 1; i >= 0; i--) {
+	//itemContainer.innerHTML = '';
+
+	for (let i = itemList.length - 1; i >= 0; i--) {
 		let itemOut = itemList[i];
-		itemContainer.appendChild(itemOut);
+		itemContainer.insertAdjacentElement('afterBegin', itemOut);
 	}
 }
 
