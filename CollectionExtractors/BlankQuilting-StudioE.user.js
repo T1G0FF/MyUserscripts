@@ -42,7 +42,7 @@ function getTitleElement() {
 	return titleElement;
 }
 
-function getTitle() {
+function ) {
 	let elem = isSearch ? document.querySelector('div.snize-search-results-header > a.snize-no-products-found-link') : getTitleElement();
 	let title = formatTitle(_getTitle(elem));
 	return title;
@@ -123,7 +123,7 @@ function getItemObject(item) {
 	let givenDesc = descElement.innerText.trim();
 	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let special = '';
 	if (title.indexOf(' - ') > 0) {
 		let dash = title.indexOf(' - ');

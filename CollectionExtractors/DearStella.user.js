@@ -38,7 +38,7 @@ function getAvailabilityDate() {
 	if (info) {
 		let matches = monthYearRegEx.exec(info.innerText);
 		if (!matches || matches.length <= 1) {
-			Notify.log('No Date found for Collection!', getTitle());
+			Notify.log('No Date found for Collection!', getFormattedTitle());
 		} else {
 			return matches[dateRegexEnum.Month] + ' ' + matches[dateRegexEnum.Year];
 		}
@@ -60,7 +60,7 @@ let RegexEnum = {
 };
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 	let givenName = item.querySelector('hgroup > h4').innerText.toTitleCase();
 	let givenColour = fixColourName(item.querySelector('hgroup > h5').innerText);
@@ -137,7 +137,9 @@ function formatInformation(item) {
 		description = givenColour.toTitleCase(false) + ' - ' + givenName + ' - ' + material + ' - ' + width;
 	}
 
-	let delDate = getDeliveryString();
+	let dates = getReleaseDates(availDate, delDelay);
+	let delDate = toDeliveryString(dates);
+
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;
 }

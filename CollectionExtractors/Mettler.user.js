@@ -75,7 +75,7 @@ function getLength() {
 }
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 	let givenName = getArticle();
 	let givenColour = item.getAttribute('data-colorname').toTitleCase();
@@ -92,7 +92,7 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + length;
 	let description = webName + ' - ' + webDesc;
 
-	let delDate = '';//getDeliveryString();
+	let delDate = '';//toDeliveryString(getReleaseDates(availDate, delDelay))();
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;
 }

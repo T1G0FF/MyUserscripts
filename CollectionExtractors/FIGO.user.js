@@ -29,7 +29,7 @@ function getTitleElement() {
 }
 
 // Override because FIGO doesn't display the title in text form anywhere.
-function getTitle() {
+function getFormattedTitle() {
 	let src = getTitleElement().querySelector('img').getAttribute('src');
 	let FIGOTitleRegEx = /(?:images\/colorwaybanners\/)(?:[0-9]+)_(.*?)_(?:Web|2220x384)?/;
 	let matches = FIGOTitleRegEx.exec(src);
@@ -74,7 +74,7 @@ let RegexEnum = {
 };
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 
 	let codeElement = item.querySelector('.product-number');
@@ -126,7 +126,8 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + width;
 	let description = webName + ' - ' + webDesc;
 
-	let delDate = getDeliveryString();
+	let dates = getReleaseDates(availDate, delDelay);
+	let delDate = toDeliveryString(dates);
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;

@@ -26,7 +26,7 @@ function getTitleElement() {
 	return titleElement;
 }
 
-function getTitle() {
+function getFormattedTitle() {
 	let title = getTitleElement().querySelector('img').getAttribute('alt');
 	return formatTitle(title);
 }
@@ -88,7 +88,7 @@ let colours = {
 }
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 	let codeElement = item.querySelector('.textile_code');
 	let noteElement = item.querySelector('.textile_note');
@@ -142,7 +142,7 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + width;
 	let description = webName + ' - ' + webDesc;
 
-	let delDate = 'Not Given - ' + getDeliveryString();
+	let delDate = 'Not Given - ' + toDeliveryString(getReleaseDates(availDate, delDelay))();
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;

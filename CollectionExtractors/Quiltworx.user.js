@@ -30,7 +30,7 @@ function getTitleElement() {
 }
 
 function getAvailabilityDate() {
-	//Notify.log('No Date found for Collection!', getTitle());
+	//Notify.log('No Date found for Collection!', getFormattedTitle());
 	return undefined;
 }
 

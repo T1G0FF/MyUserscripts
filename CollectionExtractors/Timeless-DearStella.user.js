@@ -41,14 +41,13 @@ function getTitleElement() {
 	return titleElement;
 }
 
-function getTitle() {
-	let elem = getTitleElement();
-	let title = isSearch ? getParam(window.location.search, 'search-key') : formatTitle(_getTitle(elem));
+function getFormattedTitle() {
+	let title = isSearch ? getParam(window.location.search, 'search-key') : formatTitle(getTitle(getTitleElement()));
 	return title;
 }
 
 function getAvailabilityDate() {
-	//Notify.log('No Date found for Collection!', getTitle());
+	//Notify.log('No Date found for Collection!', getFormattedTitle());
 	return undefined;
 }
 
@@ -120,7 +119,7 @@ function getItemObject(item) {
 	let givenDesc = descElement.innerText.trim();
 	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let special = '';
 	if (collections.hasOwnProperty(collectionCode)) {
 		if (CONFIG_IGNORE_BASICS && title !== collections[collectionCode].title) return undefined;

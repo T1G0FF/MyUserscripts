@@ -33,7 +33,7 @@ function getCollection() {
 }
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 
 	let givenName = item.querySelector('.grid-link__title').innerText;
@@ -49,7 +49,7 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + width;
 	let description = webName + ' - ' + webDesc;
 
-	let delDate = "Not Given - " + getDeliveryString();
+	let delDate = "Not Given - " + toDeliveryString(getReleaseDates(availDate, delDelay))();
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;

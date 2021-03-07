@@ -69,7 +69,7 @@ let RegexEnum = {
 };
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 
 	let givenCode = item.getAttribute('alt');
@@ -117,7 +117,8 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + width;
 	let description = webName + ' - ' + webDesc;
 
-	let delDate = getDeliveryString();
+	let dates = getReleaseDates(availDate, delDelay);
+	let delDate = toDeliveryString(dates);
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;

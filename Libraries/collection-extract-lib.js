@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      5.0.1
+// @version      5.1.0
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -61,15 +61,15 @@ function getTitleElement() {
 	return undefined;
 }
 
-// TODO Replace this with getFormattedTitle or remove entirely.
+// Gets title without any formatting so that you can do your own formatting.
 function getTitle(titleElement = getTitleElement()) {
-	return formatTitle(_getTitle(titleElement));
-}
-
-// Gets title without any formatting so that you can do you own formatting.
-function _getTitle(titleElement = getTitleElement()) {
 	let title = !titleElement ? '' : titleElement.innerText.trim();
 	return title;
+}
+
+// Calls formatTitle() on the result of getTitle()
+function getFormattedTitle(titleElement = getTitleElement()) {
+	return formatTitle(getTitle(titleElement));
 }
 
 // Removes strings known to accompany title.
@@ -168,12 +168,6 @@ function getReleaseDates(availDate = getAvailabilityDate(), delDelay = 3) {
 		'Received': recMonth + ' ' + recYear,
 		'Delivery': delMonth + ' ' + delYear,
 	};
-}
-
-// TODO Remove this backwards compatibility.
-function getDeliveryString(availDate = getAvailabilityDate(), delDelay = 3) {
-	let result = getReleaseDate(availDate, delDelay);
-	return toDeliveryString(result);
 }
 
 // Returns release dates in the form used in SAP (eg Rec Mar 2019; Del Jul 2019)

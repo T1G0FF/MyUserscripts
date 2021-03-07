@@ -54,7 +54,7 @@ function getAvailabilityDate() {
 }
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 
 	let givenCode = item.querySelector('.fg-item-inner > a').getAttribute('data-caption-title');
@@ -113,7 +113,8 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + width;
 	description = webName + ' - ' + webDesc;
 
-	let delDate = getDeliveryString();
+	let dates = getReleaseDates(availDate, delDelay);
+	let delDate = toDeliveryString(dates);
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;

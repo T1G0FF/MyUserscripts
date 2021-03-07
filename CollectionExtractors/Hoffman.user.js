@@ -101,7 +101,7 @@ function getItemObject(item) {
 
 	let patternName = '';
 
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let special = '';
 	
 	let material = 'C100%';

@@ -56,7 +56,7 @@ function getCollection() {
 }
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 
 	let descElement = item.querySelector('h3.product-name');

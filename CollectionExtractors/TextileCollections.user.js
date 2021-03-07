@@ -40,7 +40,7 @@ function getCollection() {
 }
 
 function formatInformation(item) {
-	let title = getTitle();
+	let title = getFormattedTitle();
 	let company = getCompany();
 
 	let codeElement = item.querySelector('font[size="1"]');
