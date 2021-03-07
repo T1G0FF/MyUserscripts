@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Quiltsmart
 // @namespace    http://www.tgoff.me/
-// @version      1.0
+// @version      1.1
 // @description  Gets the names and codes from Quiltsmart
 // @author       www.tgoff.me
 // @match        *://quiltsmart.com/shop/*
@@ -45,6 +45,7 @@ function getCollection() {
 	return collection;
 }
 
+let localColl;
 async function formatInformation(item) {
 	let nameElement = item.querySelector('div.cItemTitleDiv p.cItemTitle');
 	if (!nameElement) {
@@ -53,8 +54,10 @@ async function formatInformation(item) {
 	}
 
 	let givenDesc = nameElement.innerText;
-	let coll = getCollection();
-	let givenCode = await scrapeItemInfo(item, item == coll[coll.length-1]);
+	localColl = localColl == undefined ? getCollection() : localColl;
+	let coll = localColl;
+	let info = await scrapeItemInfo(item, item == coll[coll.length - 1]);
+	let givenCode = info.sku;
 	let itemCode = formatItemCode('P-QS', givenCode);
 	let barCode = formatBarCode(itemCode);
 
@@ -66,9 +69,11 @@ async function formatInformation(item) {
 
 // https://media.rainpos.com/8837/58_inch_lone_star_cover.jpg
 // https://media.rainpos.com/8837/58_inch_lone_star_cover.jpg
-function formatImage(item) {
-	let imageUrl = item.querySelector('img.cItemImage').getAttribute('src');
-	return imageUrl;
+async function formatImage(item) {
+	let coll = getCollection();
+	let info = await scrapeItemInfo(item, item == coll[coll.length - 1]);
+	//let imageUrl = item.querySelector('img.cItemImage').getAttribute('src');
+	return info.images;
 }
 
 function addScraperIFrame() {
@@ -101,12 +106,12 @@ async function scrapeItemInfo(item, lastCall) {
 
 	let info = getLinkAndID(item);
 
-	let returnedData;
+	let returnedData = {};
 	const scraperLoadPromise = new Promise(resolve => {
 		ScraperIFrame.style.visibility = 'visible';
 		ScraperIFrame.src = info.Link;
 		if (ScraperIFrame.contentWindow) {
-			ScraperIFrame.contentWindow.onerror = () => {};
+			ScraperIFrame.contentWindow.onerror = () => { };
 		}
 		ScraperIFrame.addEventListener("load", function () {
 			if (ScraperIFrame.src != 'about:blank') {
@@ -117,7 +122,9 @@ async function scrapeItemInfo(item, lastCall) {
 
 				if (ScraperIFrame.contentWindow['prices' + info.ID]) {
 					let givenCode = ScraperIFrame.contentWindow['prices' + info.ID]['0']['sku'];
-					returnedData = givenCode;
+					returnedData['sku'] = givenCode;
+					let imgElements = doc.querySelectorAll('div[id*="pImgImg"] img');
+					returnedData['images'] = Array.from(imgElements).map(i => i.getAttribute('src').replace('THUMB_', ''));
 
 					if (lastCall) {
 						ScraperIFrame.src = 'about:blank'; // This counts against our navigation count, so only do it once at the end.
