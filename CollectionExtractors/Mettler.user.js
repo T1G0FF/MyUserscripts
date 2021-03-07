@@ -92,7 +92,7 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + length;
 	let description = webName + ' - ' + webDesc;
 
-	let delDate = '';//toDeliveryString(getReleaseDates(availDate, delDelay))();
+	let delDate = '';//toDeliveryString(getReleaseDates());
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;
 }

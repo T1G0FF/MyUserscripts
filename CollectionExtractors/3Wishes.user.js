@@ -131,7 +131,7 @@ function formatInformation(item) {
 	let webDesc = material + ' - ' + width;
 	let description = webName + ' - ' + webDesc;
 
-	let delDate = "Not Given - " + toDeliveryString(getReleaseDates(availDate, delDelay))();
+	let delDate = "Not Given - " + toDeliveryString(getReleaseDates());
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
 	return result;
