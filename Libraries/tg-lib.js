@@ -346,7 +346,7 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 		let thisContainer = document.createElement('span');
 		thisContainer.style.float = 'none';
 		thisContainer.style.padding = '2px 0px';
-		dropdownContainer.style.fontSize = 'unset';
+		thisContainer.style.fontSize = 'unset';
 		thisContainer.style.whiteSpace = 'nowrap';
 
 		if (Array.isArray(elementsToAdd)) {
