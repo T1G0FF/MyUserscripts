@@ -7,7 +7,7 @@
 // @match        *://www.amann-mettler.com/en/products/details/*
 // @match        *://amann-mettler.com/en/products/details/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
-// @require      http://tgoff.me/tamper-monkey/fabric-dump-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
 // @runat        document-idle
