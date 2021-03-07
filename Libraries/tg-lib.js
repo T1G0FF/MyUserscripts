@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      5.1.0
+// @version      5.1.2
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -204,6 +204,7 @@ function initDropdownContainer(element, direction = 'right') {
 	display: inline-flex;
 	margin: 0.5rem;
 	padding: 2px 0px;
+	font-size: unset;
 }
 
 .tg-dropdown-button, .tg-dropdown-option {
