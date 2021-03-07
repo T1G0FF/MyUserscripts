@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      5.0.0
+// @version      5.0.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -82,6 +82,7 @@ function formatTitle(title) {
 	title = title.replaceAll('Copy HTML', '');
 	title = title.replaceAll('Save Images', '');
 	title = title.replaceAll('Sort Codes', '');
+	title = title.replaceAll('Options', '');
 	if (window.location.hostname.includes('stoffabrics')) {
 		let StofSearchExtractRegEx = /Search results for '(.*)'/;
 		title = title.replaceAll(StofSearchExtractRegEx, '$1');
