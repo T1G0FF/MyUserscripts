@@ -198,12 +198,20 @@ function initDropdownContainer(element, direction = 'right') {
 	if (!element) return;
 	if (!dropdownContainers) {
 		let cssText = `
+/* The container <div> - needed to position the dropdown content */
+.tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
+	position: relative;
+	display: inline-flex;
+	margin: 0.5rem;
+	padding: 2px 0px;
+}
+
 .tg-dropdown-button, .tg-dropdown-option {
 	background: #000000;
 	color: #ECF0F1;
 	border: none;
-	padding: 2px 10px;
-	margin: 0px 2px;
+	padding: 2px 0px;
+	margin: 0px 0px 2px 0px;
 	text-transform: capitalize;
 	letter-spacing: 1px;
 	font-weight: 700;
@@ -230,13 +238,6 @@ function initDropdownContainer(element, direction = 'right') {
 
 }
 
-/* The container <div> - needed to position the dropdown content */
-.tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
-	position: relative;
-	display: inline-flex;
-	margin: 0.5rem;
-}
-
 .tg-dropdown-menu {
 	position: absolute;
 	top: 100%;
@@ -253,9 +254,8 @@ function initDropdownContainer(element, direction = 'right') {
 	list-style: none;
 	background-color: #212529;
 	background-clip: padding-box;
-	border: 1px solid rgba(0,0,0,0.15);
 	border-radius: 0.25rem;
-	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+	box-shadow: 4px 4px 4px 0px rgba(0,0,0,0.6);
 }
 
 .tg-dropleft .tg-dropdown-menu {
@@ -304,7 +304,6 @@ function initDropdownContainer(element, direction = 'right') {
 		let dropdownContainer = document.createElement('span');
 		dropdownContainer.style.float = 'none';
 		dropdownContainer.style.padding = '2px 10px';
-		dropdownContainer.style.whiteSpace = 'nowrap';
 		dropdownContainer.classList.add('tg-dropdown-container');
 		switch (direction) {
 			case 'down':
