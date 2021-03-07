@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      5.1.0
+// @version      5.1.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -295,7 +295,7 @@ async function copyHTML() {
 }
 
 async function getImageLinks(collection) {
-	let imageHtml = '<html>\n<body>\n<hr><h1>' + getTitle() + '</h1>\n';
+	let imageHtml = '<html>\n<body>\n<hr><h1>' + getFormattedTitle() + '</h1>\n';
 	let count = 0;
 	for (let item in collection) {
 		let currentItem = collection[item];
