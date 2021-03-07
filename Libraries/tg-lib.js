@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      4.7.0
+// @version      5.1.0
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -146,6 +146,12 @@ function isNumeric(obj) {
 	return !isArray(obj) && (realStringObj - parseFloat(realStringObj) + 1) >= 0;
 }
 
+function isElement(obj) {
+	return (typeof HTMLElement === "object" ? obj instanceof HTMLElement : //DOM2
+		obj && typeof obj === "object" && obj !== null && obj.nodeType === 1 && typeof obj.nodeName === "string"
+	);
+}
+
 function stripParams(path) {
 	return path.split('?')[0];
 }
@@ -185,6 +191,180 @@ function handleEvent(func, params) {
 	return function(e) {
 		func(e, params);
 	};
+}
+
+var dropdownContainers = undefined;
+function initDropdownContainer(element, direction = 'right') {
+	if (!dropdownContainers) {
+		let cssText = `
+.tg-dropdown-button, .tg-dropdown-option {
+    background: #000000;
+    color: #ECF0F1;
+    padding: 5px 20px 5px 10px;
+	text-transform: capitalize;
+	letter-spacing: 1px;
+	font-weight: 700;
+	font-family: Helvetica;
+	font-size: 15px;
+	outline: none;
+	min-width: 150px;
+	max-width: 150px;
+	white-space: pre-line;
+	border-radius: 5px;
+}
+
+.tg-dropdown-button:hover, .tg-dropdown-option:hover {
+	background: #32127A;
+	color: #FFFFFF;
+}
+
+.tg-dropdown-button:active, .tg-dropdown-option:active {
+	background: #4B0082;
+}
+
+.tg-dropdown-option {
+
+}
+
+/* The container <div> - needed to position the dropdown content */
+.tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
+    position: relative;
+    display: inline-flex;
+    margin: 0.5rem;
+}
+
+.tg-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    display: none;
+    float: left;
+    min-width: 10rem;
+    padding: 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #212529;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 0.25rem;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+}
+
+.tg-dropleft .tg-dropdown-menu {
+    top: 0;
+    right: 100%;
+    left: auto;
+    margin-top: 0;
+    margin-right: 0.125rem;
+}
+
+.tg-dropright .tg-dropdown-menu {
+	top: 0;
+	right: auto;
+	left: 100%;
+	margin-top: 0;
+	margin-left: 0.125rem;
+}
+
+.tg-dropup .tg-dropdown-menu {
+	top: auto;
+	bottom: 100%;
+	margin-top: 0;
+	margin-bottom: 0.125rem;
+}
+
+.show {
+	display:block !important;
+}
+`;
+		MyStyles.addStyle('DropdownCSS', cssText);
+		window.onclick = function (event) {
+			var dropdowns = document.getElementsByClassName('tg-dropdown-menu');
+			if (!event.target.matches('.tg-dropdown-button') && !Array.from(dropdowns).some(i => i.contains(event.target))) {
+				var i;
+				for (i = 0; i < dropdowns.length; i++) {
+					var openDropdown = dropdowns[i];
+					if (openDropdown.classList.contains('show')) {
+						openDropdown.classList.remove('show');
+					}
+				}
+			}
+		}
+		dropdownContainers = {};
+	}
+	if (!dropdownContainers[element]) {
+		let dropdownContainer = document.createElement('span');
+		dropdownContainer.classList.add('tg-dropdown-container');
+		switch (direction) {
+			case 'down':
+				dropdownContainer.classList.add('tg-dropdown');
+				break;
+			case 'left':
+				dropdownContainer.classList.add('tg-dropleft');
+				break;
+			default:
+			case 'right':
+				dropdownContainer.classList.add('tg-dropright');
+				break;
+			case 'up':
+				dropdownContainer.classList.add('tg-dropup');
+				break;
+		}
+
+		let dropdownMenu = document.createElement('div');
+		dropdownMenu.classList.add('tg-dropdown-menu');
+
+		let dropdownButton = document.createElement('button');
+		dropdownButton.classList.add('tg-dropdown-button');
+		dropdownButton.innerText = 'Options';
+		dropdownButton.onclick = function () { dropdownMenu.classList.toggle('show'); };
+
+		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownButton);
+		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownMenu);
+		element.insertAdjacentElement('beforeEnd', dropdownContainer);
+
+		dropdownContainers[element] = dropdownMenu;
+	}
+	return dropdownContainers[element];
+}
+
+function addElementToDropdownContainer(locationElement, elementsToAdd, location = 'beforeEnd', showIf = true) {
+	if (locationElement) {
+		let inputContainer = initDropdownContainer(locationElement);
+		if (showIf) {
+			let thisContainer = document.createElement('span');
+			thisContainer.style.whiteSpace = 'nowrap';
+
+			if (Array.isArray(elementsToAdd)) {
+				for (let i in elementsToAdd) {
+					let obj = elementsToAdd[i];
+					if (isElement(obj)) {
+						thisContainer.insertAdjacentElement('beforeEnd', obj);
+					}
+				}
+			} else {
+				if (isElement(elementsToAdd)) {
+					thisContainer.insertAdjacentElement('beforeEnd', elementsToAdd);
+				}
+			}
+			inputContainer.insertAdjacentElement(location, thisContainer);
+		}
+	}
+}
+
+function createButton(text, func, element, location = 'beforeEnd', showIf = true) {
+	if (showIf) {
+		let newButton = document.createElement('button');
+		newButton.innerText = text;
+		newButton.classList.add('tg-dropdown-option');
+		newButton.onclick = function () { func(); };
+
+		addElementToDropdownContainer(element, newButton, location, showIf);
+	}
 }
 
 HTMLElement.prototype.addClass = function(classes) {
