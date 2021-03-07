@@ -1,50 +1,23 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      4.3.0
+// @version      5.0.0
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
 // ==/UserScript==
 
-let CONFIG_ADD_COPYINFO = true;
-let CONFIG_ADD_COPYHTML = true;
-let CONFIG_ADD_SAVEIMGS = !true;
+const CONFIG = {
+	'ADD_COPYINFO': true,
+	'ADD_COPYHTML': true,
+	'ADD_SAVEIMGS': !true,
+}
 
 // Creates default buttons used by all.
 function createButtons(element = getTitleElement(), location = 'beforeEnd', foreground = 'white', background = 'black') {
-	if (!element) return;
-	let buttonCSS = `
-.tgButton {
-	background-color: ${background};
-	border: none;
-	border-radius: 5px;
-	color: ${foreground};
-	font-family: Helvetica;
-	font-size: 17px;
-	font-weight: bolder;
-	margin: 0px 2px;
-	padding: 2px 10px;
-	position: relative;
-	text-transform: capitalize;
-	vertical-align: middle;
-	width: 125px;
-	z-index: 1;
-}
-`;
-	MyStyles.addStyle('fabricButtons', buttonCSS);
-	if (CONFIG_ADD_COPYINFO) createButton('Copy Info', copyCollection, element, location);
-	if (CONFIG_ADD_COPYHTML) createButton('Copy HTML', copyHTML, element, location);
-	if (CONFIG_ADD_SAVEIMGS) createButton('Save Images', saveImages, element, location);
-}
-
-// Creates a single button with the given parameters.
-function createButton(text, func, element, location = 'beforeEnd') {
-	let newButton = document.createElement('button');
-	newButton.innerText = text;
-	newButton.classList.add('tgButton');
-	newButton.onclick = function () { resetWarnings(); func(); };
-	element.insertAdjacentElement(location, newButton);
+	if (CONFIG.ADD_COPYINFO) createButton('Copy Info', function() { resetWarnings(); copyCollection(); }, element, location);
+	if (CONFIG.ADD_COPYHTML) createButton('Copy HTML', function () { resetWarnings(); copyHTML(); }, element, location);
+	if (CONFIG.ADD_SAVEIMGS) createButton('Save Images', function () { resetWarnings(); saveImages(); }, element, location);
 }
 
 // Resets the Show Warning toggle so that they only show once per button click. 
@@ -126,7 +99,7 @@ function formatTitle(title) {
 }
 
 // This should be redefined for every Collection Extractor.
-let WARN_INFO_ITEMOBJECT = true;
+var WARN_INFO_ITEMOBJECT = true;
 async function getItemObject(item) {
 	if (WARN_INFO_ITEMOBJECT) {
 		console.warn('WARN: Redefine getItemObject(item) such that it returns the following object:'
@@ -149,7 +122,7 @@ async function getItemObject(item) {
 }
 
 // This should be redefined for every Collection Extractor.
-let WARN_INFO_FORMATINFO = true;
+var WARN_INFO_FORMATINFO = true;
 async function formatInformation(itemElement) {
 	if (WARN_INFO_FORMATINFO) {
 		console.warn('WARN: Redefine formatInformation(itemElement) such that it returns the following object:'
