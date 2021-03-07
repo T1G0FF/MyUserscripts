@@ -5,8 +5,8 @@
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
-// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js?token=9461da6511cdd88e73bb62eb66eaa3a0a201bef0
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
 // @runat        document-idle
