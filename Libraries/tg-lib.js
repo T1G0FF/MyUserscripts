@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      5.1.2
+// @version      5.1.3
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -203,8 +203,6 @@ function initDropdownContainer(element, direction = 'right') {
 	position: relative;
 	display: inline-flex;
 	margin: 0.5rem;
-	padding: 2px 0px;
-	font-size: unset;
 }
 
 .tg-dropdown-button, .tg-dropdown-option {
@@ -304,7 +302,8 @@ function initDropdownContainer(element, direction = 'right') {
 	if (!dropdownContainers[element]) {
 		let dropdownContainer = document.createElement('span');
 		dropdownContainer.style.float = 'none';
-		dropdownContainer.style.padding = '2px 10px';
+		dropdownContainer.style.padding = '2px 0px';
+		dropdownContainer.style.fontSize = 'unset';
 		dropdownContainer.classList.add('tg-dropdown-container');
 		switch (direction) {
 			case 'down':
@@ -346,7 +345,8 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 	if (showIf) {
 		let thisContainer = document.createElement('span');
 		thisContainer.style.float = 'none';
-		thisContainer.style.padding = '2px 10px';
+		thisContainer.style.padding = '2px 0px';
+		dropdownContainer.style.fontSize = 'unset';
 		thisContainer.style.whiteSpace = 'nowrap';
 
 		if (Array.isArray(elementsToAdd)) {
