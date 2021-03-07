@@ -195,12 +195,15 @@ function handleEvent(func, params) {
 
 var dropdownContainers = undefined;
 function initDropdownContainer(element, direction = 'right') {
+	if (!element) return;
 	if (!dropdownContainers) {
 		let cssText = `
 .tg-dropdown-button, .tg-dropdown-option {
-    background: #000000;
-    color: #ECF0F1;
-    padding: 5px 20px 5px 10px;
+	background: #000000;
+	color: #ECF0F1;
+	border: none;
+	padding: 2px 10px;
+	margin: 0px 2px;
 	text-transform: capitalize;
 	letter-spacing: 1px;
 	font-weight: 700;
@@ -210,7 +213,8 @@ function initDropdownContainer(element, direction = 'right') {
 	min-width: 150px;
 	max-width: 150px;
 	white-space: pre-line;
-	border-radius: 5px;
+	border-radius: 0.25rem;
+	vertical-align: middle;
 }
 
 .tg-dropdown-button:hover, .tg-dropdown-option:hover {
@@ -228,38 +232,38 @@ function initDropdownContainer(element, direction = 'right') {
 
 /* The container <div> - needed to position the dropdown content */
 .tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
-    position: relative;
-    display: inline-flex;
-    margin: 0.5rem;
+	position: relative;
+	display: inline-flex;
+	margin: 0.5rem;
 }
 
 .tg-dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 100;
-    display: none;
-    float: left;
-    min-width: 10rem;
-    padding: 0;
-    margin: 0.125rem 0 0;
-    font-size: 1rem;
-    color: #212529;
-    text-align: left;
-    list-style: none;
-    background-color: #212529;
-    background-clip: padding-box;
-    border: 1px solid rgba(0,0,0,0.15);
-    border-radius: 0.25rem;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 100;
+	display: none;
+	float: left;
+	min-width: 10rem;
+	padding: 0;
+	margin: 0.125rem 0 0;
+	font-size: 1rem;
+	color: #212529;
+	text-align: left;
+	list-style: none;
+	background-color: #212529;
+	background-clip: padding-box;
+	border: 1px solid rgba(0,0,0,0.15);
+	border-radius: 0.25rem;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
 }
 
 .tg-dropleft .tg-dropdown-menu {
-    top: 0;
-    right: 100%;
-    left: auto;
-    margin-top: 0;
-    margin-right: 0.125rem;
+	top: 0;
+	right: 100%;
+	left: auto;
+	margin-top: 0;
+	margin-right: 0.125rem;
 }
 
 .tg-dropright .tg-dropdown-menu {
@@ -333,30 +337,31 @@ function initDropdownContainer(element, direction = 'right') {
 }
 
 function addElementToDropdownContainer(locationElement, elementsToAdd, location = 'beforeEnd', showIf = true) {
-	if (locationElement) {
-		let inputContainer = initDropdownContainer(locationElement);
-		if (showIf) {
-			let thisContainer = document.createElement('span');
-			thisContainer.style.whiteSpace = 'nowrap';
+	if (!locationElement) return;
+	
+	let inputContainer = initDropdownContainer(locationElement);
+	if (showIf) {
+		let thisContainer = document.createElement('span');
+		thisContainer.style.whiteSpace = 'nowrap';
 
-			if (Array.isArray(elementsToAdd)) {
-				for (let i in elementsToAdd) {
-					let obj = elementsToAdd[i];
-					if (isElement(obj)) {
-						thisContainer.insertAdjacentElement('beforeEnd', obj);
-					}
-				}
-			} else {
-				if (isElement(elementsToAdd)) {
-					thisContainer.insertAdjacentElement('beforeEnd', elementsToAdd);
+		if (Array.isArray(elementsToAdd)) {
+			for (let i in elementsToAdd) {
+				let obj = elementsToAdd[i];
+				if (isElement(obj)) {
+					thisContainer.insertAdjacentElement('beforeEnd', obj);
 				}
 			}
-			inputContainer.insertAdjacentElement(location, thisContainer);
+		} else {
+			if (isElement(elementsToAdd)) {
+				thisContainer.insertAdjacentElement('beforeEnd', elementsToAdd);
+			}
 		}
+		inputContainer.insertAdjacentElement(location, thisContainer);
 	}
 }
 
 function createButton(text, func, element, location = 'beforeEnd', showIf = true) {
+	if (!element) return;
 	if (showIf) {
 		let newButton = document.createElement('button');
 		newButton.innerText = text;
