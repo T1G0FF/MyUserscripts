@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Brewer Sewing
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09_v1.0.0
+// @version      2021.03.09.1
 // @description  Gets the names and codes from a Brewer Sewing search
 // @author       www.tgoff.me
 // @match        *://www.brewersewing.com/*
