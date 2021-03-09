@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Quiltworx / Judy Niemeyer Quilting
 // @namespace    http://www.tgoff.me/
-// @version      1.0.0
+// @version      2021.03.09_v1.0.0
 // @description  Gets the names and codes from Quiltworx
 // @author       www.tgoff.me
 // @match        *://quiltworx.com/patterns/*

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Quiltsmart
 // @namespace    http://www.tgoff.me/
-// @version      1.1
+// @version      2021.03.09_v1.0.0
 // @description  Gets the names and codes from Quiltsmart
 // @author       www.tgoff.me
 // @match        *://quiltsmart.com/shop/*

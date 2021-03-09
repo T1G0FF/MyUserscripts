@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Textile Collections
 // @namespace    http://tgoff.me/
-// @version      1.0
+// @version      2021.03.09_v1.0.0
 // @description  Gets the names and codes from a Textile Collections Collection
 // @author       www.tgoff.me
 // @match        *://*.fabric4less.com/index.php*
