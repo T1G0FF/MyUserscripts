@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.12.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -30,19 +30,22 @@ const CONFIG = {
 // Browser doesn't like when we make too many navigation calls
 let SCRAPER_CALL_FIELD = {};
 let SCRAPER_MAX_CALLS = 15;
+let FILTER_TEXTBOX = {};
+let SORTED = false;
+let SORTDIRECTION = -1;
 
 var cachedCollection = undefined;
 var cachedImagelessCollection = undefined;
 var cachedChildlessCollection = undefined;
 
-(function () {
+(async function () {
 	'use strict';
 	if (CONFIG.MISC_CSS) addMiscCSS();
 	if (CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
 	if (CONFIG.MORE_PER_PAGE) morePerPage();
 	if (CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
-	if (CONFIG.SORT_CODES) createButton('Sort Codes', btnAction_sortCollection, getTitleElement(), 'beforeEnd');
+	if (CONFIG.SORT_CODES) addSortFilterInputs();
 	// Until Optional chaining support makes it to stable.
 	if (CONFIG.FIND_IMAGELESS) {
 		let test = getImagelessCollection().Collection;
@@ -59,6 +62,7 @@ var cachedChildlessCollection = undefined;
 	if (CONFIG.HOVER_PREVIEW) btnAction_addHoverPreview();
 	if (CONFIG.SCRAPE_TEMP_PARENTS) createButton('Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
 	if (CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
+	btnAction_filterCollection();
 })();
 
 function addMiscCSS() {
@@ -741,38 +745,147 @@ async function scrapeImageless(item, lastCall) {
 }
 
 /***********************************************
- * Collection Sorting
+ * Collection Sorting & Filtering
  ***********************************************/
-let sortDirection = 1;
-function btnAction_sortCollection() {
-	sortCollection(document.querySelector('div#Gallery'));
+function addSortFilterInputs() {
+	let sortButton = document.createElement('button');
+	sortButton.innerText = 'Sort Codes';
+	sortButton.classList.add('tg-dropdown-option');
+	sortButton.onclick = function () { btnAction_sortCollection(sortButton) };
+
+	addElementToDropdownContainer(getTitleElement(), [sortButton], 'beforeEnd');
+
+	let filterButton = document.createElement('button');
+	filterButton.innerText = 'Filter Items';
+	filterButton.classList.add('tg-dropdown-option');
+	filterButton.onclick = function () { btnAction_filterCollection(filterButton) };
+
+	FILTER_TEXTBOX = document.createElement('INPUT');
+	FILTER_TEXTBOX.type = 'text';
+	FILTER_TEXTBOX.value = '';
+	FILTER_TEXTBOX.style.marginLeft = '2px';
+	FILTER_TEXTBOX.style.padding = '6px 2px';
+	FILTER_TEXTBOX.style.width = '60px';
+	FILTER_TEXTBOX.style.height = '100%';
+	FILTER_TEXTBOX.typingTimer = {};
+	FILTER_TEXTBOX.doneTypingInterval = 750;
+
+	FILTER_TEXTBOX.addEventListener('keyup', function () {
+		clearTimeout(FILTER_TEXTBOX.typingTimer);
+		FILTER_TEXTBOX.typingTimer = setTimeout(function () { btnAction_filterCollection(filterButton) }, FILTER_TEXTBOX.doneTypingInterval);
+	});
+	FILTER_TEXTBOX.addEventListener('keydown', function () {
+		clearTimeout(FILTER_TEXTBOX.typingTimer);
+	});
+
+	addElementToDropdownContainer(getTitleElement(), [filterButton, FILTER_TEXTBOX], 'beforeEnd');
 }
 
-async function sortCollection(itemContainer) {
-	let itemList = Array.from(await getCollection());
+async function btnAction_filterCollection(filterButton = undefined) {
+	let itemList = SORTED ? await sortCollection() : await getCollection();
+	let result = await refreshCollection(getItemContainer(), itemList);
+	if (filterButton) {
+		filterButton.innerText = 'Filter' + (!result.filtered ? '' : (' (' + result.found + '/' + result.total + ')'));
+	}
+}
+
+function getItemContainer() {
+	return document.querySelector('div#Gallery');
+}
+
+async function btnAction_sortCollection(sortButton = undefined) {
+	SORTED = true;
+	if (sortButton) {
+		sortButton.innerText = SORTDIRECTION > 0 ? 'Sort Codes \\/' : 'Sort Codes /\\';
+	}
+	SORTDIRECTION *= -1;
+	refreshCollection(getItemContainer(), await sortCollection());
+}
+
+async function sortCollection(collection = undefined) {
+	collection = collection || await getCollection();
+	let itemList = Array.from(collection);
 	itemList.sort(function (a, b) {
 		let result = 0;
-		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * sortDirection;
+		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * SORTDIRECTION;
 		return result;
 	});
-	sortDirection *= -1;
-
-	var children = itemContainer.children;
-	for (let i = children.length - 1; i >= 0; i--) {
-		var child = children[i];
-		if (itemList.includes(child)) {
-			itemContainer.removeChild(child);
-		}
-	}
-
-	for (let i = itemList.length - 1; i >= 0; i--) {
-		let itemOut = itemList[i];
-		itemContainer.insertAdjacentElement('afterBegin', itemOut);
-	}
+	return itemList;
 }
 
 function compareCodes(aCode, bCode) {
 	return comp(aCode, bCode); //comp(aCollection, bCollection) || comp(aColour, bColour)
+}
+
+async function refreshCollection(itemContainer = getItemContainer(), itemList = undefined) {
+	itemList = itemList || Array.from(await getCollection());
+	itemList = (Array.isArray(itemList)) ? itemList : Array.from(itemList);
+	let children = itemContainer.children;
+	for (let i = children.length - 1; i >= 0; i--) {
+		let child = children[i];
+		if (itemList.includes(child)) {
+			itemContainer.removeChild(child);
+		}
+	}
+	
+	let filterTrueList = [];
+	let filterFalseList = [];
+	let filter = (FILTER_TEXTBOX.value) ? FILTER_TEXTBOX.value.toLowerCase() : '';
+	for (let i = itemList.length - 1; i >= 0; i--) {
+		itemOut = itemList[i];
+		if (testFilter(filter, testFilterAgainst(itemOut))) {
+			filterTrueList.push(itemOut);
+		} else {
+			filterFalseList.push(itemOut);
+		}
+	}
+	
+	let filterTrueString = '';
+	let filterFalseString = '';
+	if (filterFalseList.length > 0) {
+		filterFalseString = filterFalseList.length + '/';
+		for (let j = 0; j < filterFalseList.length; j++) {
+			itemOut = filterFalseList[j];
+			itemOut.querySelector('.galleryName > a').style.color = '';
+			itemContainer.insertAdjacentElement('afterBegin', itemOut);
+		}
+	}
+	if (filterTrueList.length > 0) {
+		filterTrueString = filterTrueList.length + '/';
+		for (let j = 0; j < filterTrueList.length; j++) {
+			itemOut = filterTrueList[j];
+			itemOut.querySelector('.galleryName > a').style.color = 'green';
+			itemContainer.insertAdjacentElement('afterBegin', itemOut);
+		}
+	}
+
+	return { 'filtered': filter.length > 0, 'found': filterTrueList.length, 'total': itemList.length };
+}
+
+function testFilterAgainst(item) {
+	let strElement = item.querySelector('.galleryName');
+	if (strElement) {
+		return strElement.innerText;
+	}
+}
+
+function testFilter(filter, str) {
+	if (!str || !str.length > 0) return false;
+	if (!filter || !filter.length > 0) return false;
+	str = str.toLowerCase();
+	try {
+		let filterRegex = new RegExp(filter);
+		if (filterRegex) {
+			return filterRegex.test(str);
+		}
+	}
+	catch (ex) {
+		if (ex.message.startsWith('Invalid regular expression'))
+			return str.indexOf(filter) >= 0;
+		else {
+			throw ex;
+		}
+	}
 }
 
 /***********************************************
