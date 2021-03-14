@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.15.1
+// @version      2021.03.15.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -14,19 +14,18 @@
 
 /* eslint-disable no-undef */
 const DEBUG = true;
-const CONFIG = {
-	'MISC_CSS': true,
-	'CODES_ON_SWATCHES': true,
-	'MORE_PER_PAGE': true,
-	'COPY_CODES': true,
-	'COPY_IMAGES': true,
-	'SORT_CODES': true,
-	'FIND_IMAGELESS': true,
-	'FIND_CHILDLESS': true,
-	'HOVER_PREVIEW': true,
-	'SCRAPE_TEMP_PARENTS': true,
-	'SCRAPE_IMAGELESS': true,
-};
+const CONFIG = CONFIG ? CONFIG : {};
+CONFIG.MISC_CSS = true;
+CONFIG.CODES_ON_SWATCHES = true;
+CONFIG.MORE_PER_PAGE = true;
+CONFIG.COPY_CODES = true;
+CONFIG.COPY_IMAGES = true;
+CONFIG.SORT_CODES = true;
+CONFIG.FIND_IMAGELESS = true;
+CONFIG.FIND_CHILDLESS = true;
+CONFIG.HOVER_PREVIEW = true;
+CONFIG.SCRAPE_TEMP_PARENTS = true;
+CONFIG.SCRAPE_IMAGELESS = true;
 
 // Browser doesn't like when we make too many navigation calls
 let SCRAPER_CALL_FIELD = {};

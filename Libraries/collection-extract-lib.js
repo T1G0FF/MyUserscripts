@@ -1,17 +1,16 @@
 // ==UserScript==
-// @name         Fabric Dump Library
+// @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.1
+// @version      2021.03.15.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
 // ==/UserScript==
 
-const CONFIG = {
-	'ADD_COPYINFO': true,
-	'ADD_COPYHTML': true,
-	'ADD_SAVEIMGS': !true,
-}
+const CONFIG = CONFIG ? CONFIG : {};
+CONFIG.ADD_COPYINFO = true;
+CONFIG.ADD_COPYHTML = true;
+CONFIG.ADD_SAVEIMGS = !true;
 
 // Creates default buttons used by all.
 function createButtons(element = getTitleElement(), location = 'beforeEnd', foreground = 'white', background = 'black') {
