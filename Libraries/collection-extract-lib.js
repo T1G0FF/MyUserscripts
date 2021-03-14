@@ -569,6 +569,7 @@ function addSortFilterInputs() {
 	filterButton.onclick = function () { btnAction_filterCollection(filterButton) };
 
 	let filterTextbox = document.createElement('INPUT');
+	filterTextbox.id = filterTextbox.name = 'tg-filter-input';
 	filterTextbox.type = 'text';
 	filterTextbox.value = '';
 	filterTextbox.style.marginLeft = '2px';
@@ -674,9 +675,7 @@ async function refreshCollection(itemContainer = getItemContainer(), itemList = 
 }
 
 function getFilterText() {
-	// TODO: Until Optional chaining support makes it to stable.
-	// return (getFilterElement()?.value) ? getFilterElement().value.toLowerCase() : '';
-	let elem = getFilterElement();
+	let elem = document.querySelector('#tg-filter-input');
 	if (elem) {
 		return (elem.value) ? elem.value.toLowerCase() : '';
 	}
@@ -711,11 +710,6 @@ function getItemContainer() {
 function compareCodes(aCode, bCode) {
 	console.log('INFO: Redefining compareCodes() will allow you to chain comparisons.');
 	return comp(aCode, bCode);
-}
-
-function getFilterElement() {
-	console.warn('WARN: Redefine getFilterElement() such that it returns the textbox element containing the text to filter with.');
-	return undefined;
 }
 
 function testFilterAgainst(item) {
