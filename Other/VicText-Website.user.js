@@ -7,6 +7,7 @@
 // @match        *://www.victoriantextiles.com.au/*
 // @noframes
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @run-at       document-idle
 // @grant        GM_setClipboard
 // ==/UserScript==
