@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Fabric Dump Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.15.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -359,4 +359,376 @@ async function saveImages() {
 		msg = count + ' found and saved!';
 	}
 	await Notify.log(msg);
+}
+
+/***********************************************
+ * Dropdown Options Menu
+ ***********************************************/
+var DROPDOWN_CONTAINERS = undefined;
+function initDropdownContainer(element, direction = 'right') {
+	if (!element) return;
+	if (!DROPDOWN_CONTAINERS) {
+		let cssText = `
+/* The container <div> - needed to position the dropdown content */
+.tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
+	position: relative;
+	display: inline-flex;
+	margin: 0.5rem;
+}
+
+.tg-dropdown-button, .tg-dropdown-option {
+	background: #000000;
+	color: #ECF0F1;
+	border: none;
+	padding: 2px 0px;
+	margin: 0px 0px 2px 0px;
+	text-transform: capitalize;
+	letter-spacing: 1px;
+	font-weight: 700;
+	font-family: Helvetica;
+	font-size: 15px;
+	outline: none;
+	min-width: 150px;
+	max-width: 150px;
+	white-space: pre-line;
+	border-radius: 0.25rem;
+	vertical-align: middle;
+}
+
+.tg-dropdown-button:hover, .tg-dropdown-option:hover {
+	background: #32127A;
+	color: #FFFFFF;
+}
+
+.tg-dropdown-button:active, .tg-dropdown-option:active {
+	background: #4B0082;
+}
+
+.tg-dropdown-option {
+
+}
+
+.tg-dropdown-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 100;
+	display: none;
+	float: left;
+	min-width: 10rem;
+	padding: 0;
+	margin: 0.125rem 0 0;
+	font-size: 1rem;
+	color: #212529;
+	text-align: left;
+	list-style: none;
+	background-color: #212529;
+	background-clip: padding-box;
+	border-radius: 0.25rem;
+	box-shadow: 4px 4px 4px 0px rgba(0,0,0,0.6);
+}
+
+.tg-dropleft .tg-dropdown-menu {
+	top: 0;
+	right: 100%;
+	left: auto;
+	margin-top: 0;
+	margin-right: 0.125rem;
+}
+
+.tg-dropright .tg-dropdown-menu {
+	top: 0;
+	right: auto;
+	left: 100%;
+	margin-top: 0;
+	margin-left: 0.125rem;
+}
+
+.tg-dropup .tg-dropdown-menu {
+	top: auto;
+	bottom: 100%;
+	margin-top: 0;
+	margin-bottom: 0.125rem;
+}
+
+.show {
+	display:block !important;
+}
+`;
+		MyStyles.addStyle('DropdownCSS', cssText);
+		window.onclick = function (event) {
+			var dropdowns = document.getElementsByClassName('tg-dropdown-menu');
+			if (!event.target.matches('.tg-dropdown-button') && !Array.from(dropdowns).some(i => i.contains(event.target))) {
+				var i;
+				for (i = 0; i < dropdowns.length; i++) {
+					var openDropdown = dropdowns[i];
+					if (openDropdown.classList.contains('show')) {
+						openDropdown.classList.remove('show');
+					}
+				}
+			}
+		}
+		DROPDOWN_CONTAINERS = {};
+	}
+	if (!DROPDOWN_CONTAINERS[element]) {
+		let dropdownContainer = document.createElement('span');
+		dropdownContainer.style.float = 'none';
+		dropdownContainer.style.padding = '2px 0px';
+		dropdownContainer.style.fontSize = 'unset';
+		dropdownContainer.style.lineHeight = 'unset';
+		dropdownContainer.classList.add('tg-dropdown-container');
+		switch (direction) {
+			case 'down':
+				dropdownContainer.classList.add('tg-dropdown');
+				break;
+			case 'left':
+				dropdownContainer.classList.add('tg-dropleft');
+				break;
+			default:
+			case 'right':
+				dropdownContainer.classList.add('tg-dropright');
+				break;
+			case 'up':
+				dropdownContainer.classList.add('tg-dropup');
+				break;
+		}
+
+		let dropdownMenu = document.createElement('div');
+		dropdownMenu.classList.add('tg-dropdown-menu');
+
+		let dropdownButton = document.createElement('button');
+		dropdownButton.classList.add('tg-dropdown-button');
+		dropdownButton.innerText = 'Options';
+		dropdownButton.onclick = function () { dropdownMenu.classList.toggle('show'); };
+
+		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownButton);
+		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownMenu);
+		element.insertAdjacentElement('beforeEnd', dropdownContainer);
+
+		DROPDOWN_CONTAINERS[element] = dropdownMenu;
+	}
+	return DROPDOWN_CONTAINERS[element];
+}
+
+function addElementToDropdownContainer(locationElement, elementsToAdd, location = 'beforeEnd', showIf = true) {
+	if (!locationElement) return;
+
+	let inputContainer = initDropdownContainer(locationElement);
+	if (showIf) {
+		let thisContainer = document.createElement('span');
+		thisContainer.style.float = 'none';
+		thisContainer.style.padding = '2px 0px';
+		thisContainer.style.fontSize = 'unset';
+		thisContainer.style.lineHeight = 'unset';
+		thisContainer.style.whiteSpace = 'nowrap';
+
+		if (Array.isArray(elementsToAdd)) {
+			for (let i in elementsToAdd) {
+				let obj = elementsToAdd[i];
+				if (isElement(obj)) {
+					thisContainer.insertAdjacentElement('beforeEnd', obj);
+				}
+			}
+		} else {
+			if (isElement(elementsToAdd)) {
+				thisContainer.insertAdjacentElement('beforeEnd', elementsToAdd);
+			}
+		}
+		inputContainer.insertAdjacentElement(location, thisContainer);
+	}
+}
+
+function createButton(text, func, element, location = 'beforeEnd', showIf = true) {
+	if (!element) return;
+	if (showIf) {
+		let newButton = document.createElement('button');
+		newButton.innerText = text;
+		newButton.classList.add('tg-dropdown-option');
+		newButton.onclick = function () { func(); };
+
+		addElementToDropdownContainer(element, newButton, location, showIf);
+	}
+}
+
+/***********************************************
+ * Collection Sorting & Filtering
+ ***********************************************/
+var SORTED = false;
+var SORT_DIRECTION = -1;
+function addSortFilterInputs() {
+	let sortButton = document.createElement('button');
+	sortButton.innerText = 'Sort Codes';
+	sortButton.classList.add('tg-dropdown-option');
+	sortButton.onclick = function () { btnAction_sortCollection(sortButton) };
+
+	addElementToDropdownContainer(getTitleElement(), [sortButton], 'beforeEnd');
+
+	let filterButton = document.createElement('button');
+	filterButton.innerText = 'Filter Items';
+	filterButton.classList.add('tg-dropdown-option');
+	filterButton.onclick = function () { btnAction_filterCollection(filterButton) };
+
+	let filterTextbox = document.createElement('INPUT');
+	filterTextbox.type = 'text';
+	filterTextbox.value = '';
+	filterTextbox.style.marginLeft = '2px';
+	filterTextbox.style.padding = '6px 2px';
+	filterTextbox.style.width = '60px';
+	filterTextbox.style.height = '100%';
+	filterTextbox.typingTimer = {};
+	filterTextbox.doneTypingInterval = 750;
+
+	filterTextbox.addEventListener('keyup', function () {
+		clearTimeout(filterTextbox.typingTimer);
+		filterTextbox.typingTimer = setTimeout(function () { typeAction_filterCollection(filterButton) }, filterTextbox.doneTypingInterval);
+	});
+	filterTextbox.addEventListener('keydown', function () {
+		clearTimeout(filterTextbox.typingTimer);
+	});
+
+	addElementToDropdownContainer(getTitleElement(), [filterButton, filterTextbox], 'beforeEnd');
+}
+
+async function btnAction_sortCollection(sortButton = undefined) {
+	SORTED = true;
+	if (sortButton) {
+		sortButton.innerText = SORT_DIRECTION > 0 ? 'Sort Codes ▼' : 'Sort Codes ▲';
+	}
+	SORT_DIRECTION *= -1;
+	refreshCollection(getItemContainer(), await sortCollection());
+}
+
+async function sortCollection(collection = undefined) {
+	collection = collection || await getCollection();
+	let itemList = Array.from(collection);
+	itemList.sort(function (a, b) {
+		let result = 0;
+		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * SORT_DIRECTION;
+		return result;
+	});
+	return itemList;
+}
+
+async function btnAction_filterCollection(filterButton = undefined) {
+	if (filterButton) {
+		let filterElement = getFilterElement();
+		if (filterElement && filterElement.value.length > 0) {
+			filterButton.innerText = 'Filter Items';
+			filterElement.value = '';
+			filterCollection();
+		}
+	}
+}
+
+async function typeAction_filterCollection(filterButton = undefined) {
+	let result = await filterCollection();
+	if (filterButton) {
+		filterButton.innerText = 'Filter' + (!result.filtered ? '' : (' (' + result.found + '/' + result.total + ')'));
+	}
+}
+
+async function filterCollection() {
+	let itemList = SORTED ? await sortCollection() : await getCollection();
+	return await refreshCollection(getItemContainer(), itemList);
+}
+
+async function refreshCollection(itemContainer = getItemContainer(), itemList = undefined) {
+	itemList = itemList || Array.from(await getCollection());
+	itemList = (Array.isArray(itemList)) ? itemList : Array.from(itemList);
+	let children = itemContainer.children;
+	for (let i = children.length - 1; i >= 0; i--) {
+		let child = children[i];
+		if (itemList.includes(child)) {
+			itemContainer.removeChild(child);
+		}
+	}
+
+	let filterTrueList = [];
+	let filterFalseList = [];
+	let filter = getFilterText();
+	for (let i = itemList.length - 1; i >= 0; i--) {
+		let itemOut = itemList[i];
+		if (testFilter(filter, testFilterAgainst(itemOut))) {
+			filterTrueList.push(itemOut);
+		} else {
+			filterFalseList.push(itemOut);
+		}
+	}
+
+	if (filterFalseList.length > 0) {
+		for (let j = 0; j < filterFalseList.length; j++) {
+			let itemOut = filterFalseList[j];
+			removeFilterMatchStyle(itemOut);
+			itemContainer.insertAdjacentElement('afterBegin', itemOut);
+		}
+	}
+	if (filterTrueList.length > 0) {
+		for (let j = 0; j < filterTrueList.length; j++) {
+			let itemOut = filterTrueList[j];
+			addFilterMatchStyle(itemOut);
+			itemContainer.insertAdjacentElement('afterBegin', itemOut);
+		}
+	}
+
+	return { 'filtered': filter.length > 0, 'found': filterTrueList.length, 'total': itemList.length };
+}
+
+function getFilterText() {
+	// TODO: Until Optional chaining support makes it to stable.
+	// return (getFilterElement()?.value) ? getFilterElement().value.toLowerCase() : '';
+	let elem = getFilterElement();
+	if (elem) {
+		return (elem.value) ? elem.value.toLowerCase() : '';
+	}
+}
+
+function testFilter(filter, str) {
+	if (!str || !str.length > 0) return false;
+	if (!filter || !filter.length > 0) return false;
+	str = str.toLowerCase();
+	try {
+		let filterRegex = new RegExp(filter);
+		if (filterRegex) {
+			return filterRegex.test(str);
+		}
+	}
+	catch (ex) {
+		if (ex.message.startsWith('Invalid regular expression')) {
+			return str.indexOf(filter) >= 0;
+		}
+		else {
+			throw ex;
+		}
+	}
+}
+
+/* Virtual Functions */
+function getItemContainer() {
+	console.warn('WARN: Redefine getItemContainer() such that it returns the element that contains the items to be sorted.');
+	return undefined;
+}
+
+function compareCodes(aCode, bCode) {
+	console.log('INFO: Redefining compareCodes() will allow you to chain comparisons.');
+	return comp(aCode, bCode);
+}
+
+function getFilterElement() {
+	console.warn('WARN: Redefine getFilterElement() such that it returns the textbox element containing the text to filter with.');
+	return undefined;
+}
+
+function testFilterAgainst(item) {
+	console.warn('WARN: Redefine testFilterAgainst() such that it returns an array of image URLs as a Strings.');
+	return undefined;
+}
+
+function addFilterMatchStyle(item) {
+	console.log('INFO: Redefining addFilterMatchStyle() will allow you to change the style of the item element if it matches the filter.');
+	return undefined;
+}
+
+function removeFilterMatchStyle(item) {
+	console.log('INFO: Redefine removeFilterMatchStyle() such that it removes the changes made by addFilterMatchStyle().');
+	return undefined;
 }
