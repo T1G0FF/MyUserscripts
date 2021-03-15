@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.15.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -19,6 +19,7 @@ let isCollectionPage = false;
 	createButtons();
 	createButton('Sort Codes', sortCollection, getTitleElement(), 'beforeEnd');
 	isSearch = !hasParam(window.location.search, 'Category');
+	addSortFilterInputs();
 })();
 
 let hoffmanRegEx = /(([A-z]{1,3})?([0-9]+))-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
@@ -184,35 +185,11 @@ function formatImage(item) {
 	return result;
 }
 
-let sortDirection = 1;
-function sortCollection() {
-	_sortCollection(document.querySelector('body > div:nth-child(5) > div:nth-child(3)'));
-}
-
-async function _sortCollection(itemContainer) {
-	let itemList = Array.from(await getCollection());
-	itemList.sort(function (a, b) {
-		let result = 0;
-		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * sortDirection;
-		return result;
-	});
-	sortDirection *= -1;
-
-	var children = itemContainer.children;
-	for (let i = children.length - 1; i >= 0; i--) {
-		var child = children[i];
-		// Do stuff
-		if (itemList.includes(child)) {
-			itemContainer.removeChild(child);
-		}
-	}
-
-	//itemContainer.innerHTML = '';
-
-	for (let i = itemList.length - 1; i >= 0; i--) {
-		let itemOut = itemList[i];
-		itemContainer.insertAdjacentElement('afterBegin', itemOut);
-	}
+/***********************************************
+ * Collection Sorting & Filtering
+ ***********************************************/
+function getItemContainer() {
+	return document.querySelector('body > div:nth-child(5) > div:nth-child(3)');
 }
 
 function getCodeFromItem(item) {
@@ -235,4 +212,18 @@ function compareCodes(aCode, bCode) {
 	let bColour = padWithZeros(bMatches[RegexEnum.ColourCode], 3);
 
 	return comp(aCollection, bCollection) || comp(aColour, bColour)
+}
+
+function testFilterAgainst(item) {
+	return getCodeFromItem(item);
+}
+
+function addFilterMatchStyle(item) {
+	let elem = item.querySelector('div > b');
+	if (elem) elem.style.color = 'green';
+}
+
+function removeFilterMatchStyle(item) {
+	let elem = item.querySelector('div > b')
+	if (elem) elem.style.color = '';
 }
