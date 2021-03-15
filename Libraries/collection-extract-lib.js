@@ -1,22 +1,23 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.2
+// @version      2021.03.15.3
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
 // ==/UserScript==
 
-const CONFIG = CONFIG ? CONFIG : {};
-CONFIG.ADD_COPYINFO = true;
-CONFIG.ADD_COPYHTML = true;
-CONFIG.ADD_SAVEIMGS = !true;
+const LIB_CONFIG = {
+	'ADD_COPYINFO': true,
+	'ADD_COPYHTML': true,
+	'ADD_SAVEIMGS': !true,
+}
 
 // Creates default buttons used by all.
 function createButtons(element = getTitleElement(), location = 'beforeEnd', foreground = 'white', background = 'black') {
-	if (CONFIG.ADD_COPYINFO) createButton('Copy Info', function() { resetWarnings(); copyCollection(); }, element, location);
-	if (CONFIG.ADD_COPYHTML) createButton('Copy HTML', function () { resetWarnings(); copyHTML(); }, element, location);
-	if (CONFIG.ADD_SAVEIMGS) createButton('Save Images', function () { resetWarnings(); saveImages(); }, element, location);
+	if (LIB_CONFIG.ADD_COPYINFO) createButton('Copy Info', function() { resetWarnings(); copyCollection(); }, element, location);
+	if (LIB_CONFIG.ADD_COPYHTML) createButton('Copy HTML', function () { resetWarnings(); copyHTML(); }, element, location);
+	if (LIB_CONFIG.ADD_SAVEIMGS) createButton('Save Images', function () { resetWarnings(); saveImages(); }, element, location);
 }
 
 // Resets the Show Warning toggle so that they only show once per button click. 

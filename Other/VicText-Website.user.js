@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.15.2
+// @version      2021.03.15.3
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -14,18 +14,19 @@
 
 /* eslint-disable no-undef */
 const DEBUG = true;
-const CONFIG = CONFIG ? CONFIG : {};
-CONFIG.MISC_CSS = true;
-CONFIG.CODES_ON_SWATCHES = true;
-CONFIG.MORE_PER_PAGE = true;
-CONFIG.COPY_CODES = true;
-CONFIG.COPY_IMAGES = true;
-CONFIG.SORT_CODES = true;
-CONFIG.FIND_IMAGELESS = true;
-CONFIG.FIND_CHILDLESS = true;
-CONFIG.HOVER_PREVIEW = true;
-CONFIG.SCRAPE_TEMP_PARENTS = true;
-CONFIG.SCRAPE_IMAGELESS = true;
+const WEBADD_CONFIG = {
+	'MISC_CSS': true,
+	'CODES_ON_SWATCHES': true,
+	'MORE_PER_PAGE': true,
+	'COPY_CODES': true,
+	'COPY_IMAGES': true,
+	'SORT_CODES': true,
+	'FIND_IMAGELESS': true,
+	'FIND_CHILDLESS': true,
+	'HOVER_PREVIEW': true,
+	'SCRAPE_TEMP_PARENTS': true,
+	'SCRAPE_IMAGELESS': true,
+};
 
 // Browser doesn't like when we make too many navigation calls
 let SCRAPER_CALL_FIELD = {};
@@ -37,13 +38,13 @@ var cachedChildlessCollection = undefined;
 
 (async function () {
 	'use strict';
-	if (CONFIG.MISC_CSS) addMiscCSS();
-	if (CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
-	if (CONFIG.MORE_PER_PAGE) morePerPage();
-	if (CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
-	if (CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
-	if (CONFIG.SORT_CODES) addSortFilterInputs();
-	if (CONFIG.FIND_IMAGELESS) {
+	if (WEBADD_CONFIG.MISC_CSS) addMiscCSS();
+	if (WEBADD_CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
+	if (WEBADD_CONFIG.MORE_PER_PAGE) morePerPage();
+	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
+	if (WEBADD_CONFIG.FIND_IMAGELESS) {
 		// TODO: Until Optional chaining support makes it to stable.
 		// createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', getImagelessCollection()?.Collection?.length > 0);
 		let test = getImagelessCollection().Collection;
@@ -51,7 +52,7 @@ var cachedChildlessCollection = undefined;
 			createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', test.length > 0);
 		}
 	}
-	if (CONFIG.FIND_CHILDLESS) {
+	if (WEBADD_CONFIG.FIND_CHILDLESS) {
 		// TODO: Until Optional chaining support makes it to stable.
 		// createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', getChildlessCollection()?.length > 0);
 		let test = getChildlessCollection();
@@ -59,9 +60,9 @@ var cachedChildlessCollection = undefined;
 			createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', test.length > 0);
 		}
 	}
-	if (CONFIG.HOVER_PREVIEW) btnAction_addHoverPreview();
-	if (CONFIG.SCRAPE_TEMP_PARENTS) createButton('Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
-	if (CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
+	if (WEBADD_CONFIG.HOVER_PREVIEW) btnAction_addHoverPreview();
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
 	btnAction_filterCollection();
 })();
 
