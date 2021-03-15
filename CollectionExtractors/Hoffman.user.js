@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.3
+// @version      2021.03.16.2
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -64,7 +64,7 @@ function getItemObject(item) {
 		return;
 	}
 	givenCode = givenCode.trim().toUpperCase();
-	
+
 	hoffmanRegEx.lastIndex = 0;
 	let matches = hoffmanRegEx.exec(givenCode);
 	if (!matches || matches.length <= 1) {
@@ -103,7 +103,7 @@ function getItemObject(item) {
 
 	let title = getFormattedTitle();
 	let special = '';
-	
+
 	let material = 'C100%';
 	let isWideback = title.includes('108') || (matches[RegexEnum.CollectionPrefix] && matches[RegexEnum.CollectionPrefix].startsWith('W'));
 	let width = isWideback ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
@@ -134,7 +134,7 @@ function formatInformation(itemElement) {
 	if (isCollectionPage) {
 		return { 'description': item.CollectionName };
 	}
-	
+
 	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
 	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
 
@@ -188,7 +188,7 @@ function formatImage(item) {
  * Collection Sorting & Filtering
  ***********************************************/
 function getItemContainer() {
-	let containers = document.querySelectorAll('div.container');
+	let containers = document.querySelectorAll('div.section.title + div.section.page > div.container');
 	for (let i = 0; i < containers.length; i++) {
 		const container = containers[i];
 		if (container.querySelectorAll('div.masonbox[class*="masoncol"]').length > 0) {
@@ -201,7 +201,7 @@ function getItemContainer() {
 function getCodeFromItem(item) {
 	let codeElement = item.querySelector('span:nth-child(3)');
 	let givenCode = codeElement ? codeElement.innerText : item.innerText;
-	return givenCode;
+	return givenCode.trim();
 }
 
 function compareCodes(aCode, bCode) {
