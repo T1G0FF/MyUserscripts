@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.2
+// @version      2021.03.16.4
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -555,33 +555,23 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
  ***********************************************/
 var SORTED = false;
 var SORT_DIRECTION = -1;
-function addSortFilterInputs() {
+async function addSortFilterInputs() {
 	let reqsNotMet = false;
+	let testItem = await getCollection()[0];
 	if (!getItemContainer()) {
-		console.warn('Define getItemContainer() in order to use Sorting/Filtering.');
+		console.warn('WARN: Define getItemContainer() in order to use Sorting/Filtering.');
 		reqsNotMet = true;
 	}
-	if (!getCodeFromItem()) {
-		console.warn('Define getCodeFromItem() in order to use Sorting/Filtering.');
+	if (!getCodeFromItem(testItem)) {
+		console.warn('WARN: Define getCodeFromItem() in order to use Sorting/Filtering.');
 		reqsNotMet = true;
 	}
-	if (!compareCodes()) {
-		console.warn('Define compareCodes() in order to use Sorting/Filtering.');
-		reqsNotMet = true;
-	}
-	if (!testFilterAgainst()) {
-		console.warn('Define testFilterAgainst() in order to use Sorting/Filtering.');
-		reqsNotMet = true;
-	}
-	if (!addFilterMatchStyle()) {
-		console.warn('Define addFilterMatchStyle() in order to use Sorting/Filtering.');
-		reqsNotMet = true;
-	}
-	if (!removeFilterMatchStyle()) {
-		console.warn('Define removeFilterMatchStyle() in order to use Sorting/Filtering.');
+	if (!testFilterAgainst(testItem)) {
+		console.warn('WARN: Define testFilterAgainst() in order to use Sorting/Filtering.');
 		reqsNotMet = true;
 	}
 	if (reqsNotMet) return;
+	testItem = undefined;
 
 	let sortButton = document.createElement('button');
 	sortButton.innerText = 'Sort Codes';
@@ -742,7 +732,7 @@ function getItemContainer() {
 }
 
 function getCodeFromItem(item) {
-	console.warn('WARN: Redefine getCodeFromItem() such that it returns the itemcode as a String.');
+	console.warn('WARN: Redefine getCodeFromItem() such that it returns the item code as a String.');
 	return undefined;
 }
 
