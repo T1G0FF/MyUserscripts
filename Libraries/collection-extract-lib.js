@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.4
+// @version      2021.03.16.5
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -555,7 +555,7 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
  ***********************************************/
 var SORTED = false;
 var SORT_DIRECTION = -1;
-async function addSortFilterInputs() {
+async function addSortFilterInputs(locationElement = getTitleElement()) {
 	let reqsNotMet = false;
 	let testItem = await getCollection()[0];
 	if (!getItemContainer()) {
@@ -578,7 +578,7 @@ async function addSortFilterInputs() {
 	sortButton.classList.add('tg-dropdown-option');
 	sortButton.onclick = function () { btnAction_sortCollection(sortButton) };
 
-	addElementToDropdownContainer(getTitleElement(), [sortButton], 'beforeEnd');
+	addElementToDropdownContainer(locationElement, [sortButton], 'beforeEnd');
 
 	let filterButton = document.createElement('button');
 	filterButton.innerText = 'Filter Items';
@@ -604,7 +604,7 @@ async function addSortFilterInputs() {
 		clearTimeout(filterTextbox.typingTimer);
 	});
 
-	addElementToDropdownContainer(getTitleElement(), [filterButton, filterTextbox], 'beforeEnd');
+	addElementToDropdownContainer(locationElement, [filterButton, filterTextbox], 'beforeEnd');
 
 	filterCollection();
 }
