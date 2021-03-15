@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.4
+// @version      2021.03.15.5
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -674,12 +674,12 @@ async function refreshCollection(itemContainer = getItemContainer(), itemList = 
 	return { 'filtered': filter.length > 0, 'found': filterTrueList.length, 'total': itemList.length };
 }
 
-function getfilterElement() {
+function getFilterElement() {
 	return document.querySelector('#tg-filter-input');
 }
 
 function getFilterText() {
-	let elem = getfilterElement();
+	let elem = getFilterElement();
 	if (elem) {
 		return (elem.value) ? elem.value.toLowerCase() : '';
 	}
