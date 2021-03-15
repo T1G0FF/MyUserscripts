@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.6
+// @version      2021.03.15.7
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -713,13 +713,18 @@ function getItemContainer() {
 	return undefined;
 }
 
+function getCodeFromItem(item) {
+	console.warn('WARN: Redefine getCodeFromItem() such that it returns the itemcode as a String.');
+	return undefined;
+}
+
 function compareCodes(aCode, bCode) {
 	console.log('INFO: Redefining compareCodes() will allow you to chain comparisons.');
 	return comp(aCode, bCode);
 }
 
 function testFilterAgainst(item) {
-	console.warn('WARN: Redefine testFilterAgainst() such that it returns an array of image URLs as a Strings.');
+	console.warn('WARN: Redefine testFilterAgainst() such that it returns an array of image URLs as Strings.');
 	return undefined;
 }
 
