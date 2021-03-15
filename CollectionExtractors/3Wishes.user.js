@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.15.1
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -83,7 +83,7 @@ function formatInformation(item) {
 	let title = getFormattedTitle();
 	let company = getCompany();
 
-	let givenCode = item.querySelector('p.cItemTitle').innerHTML.split('<br>')[1];
+	let givenCode = getCodeFromItem(item);
 
 	let itemCode = '';
 	let barCode = '';
@@ -139,4 +139,36 @@ function formatInformation(item) {
 
 function formatImage(item) {
 	return item.querySelector('img.cItemImage').getAttribute('src');
+}
+
+/***********************************************
+ * Collection Sorting & Filtering
+ ***********************************************/
+function getItemContainer() {
+	return document.querySelector('div.cItemsContainer');
+}
+
+function getCodeFromItem(item) {
+	return item.querySelector('p.cItemTitle').innerHTML.split('<br>')[1];
+}
+
+function compareCodes(aCode, bCode) {
+	return comp(aCode, bCode);
+}
+
+function testFilterAgainst(item) {
+	let elem = item.querySelector('p.cItemTitle');
+	if (elem) {
+		return elem.innerText;
+	}
+}
+
+function addFilterMatchStyle(item) {
+	let elem = item.querySelector('div.cItemTitleDiv');
+	if (elem) elem.style.background = 'DarkSeaGreen';
+}
+
+function removeFilterMatchStyle(item) {
+	let elem = item.querySelector('div.cItemTitleDiv');
+	if (elem) elem.style.background = '';
 }
