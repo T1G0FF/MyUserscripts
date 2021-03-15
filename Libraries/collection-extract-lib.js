@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.7
+// @version      2021.03.16.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -556,6 +556,33 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
 var SORTED = false;
 var SORT_DIRECTION = -1;
 function addSortFilterInputs() {
+	let reqsNotMet = false;
+	if (!getItemContainer()) {
+		console.warn('Define getItemContainer() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (!getCodeFromItem()) {
+		console.warn('Define getCodeFromItem() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (!compareCodes()) {
+		console.warn('Define compareCodes() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (!testFilterAgainst()) {
+		console.warn('Define testFilterAgainst() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (!addFilterMatchStyle()) {
+		console.warn('Define addFilterMatchStyle() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (!removeFilterMatchStyle()) {
+		console.warn('Define removeFilterMatchStyle() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (reqsNotMet) return;
+
 	let sortButton = document.createElement('button');
 	sortButton.innerText = 'Sort Codes';
 	sortButton.classList.add('tg-dropdown-option');
@@ -724,7 +751,7 @@ function compareCodes(aCode, bCode) {
 }
 
 function testFilterAgainst(item) {
-	console.warn('WARN: Redefine testFilterAgainst() such that it returns an array of image URLs as Strings.');
+	console.warn('WARN: Redefine testFilterAgainst() such that it returns the string to search using the filter.');
 	return undefined;
 }
 
