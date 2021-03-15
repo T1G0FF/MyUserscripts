@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.1
+// @version      2021.03.15.2
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -15,6 +15,7 @@
 (function () {
 	'use strict';
 	createButtons();
+	addSortFilterInputs();
 })();
 
 function getCompany() {
