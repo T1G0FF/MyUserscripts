@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Lewis & Irene
 // @namespace    http://tgoff.me/
-// @version      2021.03.16.2
+// @version      2021.03.16.3
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.
 // @author       www.tgoff.me
 // @match        *://www.lewisandirene.com/our-fabrics/*
@@ -41,7 +41,7 @@ function getTitleElement() {
 }
 
 function getCollection() {
-	let collection = document.querySelectorAll('body div.foogallery > .fg-item');
+	let collection = document.querySelectorAll('div.foogallery > div.fg-item');
 	return collection;
 }
 
@@ -60,7 +60,7 @@ function formatInformation(item) {
 	let title = getFormattedTitle();
 	let company = getCompany();
 
-	let givenCode = item.querySelector('.fg-item-inner > a').getAttribute('data-caption-title');
+	let givenCode = item.querySelector('div.fg-item-inner > a').getAttribute('data-caption-title');
 
 	let itemCode = '';
 	let barCode = '';
@@ -144,17 +144,20 @@ function getCodeFromItem(item) {
 		//Notify.log('No matches found for Item!', item);
 		return;
 	}
-	let collectionCode = ''
+	let itemCode = ''
 	if (matches[RegexEnum.ColourCode] === undefined && matches[RegexEnum.CollectionLetters] === 'BB') {
-		collectionCode = matches[RegexEnum.CollectionLetters] + ' ' + padWithZeros(matches[RegexEnum.CollectionNumbers], 3);
+		itemCode = matches[RegexEnum.CollectionLetters] + ' ' + padWithZeros(matches[RegexEnum.CollectionNumbers], 3);
 	} else {
-		collectionCode = matches[RegexEnum.CollectionLetters] + matches[RegexEnum.CollectionNumbers];
+		itemCode = matches[RegexEnum.CollectionLetters] + matches[RegexEnum.CollectionNumbers] + '.' + matches[RegexEnum.ColourCode];
 	}
-	return collectionCode;
+	return itemCode;
 }
 
 function testFilterAgainst(item) {
-	return item.querySelector('img.fg-image').getAttribute('alt').trim().replace('(Bumbleberries basic)', '(Basic)').replace('(BB basic)', '(Basic)');
+	let src = item.querySelector('img.fg-image').getAttribute('alt').trim();
+	src = src.replace('(Bumbleberries basic)', '(Basic)');
+	src = src.replace('(BB basic)', '(Basic)');
+	return src;
 	//item.querySelector('.fg-item-inner > a').getAttribute('data-caption-title');
 }
 
