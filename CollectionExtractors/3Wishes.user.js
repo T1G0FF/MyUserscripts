@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.2
+// @version      2021.03.16.1
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -166,10 +166,10 @@ function testFilterAgainst(item) {
 
 function addFilterMatchStyle(item) {
 	let elem = item.querySelector('div.cItemTitleDiv');
-	if (elem) elem.style.background = 'DarkSeaGreen';
+	if (elem) elem.style.boxShadow = 'green inset 0 25px 5px -20px';
 }
 
 function removeFilterMatchStyle(item) {
 	let elem = item.querySelector('div.cItemTitleDiv');
-	if (elem) elem.style.background = '';
+	if (elem) elem.style.boxShadow = '';
 }
