@@ -657,12 +657,15 @@ async function refreshCollection(itemContainer = getItemContainer(), itemList = 
 	itemList = itemList || Array.from(await getCollection());
 	itemList = (Array.isArray(itemList)) ? itemList : Array.from(itemList);
 	let children = itemContainer.children;
+	let foundChildren = [];
 	for (let i = children.length - 1; i >= 0; i--) {
 		let child = children[i];
 		if (itemList.includes(child)) {
 			itemContainer.removeChild(child);
+			foundChildren.push(child);
 		}
 	}
+	itemList = foundChildren;
 
 	let filterTrueList = [];
 	let filterFalseList = [];
