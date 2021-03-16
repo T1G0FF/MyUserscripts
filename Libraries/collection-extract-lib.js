@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.5
+// @version      2021.03.16.6
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -562,14 +562,15 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 		console.warn('WARN: Define getItemContainer() in order to use Sorting/Filtering.');
 		reqsNotMet = true;
 	}
-	if (!getCodeFromItem(testItem)) {
+	if (testItem && !getCodeFromItem(testItem)) {
 		console.warn('WARN: Define getCodeFromItem() in order to use Sorting/Filtering.');
 		reqsNotMet = true;
 	}
-	if (!testFilterAgainst(testItem)) {
+	if (testItem && !testFilterAgainst(testItem)) {
 		console.warn('WARN: Define testFilterAgainst() in order to use Sorting/Filtering.');
 		reqsNotMet = true;
 	}
+	reqsNotMet = reqsNotMet || !testItem;
 	if (reqsNotMet) return;
 	testItem = undefined;
 
