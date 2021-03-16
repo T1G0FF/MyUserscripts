@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Lewis & Irene
 // @namespace    http://tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.16.1
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.
 // @author       www.tgoff.me
 // @match        *://www.lewisandirene.com/our-fabrics/*
@@ -22,7 +22,10 @@ let RegexEnum = {
 
 (function () {
 	'use strict';
-	if (getTitleElement()) createButtons();
+	if (getTitleElement()) {
+		createButtons();
+		addSortFilterInputs();
+	}
 	showCollectionNames();
 	showItemNames();
 })();
@@ -124,6 +127,57 @@ function formatInformation(item) {
 function formatImage(item) {
 	let result = item.querySelector('figure > a').getAttribute('href');
 	return 'https:' + result;
+}
+
+/***********************************************
+ * Collection Sorting & Filtering
+ ***********************************************/
+function getItemContainer() {
+	return document.querySelector('div.foogallery-container');
+}
+
+function getCodeFromItem(item) {
+	let matches = LewisIreneRegEx.exec(givenCode);
+	let separator = '';
+	if (!matches || matches.length <= 1) {
+		//Notify.log('No matches found for Item!', item);
+		return;
+	}
+	let collectionCode = ''
+	if (matches[RegexEnum.ColourCode] === undefined && matches[RegexEnum.CollectionLetters] === 'BB') {
+		collectionCode = matches[RegexEnum.CollectionLetters] + ' ' + padWithZeros(matches[RegexEnum.CollectionNumbers], 3);
+	} else {
+		collectionCode = matches[RegexEnum.CollectionLetters] + matches[RegexEnum.CollectionNumbers];
+	}
+	return collectionCode;
+}
+
+function testFilterAgainst(item) {
+	return item.querySelector('img.fg-image').getAttribute('alt').trim().replace('(Bumbleberries basic)', '(Basic)').replace('(BB basic)', '(Basic)');
+	//item.querySelector('.fg-item-inner > a').getAttribute('data-caption-title');
+}
+
+function addFilterMatchStyle(item) {
+	let parent = item.querySelector('figure.fg-item-inner');
+	let elem = parent.querySelector('#matchOverlay');
+	if (!elem) {
+		elem = document.createElement('div');
+		elem.classList.add('matchOverlay');
+		elem.style.boxShadow = 'green inset 0 25px 5px -20px';
+		elem.style.height = '100%';
+		elem.style.position = 'absolute';
+		elem.style.bottom = '0';
+		elem.style.width = '100%';
+		elem.style.pointerEvents = 'none';
+		elem.style.zIndex = '9999';
+		parent.insertAdjacentElement('beforeEnd', elem);
+	}
+	elem.style.display = 'block';
+}
+
+function removeFilterMatchStyle(item) {
+	let elem = item.querySelector('#matchOverlay');
+	if (elem) matchOverlay.style.display = 'none';
 }
 
 function showCollectionNames() {
