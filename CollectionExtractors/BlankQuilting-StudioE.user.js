@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.16.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -20,7 +20,9 @@ let isCollectionPage = false;
 (function () {
 	'use strict';
 	isSearch = window.location.pathname.includes('search-results-page');
-	createButtons();
+	let elem = isSearch ? getTitleElement() : document.querySelector('span.shipin-title');
+	createButtons(elem);
+	addSortFilterInputs(elem);
 })();
 
 let blankRegEx = /([0-9]+)([A-z]+)?(?:-[ ]*(?:([0-9]+)([A-z]+)?)?)(?:[ ]*([\w\ \-\.\/]+))?/;
@@ -42,9 +44,9 @@ function getTitleElement() {
 	return titleElement;
 }
 
-function ) {
-	let elem = isSearch ? document.querySelector('div.snize-search-results-header > a.snize-no-products-found-link') : getTitleElement();
-	let title = formatTitle(_getTitle(elem));
+function getTitle() {
+	let titleElement = isSearch ? document.querySelector('div.snize-search-results-header > a.snize-no-products-found-link') : getTitleElement();
+	let title = !titleElement ? '' : titleElement.innerText.trim();
 	return title;
 }
 
@@ -80,7 +82,7 @@ function getItemObject(item) {
 		return;
 	}
 	let givenCode = codeElement.innerText.trim().toUpperCase();
-	
+
 	blankRegEx.lastIndex = 0;
 	let matches = blankRegEx.exec(givenCode);
 	if (!matches || matches.length <= 1) {
@@ -163,9 +165,9 @@ function formatInformation(itemElement) {
 
 	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
 	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
-	
+
 	let barCode = formatBarCode(itemCode);
-	
+
 	let company = getCompany();
 	let widthString = item.Width.Measurement + item.Width.Unit;
 	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company === 'Studio E') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
@@ -193,4 +195,32 @@ function formatImage(item) {
 	let img = isSearch ? item.querySelector('span.snize-thumbnail img') : item.querySelector('img');
 	let result = img.getAttribute('src');
 	return result;
+}
+
+/***********************************************
+ * Collection Sorting & Filtering
+ ***********************************************/
+function getItemContainer() {
+	return document.querySelector('ul.productGrid');
+}
+
+function getCodeFromItem(item) {
+	let codeElement = isSearch ? item.querySelector('span.snize-title') : item.querySelector('h4.card-title > a');
+	return codeElement.innerText.trim();
+}
+
+function testFilterAgainst(item) {
+	let codeElement = isSearch ? item.querySelector('span.snize-item') : item.querySelector('h4.card-title');
+	let str = codeElement ? codeElement.innerText : item.innerText.toLowerCase().replace('choose options', '').replace('where to buy?', '');
+	return str;
+}
+
+function addFilterMatchStyle(item) {
+	let elem = item.querySelector('article.card');
+	if (elem) elem.style.boxShadow = 'inset white 0px 0px 0px 5px, inset green 0px 0px 15px 10px';
+}
+
+function removeFilterMatchStyle(item) {
+	let elem = item.querySelector('article.card')
+	if (elem) elem.style.boxShadow = '';
 }
