@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Lewis & Irene
 // @namespace    http://tgoff.me/
-// @version      2021.03.16.3
+// @version      2021.03.16.4
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.
 // @author       www.tgoff.me
 // @match        *://www.lewisandirene.com/our-fabrics/*
@@ -163,7 +163,7 @@ function testFilterAgainst(item) {
 
 function addFilterMatchStyle(item) {
 	let parent = item.querySelector('figure.fg-item-inner');
-	let elem = parent.querySelector('#matchOverlay');
+	let elem = item.querySelector('div.matchOverlay');
 	if (!elem) {
 		elem = document.createElement('div');
 		elem.classList.add('matchOverlay');
@@ -180,7 +180,7 @@ function addFilterMatchStyle(item) {
 }
 
 function removeFilterMatchStyle(item) {
-	let elem = item.querySelector('#matchOverlay');
+	let elem = item.querySelector('div.matchOverlay');
 	if (elem) matchOverlay.style.display = 'none';
 }
 
