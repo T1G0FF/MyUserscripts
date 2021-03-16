@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - FIGO
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.1
+// @version      2021.03.16.2
 // @description  Gets the names and codes from a FIGO Collection
 // @author       www.tgoff.me
 // @match        *://figofabrics.com/product-detail.aspx?*
@@ -60,10 +60,7 @@ function getAvailabilityDate() {
 }
 
 function getCollection() {
-	let collection = document.querySelectorAll('#ContentPlaceHolderBody_parent .swatch');
-	//if(!collection || collection.length < 1) {
-	//	collection = document.querySelectorAll('#ContentPlaceHolderBody_OnlySwatches > div.row > div > center > span > a > img');
-	//}
+	let collection = document.querySelectorAll('#ContentPlaceHolderBody_parent > div:not([id]).product-details-row > div.swatch');
 	return collection;
 }
 
