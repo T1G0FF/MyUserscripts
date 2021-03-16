@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - FIGO
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.16.1
 // @description  Gets the names and codes from a FIGO Collection
 // @author       www.tgoff.me
 // @match        *://figofabrics.com/product-detail.aspx?*
@@ -16,6 +16,7 @@
 (function () {
 	'use strict';
 	createButtons();
+	addSortFilterInputs();
 })();
 
 function getCompany() {
@@ -137,4 +138,29 @@ function formatInformation(item) {
 function formatImage(item) {
 	let result = getAbsolutePath(item.querySelector('img').getAttribute('src'));
 	return result;
+}
+
+/***********************************************
+ * Collection Sorting & Filtering
+ ***********************************************/
+function getItemContainer() {
+	return document.querySelector('#ContentPlaceHolderBody_parent > div.product-details-row');
+}
+
+function getCodeFromItem(item) {
+	return item.querySelector('div.product-info div.product-number').innerText.trim();
+}
+
+function testFilterAgainst(item) {
+	return item.querySelector('div.product-info').innerText.trim();
+}
+
+function addFilterMatchStyle(item) {
+	let elem = item.querySelector('div.product-info');
+	if (elem) elem.style.boxShadow = 'green inset 0 25px 5px -20px';
+}
+
+function removeFilterMatchStyle(item) {
+	let elem = item.querySelector('div.product-info');
+	if (elem) elem.style.boxShadow = '';
 }
