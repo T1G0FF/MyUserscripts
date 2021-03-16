@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.16.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -29,6 +29,7 @@ let isStella = false;
 	isSearch = hasParam(window.location.search, "search-key");
 	isStella = window.location.hostname.includes('dearstelladesign');
 	createButtons();
+	addSortFilterInputs(elem);
 })();
 
 function getCompany() {
@@ -87,7 +88,7 @@ let collections = {
 };
 
 function getItemObject(item) {
-	let codeElements = isStella ? item.querySelectorAll('td.ItemsListingInfo > table td') : item.querySelectorAll('td.ItemsListingInfo span.CustomeFieldFormatB');
+	let codeElements = item.querySelectorAll('td.ItemsListingInfo > table td');
 	if (!codeElements || codeElements.length < 2) {
 		Notify.log('Code elements not found!', item);
 		return;
@@ -111,7 +112,7 @@ function getItemObject(item) {
 
 	let purchaseCode = formatPurchaseCode(givenCode + '-' + colourName);
 
-	let descElement = isStella ? item.querySelector('td.ItemsListingInfo span.CustomeFieldFormatB') : item.querySelector('td.ItemsListingInfo span.CustomeFieldFormatR');
+	let descElement = item.querySelector('td.ItemsListingInfo span[class*="CustomeFieldFormat"]');
 	if (!descElement) {
 		Notify.log('Description element not found!', item);
 		return;
@@ -276,4 +277,42 @@ async function scrapeFullSizeImage(item) {
 	await scraperLoadPromise;
 
 	return returnedLink;
+}
+
+/***********************************************
+ * Collection Sorting & Filtering
+ ***********************************************/
+function getItemContainer() {
+	return document.querySelector('div#P_Items_Listing_Img_Class');
+}
+
+function getCodeFromItem(item) {
+	let codeElements = item.querySelectorAll('td.ItemsListingInfo > table td');
+	if (codeElements.length > 0) {
+		let code = codeElements[0].innerText.substring(codeElements[0].innerText.indexOf('-') + 1).trim();
+		let colour = codeElements[1].innerText.trim();
+		return code + ' ' + colour;
+	}
+}
+
+function testFilterAgainst(item) {
+	let codeElements = item.querySelectorAll('td.ItemsListingInfo');
+	let str = '';
+	for (const key in codeElements) {
+		if (Object.hasOwnProperty.call(codeElements, key)) {
+			const element = codeElements[key];
+			str += element.innerText + ' ';
+		}
+	}
+	return str.trim();
+}
+
+function addFilterMatchStyle(item) {
+	let elem = item.querySelector('tr:nth-of-type(2)');
+	if (elem) elem.style.boxShadow = 'green inset 0 25px 5px -20px';
+}
+
+function removeFilterMatchStyle(item) {
+	let elem = item.querySelector('tr:nth-of-type(2)');
+	if (elem) elem.style.boxShadow = '';
 }
