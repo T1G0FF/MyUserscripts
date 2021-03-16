@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Lewis & Irene
 // @namespace    http://tgoff.me/
-// @version      2021.03.16.4
+// @version      2021.03.16.5
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.
 // @author       www.tgoff.me
 // @match        *://www.lewisandirene.com/our-fabrics/*
@@ -137,20 +137,19 @@ function getItemContainer() {
 }
 
 function getCodeFromItem(item) {
-	let givenCode = item.querySelector('.fg-item-inner > a').getAttribute('data-caption-title');
-	let matches = LewisIreneRegEx.exec(givenCode);
-	let separator = '';
-	if (!matches || matches.length <= 1) {
+	let itemCode = item.querySelector('.fg-item-inner > a').getAttribute('data-caption-title');
+	return itemCode;
+}
+
+function compareCodes(aCode, bCode) {
+	let aMatches = LewisIreneRegEx.exec(aCode);
+	let bMatches = LewisIreneRegEx.exec(bCode);
+	if (!aMatches || aMatches.length <= 1 || !bMatches || bMatches.length <= 1) {
 		//Notify.log('No matches found for Item!', item);
 		return;
 	}
-	let itemCode = ''
-	if (matches[RegexEnum.ColourCode] === undefined && matches[RegexEnum.CollectionLetters] === 'BB') {
-		itemCode = matches[RegexEnum.CollectionLetters] + ' ' + padWithZeros(matches[RegexEnum.CollectionNumbers], 3);
-	} else {
-		itemCode = matches[RegexEnum.CollectionLetters] + matches[RegexEnum.CollectionNumbers] + '.' + matches[RegexEnum.ColourCode];
-	}
-	return itemCode;
+	
+	return comp(aMatches[RegexEnum.CollectionLetters], bMatches[RegexEnum.CollectionLetters]) || comp(padWithZeros(aMatches[RegexEnum.CollectionNumbers], 3), padWithZeros(bMatches[RegexEnum.CollectionNumbers], 3)) || comp(padWithZeros(aMatches[RegexEnum.ColourCode], 3), padWithZeros(bMatches[RegexEnum.ColourCode], 3));
 }
 
 function testFilterAgainst(item) {
