@@ -221,6 +221,6 @@ function addFilterMatchStyle(item) {
 }
 
 function removeFilterMatchStyle(item) {
-	let elem = item.querySelector('div.card-body')
+	let elem = item.querySelector('div.card-body');
 	if (elem) elem.style.boxShadow = '';
 }
