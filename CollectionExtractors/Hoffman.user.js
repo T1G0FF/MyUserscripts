@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.2
+// @version      2021.03.16.3
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -43,11 +43,8 @@ function getTitleElement() {
 }
 
 function getCollection() {
-	let collection = document.querySelectorAll('div.page > div.container > .masonbox.masoncol5');
-	if (!collection || collection.length < 1) {
-		collection = document.querySelectorAll('body > div.container > .masonbox.masoncol4');
-		isCollectionPage = collection.length > 0;
-	}
+	let collection = document.querySelectorAll('div.container > div.masonbox[class*="masoncol"]');
+	isCollectionPage = document.querySelectorAll('div.container > div.masonbox.masoncol4').length > 0;
 	return collection;
 }
 
@@ -225,11 +222,11 @@ function testFilterAgainst(item) {
 }
 
 function addFilterMatchStyle(item) {
-	let elem = item.querySelector('div > b');
-	if (elem) elem.style.color = 'green';
+	let elem = item;
+	if (elem) elem.style.boxShadow = 'inset white 0px 0px 0px 5px, inset green 0px 0px 15px 10px';
 }
 
 function removeFilterMatchStyle(item) {
-	let elem = item.querySelector('div > b')
-	if (elem) elem.style.color = '';
+	let elem = item;
+	if (elem) elem.style.boxShadow = '';
 }
