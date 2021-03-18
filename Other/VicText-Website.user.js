@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.15.4
+// @version      2021.03.18.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -751,6 +751,22 @@ function getItemContainer() {
 	return document.querySelector('div#Gallery');
 }
 
+function getCodeFromItem(currentItem) {
+	let productCode = currentItem.getAttribute('id');
+	if (!productCode) {
+		let codeRegEx = /https?:\/\/www\.victoriantextiles\.com\.au\/(.*?)\/.*\/pd\.php/g;
+		let matches = codeRegEx.exec(currentItem.getAttribute('href'));
+		if (matches) {
+			productCode = matches[1];
+		} else {
+			productCode = "Collection";
+		}
+	}
+	productCode = productCode.replace(/prod-id-/g, '');
+	productCode = ss_decode(productCode);
+	return productCode;
+}
+
 function testFilterAgainst(item) {
 	// TODO: Until Optional chaining support makes it to stable.
 	// return item.querySelector('.galleryName')?.innerText;
@@ -761,11 +777,13 @@ function testFilterAgainst(item) {
 }
 
 function addFilterMatchStyle(item) {
-	item.querySelector('.galleryName > a').style.color = 'green';
+	let elem = item.querySelector('h2.galleryName');
+	if (elem) elem.style.boxShadow = 'green inset 0 25px 5px -20px';
 }
 
 function removeFilterMatchStyle(item) {
-	item.querySelector('.galleryName > a').style.color = '';
+	let elem = item.querySelector('h2.galleryName');
+	if (elem) elem.style.boxShadow = '';
 }
 
 /***********************************************
@@ -786,22 +804,6 @@ function lazyLoadThumbImages(e) {
 		imgElement.src = imgElement.getAttribute('thumbImage');
 		currentItem.removeEventListener('mouseover', lazyLoadThumbImages);
 	}
-}
-
-function getCodeFromItem(currentItem) {
-	let productCode = currentItem.getAttribute('id');
-	if (!productCode) {
-		let codeRegEx = /https?:\/\/www\.victoriantextiles\.com\.au\/(.*?)\/.*\/pd\.php/g;
-		let matches = codeRegEx.exec(currentItem.getAttribute('href'));
-		if (matches) {
-			productCode = matches[1];
-		} else {
-			productCode = "Collection";
-		}
-	}
-	productCode = productCode.replace(/prod-id-/g, '');
-	productCode = ss_decode(productCode);
-	return productCode;
 }
 
 function ss_encode(str) {
