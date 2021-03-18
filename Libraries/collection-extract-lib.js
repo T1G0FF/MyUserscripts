@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.7
+// @version      2021.03.18.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -24,6 +24,7 @@ function createButtons(element = getTitleElement(), location = 'beforeEnd', fore
 function resetWarnings() {
 	WARN_INFO_ITEMOBJECT = true;
 	WARN_INFO_FORMATINFO = true;
+	WARN_SORT_COMPARECODES = true;
 }
 
 // Performs func on the collection, and copies output to the clipboard.
@@ -555,6 +556,7 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
  ***********************************************/
 var SORTED = false;
 var SORT_DIRECTION = -1;
+var WARN_SORT_COMPARECODES = true;
 async function addSortFilterInputs(locationElement = getTitleElement()) {
 	let reqsNotMet = false;
 	let testItem = (await getCollection())[0];
@@ -577,14 +579,14 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	let sortButton = document.createElement('button');
 	sortButton.innerText = 'Sort Codes';
 	sortButton.classList.add('tg-dropdown-option');
-	sortButton.onclick = function () { btnAction_sortCollection(sortButton) };
+	sortButton.onclick = function () { resetWarnings(); btnAction_sortCollection(sortButton) };
 
 	addElementToDropdownContainer(locationElement, [sortButton], 'beforeEnd');
 
 	let filterButton = document.createElement('button');
 	filterButton.innerText = 'Filter Items';
 	filterButton.classList.add('tg-dropdown-option');
-	filterButton.onclick = function () { btnAction_filterCollection(filterButton) };
+	filterButton.onclick = function () { resetWarnings(); btnAction_filterCollection(filterButton) };
 
 	let filterTextbox = document.createElement('INPUT');
 	filterTextbox.id = filterTextbox.name = 'tg-filter-input';
@@ -657,13 +659,13 @@ async function filterCollection() {
 async function refreshCollection(itemContainer = getItemContainer(), itemList = undefined) {
 	itemList = itemList || Array.from(await getCollection());
 	itemList = (Array.isArray(itemList)) ? itemList : Array.from(itemList);
-	let children = itemContainer.children;
+	let children = Array.from(itemContainer.children);
 	let foundChildren = [];
-	for (let i = children.length - 1; i >= 0; i--) {
-		let child = children[i];
-		if (itemList.includes(child)) {
+	for (let i = itemList.length - 1; i >= 0; i--) {
+		let child = itemList[i];
+		if (children.includes(child)) {
 			itemContainer.removeChild(child);
-			foundChildren.push(child);
+			foundChildren.unshift(child);
 		}
 	}
 	itemList = foundChildren;
@@ -674,21 +676,21 @@ async function refreshCollection(itemContainer = getItemContainer(), itemList = 
 	for (let i = itemList.length - 1; i >= 0; i--) {
 		let itemOut = itemList[i];
 		if (testFilter(filter, testFilterAgainst(itemOut))) {
-			filterTrueList.push(itemOut);
+			filterTrueList.unshift(itemOut);
 		} else {
-			filterFalseList.push(itemOut);
+			filterFalseList.unshift(itemOut);
 		}
 	}
 
 	if (filterFalseList.length > 0) {
-		for (let j = 0; j < filterFalseList.length; j++) {
+		for (let j = filterFalseList.length - 1; j >= 0 ; j--) {
 			let itemOut = filterFalseList[j];
 			removeFilterMatchStyle(itemOut);
 			itemContainer.insertAdjacentElement('afterBegin', itemOut);
 		}
 	}
 	if (filterTrueList.length > 0) {
-		for (let j = 0; j < filterTrueList.length; j++) {
+		for (let j = filterTrueList.length - 1; j >= 0; j--) {
 			let itemOut = filterTrueList[j];
 			addFilterMatchStyle(itemOut);
 			itemContainer.insertAdjacentElement('afterBegin', itemOut);
@@ -704,9 +706,7 @@ function getFilterElement() {
 
 function getFilterText() {
 	let elem = getFilterElement();
-	if (elem) {
-		return (elem.value) ? elem.value.toLowerCase() : '';
-	}
+	if (elem) return (elem.value) ? elem.value.toLowerCase() : '';
 }
 
 function testFilter(filter, str) {
@@ -731,7 +731,9 @@ function testFilter(filter, str) {
 
 /* Virtual Functions */
 function getItemContainer() {
-	console.warn('WARN: Redefine getItemContainer() such that it returns the element that contains the items to be sorted.');
+	
+		console.warn('WARN: Redefine getItemContainer() such that it returns the element that contains the items to be sorted.');
+	
 	return undefined;
 }
 
@@ -741,7 +743,10 @@ function getCodeFromItem(item) {
 }
 
 function compareCodes(aCode, bCode) {
-	console.log('INFO: Redefining compareCodes() will allow you to chain comparisons.');
+	if (WARN_SORT_COMPARECODES) {
+		console.log('INFO: Redefining compareCodes() will allow you to chain comparisons.');
+	}
+	WARN_SORT_COMPARECODES = false;
 	return comp(aCode, bCode);
 }
 
