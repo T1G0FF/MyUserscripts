@@ -731,9 +731,7 @@ function testFilter(filter, str) {
 
 /* Virtual Functions */
 function getItemContainer() {
-	
-		console.warn('WARN: Redefine getItemContainer() such that it returns the element that contains the items to be sorted.');
-	
+	console.warn('WARN: Redefine getItemContainer() such that it returns the element that contains the items to be sorted.');
 	return undefined;
 }
 
