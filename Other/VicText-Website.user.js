@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.18.1
+// @version      2021.03.22.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -44,22 +44,8 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
-	if (WEBADD_CONFIG.FIND_IMAGELESS) {
-		// TODO: Until Optional chaining support makes it to stable.
-		// createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', getImagelessCollection()?.Collection?.length > 0);
-		let test = getImagelessCollection().Collection;
-		if (test) {
-			createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', test.length > 0);
-		}
-	}
-	if (WEBADD_CONFIG.FIND_CHILDLESS) {
-		// TODO: Until Optional chaining support makes it to stable.
-		// createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', getChildlessCollection()?.length > 0);
-		let test = getChildlessCollection();
-		if (test) {
-			createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', test.length > 0);
-		}
-	}
+	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', getImagelessCollection()?.Collection?.length > 0);
+	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', getChildlessCollection()?.length > 0);
 	if (WEBADD_CONFIG.HOVER_PREVIEW) btnAction_addHoverPreview();
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
@@ -86,7 +72,7 @@ function addMiscCSS() {
 	top: 0;
 	left: 50%;
 	display: block;
-	z-index: 999;
+	z-index: 100;
 	transform: translate(-50%, -25%);
 }
 
@@ -155,7 +141,7 @@ function addMiscCSS() {
 	MyStyles.addStyle('RemoveRegister', cssText);
 
 	cssText = `/* Special Star */
-div.onSpecial, div.onSpecial> span {
+div.onSpecial, div.onSpecial > span {
     padding: 0px;
     background: none;
     border: none;
@@ -204,7 +190,7 @@ div.onSpecial:after {
 div.onSpecial > span {
     position: absolute;
     display: inline-block;
-    z-index: 999;
+    z-index: 101;
     color: black;
     transform: rotate(-35deg) translateX(-58%) translateY(-25%);
 }`;
@@ -768,12 +754,7 @@ function getCodeFromItem(currentItem) {
 }
 
 function testFilterAgainst(item) {
-	// TODO: Until Optional chaining support makes it to stable.
-	// return item.querySelector('.galleryName')?.innerText;
-	let strElement = item.querySelector('.galleryName');
-	if (strElement) {
-		return strElement.innerText;
-	}
+	return item.querySelector('.galleryName')?.innerText;
 }
 
 function addFilterMatchStyle(item) {
