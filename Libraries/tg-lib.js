@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.15.1
+// @version      2021.03.22.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -159,6 +159,16 @@ function stripParams(path) {
 function truncateLength(string, length) {
 	let blanks = new Array(length + 1).join(' ');
 	return (string + blanks).slice(0, length).trim();
+}
+
+function getUUID() {
+	let array = new Uint32Array(8);
+	window.crypto.getRandomValues(array);
+	let str = '';
+	for (let i = 0; i < array.length; i++) {
+		str += (i < 2 || i > 5 ? '' : '-') + array[i].toString(16).slice(-4);
+	}
+	return str;
 }
 
 async function testLinkResolves(path) {
