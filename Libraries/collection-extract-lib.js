@@ -555,9 +555,36 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
 /***********************************************
  * Collection Sorting & Filtering
  ***********************************************/
-var SORTED = false;
-var SORT_DIRECTION = -1;
+var SORTING = 0;
 var WARN_SORT_COMPARECODES = true;
+function isSorted() {
+	return !(getSortDirection() === 0);
+}
+
+function getSortDirection() {
+	switch (SORTING % 3) {
+		default:
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		case 2:
+			return -1;
+	}
+}
+
+function getSortDirectionString() {
+	switch (SORTING % 3) {
+		default:
+		case 0:
+			return '';
+		case 1:
+			return ' ▲';
+		case 2:
+			return ' ▼';
+	}
+}
+
 async function addSortFilterInputs(locationElement = getTitleElement()) {
 	let reqsNotMet = false;
 	let testItem = (await getCollection())[0];
@@ -614,20 +641,20 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 }
 
 async function btnAction_sortCollection(sortButton = undefined) {
-	SORTED = true;
-	if (sortButton) {
-		sortButton.innerText = SORT_DIRECTION > 0 ? 'Sort Codes ▼' : 'Sort Codes ▲';
-	}
-	SORT_DIRECTION *= -1;
+	SORTING = (SORTING + 1) % 3;
 	refreshCollection(getItemContainer(), await sortCollection());
+	if (sortButton) {
+		sortButton.innerText = 'Sort Codes ' + getSortDirectionString();
+	}
 }
 
 async function sortCollection(collection = undefined) {
 	collection = collection || await getCollection();
 	let itemList = Array.from(collection);
+	let sortDir = getSortDirection();
 	itemList.sort(function (a, b) {
 		let result = 0;
-		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * SORT_DIRECTION;
+		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * sortDir;
 		return result;
 	});
 	return itemList;
@@ -639,7 +666,7 @@ async function btnAction_filterCollection(filterButton = undefined) {
 		if (filterElement && filterElement.value.length > 0) {
 			filterButton.innerText = 'Filter Items';
 			filterElement.value = '';
-			filterCollection();
+			await filterCollection();
 		}
 	}
 }
@@ -653,12 +680,17 @@ async function typeAction_filterCollection(filterButton = undefined) {
 
 async function filterCollection() {
 	if (!getFilterElement()) return;
-	let itemList = SORTED ? await sortCollection() : await getCollection();
-	return await refreshCollection(getItemContainer(), itemList);
+	return await refreshCollection(getItemContainer(), undefined);
 }
 
+var collectionOriginalSort = undefined;
 async function refreshCollection(itemContainer = getItemContainer(), itemList = undefined) {
-	itemList = itemList || Array.from(await getCollection());
+	if(!itemList) {
+		if (!collectionOriginalSort) {
+			collectionOriginalSort = Array.from(await getCollection());
+		}
+		itemList = isSorted() ? await sortCollection() : collectionOriginalSort;
+	}
 	itemList = (Array.isArray(itemList)) ? itemList : Array.from(itemList);
 	let children = Array.from(itemContainer.children);
 	let foundChildren = [];
@@ -707,21 +739,22 @@ function getFilterElement() {
 
 function getFilterText() {
 	let elem = getFilterElement();
-	if (elem) return (elem.value) ? elem.value.toLowerCase() : '';
+	if (elem) return (elem.value) ? elem.value : '';
 }
 
 function testFilter(filter, str) {
 	if (!str || !str.length > 0) return false;
 	if (!filter || !filter.length > 0) return false;
-	str = str.toLowerCase();
 	try {
-		let filterRegex = new RegExp(filter);
+		let filterRegex = new RegExp(filter, "i");
 		if (filterRegex) {
 			return filterRegex.test(str);
 		}
 	}
 	catch (ex) {
 		if (ex.message.startsWith('Invalid regular expression')) {
+			filter = filter.toLowerCase();
+			str = str.toLowerCase();
 			return str.indexOf(filter) >= 0;
 		}
 		else {
