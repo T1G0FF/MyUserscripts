@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.22.1
+// @version      2021.03.23.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -44,8 +44,8 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
-	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', getImagelessCollection()?.Collection?.length > 0);
-	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', getChildlessCollection()?.length > 0);
+	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
+	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
 	if (WEBADD_CONFIG.HOVER_PREVIEW) btnAction_addHoverPreview();
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
@@ -220,7 +220,9 @@ function addItemCodesToSwatches() {
 	color: #7E8075;
 	text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
 }
-
+`;
+	MyStyles.addStyle('SwatchLabels', cssText);
+	cssText = `
 .swatcher-swatch:hover .swatch-product-code {
 	font-size: 18px;
 	width: 100%;
@@ -250,9 +252,8 @@ function addItemCodesToSwatches() {
 	z-index: 101;
 	top: -250px;
 	left: calc((50px / 2) - (250px / 2));
-}
-`;
-	MyStyles.addStyle('SwatchLabels', cssText);
+}`
+	MyStyles.addStyle('SwatchHover', cssText);
 	let collection = document.querySelectorAll('.swatcher-swatch');
 	for (let item in collection) {
 		if (collection.hasOwnProperty(item)) {
@@ -280,6 +281,7 @@ function morePerPage() {
 	let select = document.getElementsByName('perPageSelect');
 	if (select.length > 0) {
 		let option = document.createElement('option');
+		// StraightSell limit the number of items per page to 100 maximum.
 		// let option = new Option('All', '500');
 		option.text = '100';
 		option.value = '100';
