@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.26.1
+// @version      2021.03.26.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -21,7 +21,7 @@ let isCollectionPage = false;
 	'use strict';
 	isSearch = window.location.pathname.includes('search-results-page');
 	let elem = document.querySelector('span.shipin-title');
-	if (!elem) getTitleElement();
+	if (!elem) elem = getTitleElement();
 	createButtons(elem);
 	addSortFilterInputs(elem);
 })();
