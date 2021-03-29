@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.23.2
+// @version      2021.03.29.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -219,9 +219,15 @@ function addItemCodesToSwatches() {
 	z-index: 100;
 	color: #7E8075;
 	text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
-}
-`;
+}`;
 	MyStyles.addStyle('SwatchLabels', cssText);
+	cssText = `
+.swatch-product-img {
+	position: absolute;
+	display: none;
+	z-index: 100;
+}`;
+	MyStyles._addStyle(cssText);
 	cssText = `
 .swatcher-swatch:hover .swatch-product-code {
 	font-size: 18px;
@@ -237,12 +243,6 @@ function addItemCodesToSwatches() {
     text-indent: -100%;
 }
 
-.swatch-product-img {
-	position: absolute;
-	display: none;
-	z-index: 100;
-}
-
 .swatcher-swatch:hover .swatch-product-img {
 	width: 250px;
 	height: 250px;
@@ -252,7 +252,7 @@ function addItemCodesToSwatches() {
 	z-index: 101;
 	top: -250px;
 	left: calc((50px / 2) - (250px / 2));
-}`
+}`;
 	MyStyles.addStyle('SwatchHover', cssText);
 	let collection = document.querySelectorAll('.swatcher-swatch');
 	for (let item in collection) {
