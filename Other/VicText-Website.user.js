@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.04.08.1
+// @version      2021.04.08.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -714,7 +714,7 @@ async function scrapeImageless(item, lastCall) {
 	const scraperLoadPromise = new Promise(resolve => {
 		ScraperIFrame.style.visibility = 'visible';
 		ScraperIFrame.src = item.querySelector('a').getAttribute('href');
-		ScraperIFrame.addEventListener("load", function () {
+		ScraperIFrame.addEventListener("load", async function () {
 			if (ScraperIFrame.src != 'about:blank') {
 				let localCollection = await getImagelessCollection(ScraperIFrame.contentDocument);
 				if (localCollection) {
