@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.29.1
+// @version      2021.04.08.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -413,7 +413,7 @@ function initDropdownContainer(element, direction = 'right') {
 	position: absolute;
 	top: 100%;
 	left: 0;
-	z-index: 100;
+	z-index: 500;
 	display: none;
 	float: left;
 	min-width: 10rem;
