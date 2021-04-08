@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.04.08.1
+// @version      2021.04.08.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -29,7 +29,7 @@ function resetWarnings() {
 
 // Performs func on the collection, and copies output to the clipboard.
 async function copyFromCollection(func) {
-	let collection = getCollection();
+	let collection = await getCollection();
 
 	if (!collection) {
 		Notify.log('Collection is undefined!');

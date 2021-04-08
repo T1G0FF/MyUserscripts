@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.03.29.1
+// @version      2021.04.08.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -427,8 +427,8 @@ async function getImagesOnPage() {
 }
 
 async function getImagelessOnPage() {
-	let imageless = getImagelessCollection();
-	let result = await formatImageless(imageless);
+	let imageless = await getImagelessCollection();
+	let result = formatImageless(imageless);
 
 	let msg = 'None found!';
 	if (result.Count > 0) {
@@ -441,7 +441,7 @@ async function getImagelessOnPage() {
 }
 
 async function getChildlessOnPage() {
-	let collection = getChildlessCollection();
+	let collection = await getChildlessCollection();
 	let result = formatChildless(collection);
 
 	let msg = 'None found!';
@@ -594,7 +594,8 @@ function addScraperIFrame() {
 
 async function btnAction_scrapeFirstImage() {
 	let imageHtml = '<html>\n<body>\n';
-	let collection = getImagelessCollection().Collection;
+	let imageless = await getImagelessCollection();
+	let collection = imageless.Collection;
 	let count = 0;
 	for (let item in collection) {
 		if (collection.hasOwnProperty(item)) {
@@ -673,7 +674,7 @@ function addScrapeImagelessInputs() {
 
 async function btnAction_scrapeImageless() {
 	// Grab all the imageless on current page first
-	let imglessResult = getImagelessCollection();
+	let imglessResult = await getImagelessCollection();
 	let collection = await getCollection();
 	let count = 0;
 	for (let item in collection) {
@@ -715,7 +716,7 @@ async function scrapeImageless(item, lastCall) {
 		ScraperIFrame.src = item.querySelector('a').getAttribute('href');
 		ScraperIFrame.addEventListener("load", function () {
 			if (ScraperIFrame.src != 'about:blank') {
-				let localCollection = getImagelessCollection(ScraperIFrame.contentDocument);
+				let localCollection = await getImagelessCollection(ScraperIFrame.contentDocument);
 				if (localCollection) {
 					returnedImgless = localCollection.Collection;
 					if (lastCall) {
