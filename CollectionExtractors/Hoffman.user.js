@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.18.1
+// @version      2021.04.09.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -150,7 +150,7 @@ function formatInformation(itemElement) {
 			collectionName = 'Bali Mottles';
 			break;
 		case '884':
-			collectionName = 'Bali Batiks Sunflowers';
+			collectionName = 'Bali Sunflowers';
 			break;
 		case '885':
 			collectionName = 'Bali Dot Batiks';
