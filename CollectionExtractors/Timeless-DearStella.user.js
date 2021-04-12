@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.1
+// @version      2021.04.12.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -29,7 +29,9 @@ let isStella = false;
 	isSearch = hasParam(window.location.search, "search-key");
 	isStella = window.location.hostname.includes('dearstelladesign');
 	createButtons();
-	addSortFilterInputs(elem);
+	setTimeout(function () {
+		addSortFilterInputs();
+	}, 1500);
 })();
 
 function getCompany() {
@@ -54,11 +56,11 @@ function getAvailabilityDate() {
 
 function getCollection() {
 	// let collection = document.querySelectorAll('div.P-Items-Listing-Class a[title*="STELLA-"]'); // COLLECTION
-	let collection = isSearch ? document.querySelectorAll('div.P-Items-Listing-Class a[title*=" / "]') : document.querySelectorAll('div.P-Items-Listing-Class a[title*="COLLECTION"]');
+	let collection = document.querySelectorAll('div.P-Items-Listing-Class');
 	return collection;
 }
 
-let collections = {
+var collections = {
 	// DEAR STELLA
 	'1150': { 'title': 'Moonscape', 'desc': 'Moonscape' },
 	'1560': { 'title': 'Jax', 'desc': 'Jax' },
@@ -87,14 +89,16 @@ let collections = {
 	'SOHO': { 'title': 'Soho Basic', 'desc': 'Solid' },
 };
 
-function getItemObject(item) {
+function getItemObject(itemElem) {
+	let item = isSearch ? itemElem.querySelector('a[title*=" / "]') : itemElem.querySelector('a[title*="COLLECTION"]');
+
 	let codeElements = item.querySelectorAll('td.ItemsListingInfo > table td');
 	if (!codeElements || codeElements.length < 2) {
 		Notify.log('Code elements not found!', item);
 		return;
 	}
 	let givenCode = codeElements[0].innerText.trim().toUpperCase();
-	
+
 	let collectionFuzz = givenCode.substring(0, givenCode.indexOf('-'));
 	let collectionCode = givenCode.substring(givenCode.indexOf('-') + 1);
 
