@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2021.04.22.3
+// @version      2021.04.22.4
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -38,6 +38,7 @@ let RegexEnum = {
 };
 
 let ColourLookup = {
+	'BGE': 'Beige',
 	'BLK': 'Black',
 	'BLU': 'Blue',
 	'BRN': 'Brown',
@@ -59,6 +60,7 @@ let ColourLookup = {
 	'NAV': 'Navy',
 	'NVY': 'Navy',
 	'ORG': 'Orange',
+	'PLM': 'Plum',
 	'PNK': 'Pink',
 	'PNL': 'Panel',
 	'PRP': 'Purple',
@@ -108,6 +110,7 @@ function formatInformation(item) {
 	if (ColourLookup.hasOwnProperty(givenColourName)) {
 		colourName = ColourLookup[givenColourName];
 	} else {
+		console.log('Unlisted Colour: ' + givenCode + " | " + givenColourName);
 		if (givenColourName.startsWith('LT')) {
 			colourName = givenColourName.replace('LT', 'Light ').toLowerCase().toTitleCase();
 		} else {
