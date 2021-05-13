@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.04.08.2
+// @version      2021.05.13.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -605,7 +605,7 @@ async function btnAction_scrapeFirstImage() {
 				count++;
 				if (count <= parseInt(SCRAPER_CALL_FIELD.value, 10)) continue;
 				let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length) - 1; // Last in increment or last in collection
-				if (count > lastCall) break;
+				if (count > lastCall + 1) break;
 
 				let link = getAbsolutePath(await scrapeFirstImage(currentItem, count == lastCall));
 				link = link.replaceAll('thumbnails/swatches/', '');
