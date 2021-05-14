@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.05.13.1
+// @version      2021.05.14.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -371,7 +371,7 @@ async function getCodesOnPage() {
 		let parentRegex = /((?:WEB_dash_)[A-z0-9\_]+)\/(.*)\//;
 		let matches = parentRegex.exec(url);
 		if (matches && matches.length > 1) {
-			result += matches[1].replaceAll('_dash_', '-') + '\t' + matches[2].replaceAll('-', ' ').replaceAll('_dash_', '-') + '\n';
+			result += ss_decode(matches[1]) + '\t' + ss_decode(matches[2]) + '\n';
 			count++;
 		}
 	}
@@ -746,7 +746,7 @@ function getCodeFromItem(currentItem) {
 		let codeRegEx = /https?:\/\/www\.victoriantextiles\.com\.au\/(.*?)\/.*\/pd\.php/g;
 		let matches = codeRegEx.exec(currentItem.getAttribute('href'));
 		if (matches) {
-			productCode = matches[1];
+			productCode = decodeURI(matches[1]);
 		} else {
 			productCode = "Collection";
 		}
