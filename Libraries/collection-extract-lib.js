@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.04.09.1
+// @version      2021.05.21.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -24,7 +24,7 @@ function createButtons(element = getTitleElement(), location = 'beforeEnd', fore
 function resetWarnings() {
 	WARN_INFO_ITEMOBJECT = true;
 	WARN_INFO_FORMATINFO = true;
-	WARN_SORT_COMPARECODES = true;
+	WARN_SORT_COMPAREITEMS = true;
 }
 
 // Performs func on the collection, and copies output to the clipboard.
@@ -556,7 +556,7 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
  * Collection Sorting & Filtering
  ***********************************************/
 var SORTING = 0;
-var WARN_SORT_COMPARECODES = true;
+var WARN_SORT_COMPAREITEMS = true;
 function isSorted() {
 	return !(getSortDirection() === 0);
 }
@@ -654,7 +654,7 @@ async function sortCollection(collection = undefined) {
 	let sortDir = getSortDirection();
 	itemList.sort(function (a, b) {
 		let result = 0;
-		result = compareCodes(getCodeFromItem(a), getCodeFromItem(b)) * sortDir;
+		result = compareItems(a, b) * sortDir;
 		return result;
 	});
 	return itemList;
@@ -774,12 +774,12 @@ function getCodeFromItem(item) {
 	return undefined;
 }
 
-function compareCodes(aCode, bCode) {
-	if (WARN_SORT_COMPARECODES) {
-		console.log('INFO: Redefining compareCodes() will allow you to chain comparisons.');
+function compareItems(aItem, bItem) {
+	if (WARN_SORT_COMPAREITEMS) {
+		console.log('INFO: Redefining compareItems() will allow you to chain comparisons.');
 	}
-	WARN_SORT_COMPARECODES = false;
-	return comp(aCode, bCode);
+	WARN_SORT_COMPAREITEMS = false;
+	return comp(getCodeFromItem(aItem), getCodeFromItem(bItem));
 }
 
 function testFilterAgainst(item) {
