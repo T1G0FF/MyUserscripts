@@ -266,7 +266,7 @@ async function scrapeFullSizeImage(item) {
 	let returnedLink;
 	const scraperLoadPromise = new Promise(resolve => {
 		ScraperIFrame.style.visibility = 'visible';
-		ScraperIFrame.src = item.getAttribute('href');
+		ScraperIFrame.src = item.querySelector('a').getAttribute('href');
 		ScraperIFrame.addEventListener("load", function () {
 			let img = ScraperIFrame.contentDocument.querySelector('ul#ItemImagesGallery li.active');
 			if (img) {
