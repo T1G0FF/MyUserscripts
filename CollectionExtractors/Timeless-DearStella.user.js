@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.2
+// @version      2021.07.06.3
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -90,6 +90,17 @@ var collections = {
 	'SOHO': { 'title': 'Soho Basic', 'desc': 'Solid' },
 };
 
+var designers = {
+	'JL': 'August Wren',
+	'CWR': 'Caitlin Wallace-Rowland',
+	'CJ': 'Clara Jean Design',
+	'LQ': 'Leezaworks',
+	'MB': 'Miriam Bos',
+	'NS': 'Nina Stajner',
+	'RR': 'Rae Ritchie',
+	'WG': 'Wee Gallery',
+};
+
 function getItemObject(itemElem) {
 	let item = itemElem.querySelector('a[title*=" / "]'); //isSearch ? itemElem.querySelector('a[title*=" / "]') : itemElem.querySelector('a[title*="COLLECTION"]');
 
@@ -138,28 +149,42 @@ function getItemObject(itemElem) {
 	let repeat = '';
 
 	if (isStella) {
-		if (givenCode[0].toUpperCase() == 'W' && givenCode[1].toUpperCase() != 'W') {
+		if (givenCode[0].toUpperCase() == 'W') {
+			// Wide
 			prefix += 'W';
 			width = { 'Measurement': '60', 'Unit': 'in' };
 			material = 'P100%';
 		}
-		if (collectionCode[0].toUpperCase() == 'K' && collectionCode[1].toUpperCase() != 'K') {
-			material = 'C95% S5%';
-			special = 'Knit';
-		}
-		if (collectionCode[0].toUpperCase() == 'F' && collectionCode[1].toUpperCase() != 'F') {
-			material = 'C100%';
-			special = 'Flannel';
-		}
-		if (givenCode[0].toUpperCase() == 'P' && givenCode[1].toUpperCase() != 'P') {
+		else if (givenCode[0].toUpperCase() == 'P') {
+			// Panel
 			prefix += 'P';
 		}
+		if (collectionCode[0].toUpperCase() == 'D') {
+			special = 'Digital';
+		} else
+		if (collectionCode[0].toUpperCase() == 'F') {
+			special = 'Flannel';
+		} else 
+		if (collectionCode[0].toUpperCase() == 'K') {
+			material = 'C95% S5%';
+			special = 'Knit';
+		} else
+		if (collectionCode[0].toUpperCase() == 'S') {
+			special = 'Shirting';
+		}
+		for (const signature of designers) {
+			if (collectionCode.toUpperCase().indexOf(signature) >= 0) {
+				special += 'By ' + designers[signature];
+				break;
+			}
+		}
+		
 	} else {
 		if (collectionFuzz === 'HUE') {
 			if (colourName.toUpperCase() === 'BLACK' || colourName.toUpperCase() === 'WHITE') {
 				title = colourName + 'out';
 			}
-		}
+		} else
 		if (collectionFuzz === 'XTONGA') {
 			title = 'Extra Wide Tongas';
 		}
@@ -172,6 +197,7 @@ function getItemObject(itemElem) {
 			width = { 'Measurement': '60', 'Unit': 'in' };
 		}
 		if (givenCode[0].toUpperCase() == 'X' && givenCode[1].toUpperCase() != 'X') {
+			// eXtra Wide
 			prefix += 'X';
 			width = { 'Measurement': '106', 'Unit': 'in' };
 		}
