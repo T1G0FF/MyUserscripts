@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.02.1
+// @version      2021.07.06.2
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -67,6 +67,7 @@ var collections = {
 	'SRR512': { 'title': 'Scallop Dot', 'desc': 'Scallop Dot' },
 	'SRR613': { 'title': 'Triangle Dot', 'desc': 'Triangle Dot' },
 	'SRR1300': { 'title': 'Dash Flow', 'desc': 'Dash Flow' },
+	'SRR1920': { 'title': 'Speckle', 'desc': 'Speckle' },
 	// TIMELESS TREASURES
 	'B7900': { 'title': 'Java Blender Basic', 'desc': 'Batik Solid' },
 	'C1820': { 'title': 'Dot Basic', 'desc': 'Dot' },
@@ -90,7 +91,7 @@ var collections = {
 };
 
 function getItemObject(itemElem) {
-	let item = isSearch ? itemElem.querySelector('a[title*=" / "]') : itemElem.querySelector('a[title*="COLLECTION"]');
+	let item = itemElem.querySelector('a[title*=" / "]'); //isSearch ? itemElem.querySelector('a[title*=" / "]') : itemElem.querySelector('a[title*="COLLECTION"]');
 
 	let codeElements = item.querySelectorAll('td.ItemsListingInfo > table td');
 	if (!codeElements || codeElements.length < 2) {
