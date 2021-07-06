@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.8
+// @version      2021.07.06.9
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -163,7 +163,6 @@ function getItemObject(itemElem) {
 			// Wide | WSTELLA
 			prefix += 'W';
 			width = { 'Measurement': '60', 'Unit': 'in' };
-			
 		}
 		else if (givenCode[0].toUpperCase() == 'P') {
 			// Panel | PSTELLA
