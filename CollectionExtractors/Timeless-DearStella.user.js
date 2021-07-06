@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.6
+// @version      2021.07.06.7
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -250,7 +250,8 @@ function formatInformation(itemElement) {
 	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
 
 	let relDateString = toReleaseString(item.ReleaseDates);
-	let designer = item.Designer && item.Designer.length > 0 ? ', By ' + item.Designer : '';
+	let comma = item.SpecialNotes && item.SpecialNotes.length > 0 ? ', ' : '';
+	let designer = item.Designer && item.Designer.length > 0 ? comma + 'By ' + item.Designer : '';
 	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes + designer, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
 	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
 
