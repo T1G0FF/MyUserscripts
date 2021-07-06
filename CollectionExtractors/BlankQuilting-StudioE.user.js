@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.4
+// @version      2021.07.06.5
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -98,7 +98,7 @@ function getItemObject(item) {
 		let imgElement = item.querySelector('img.card-image');
 		let itemName = imgElement.getAttribute('alt');
 		let classList = Array.from(item.classList);
-		classList.remove('product', 'item', 'first');
+		classList.remove('product', 'item', 'first', 'last');
 		if(!isStudioE) {
 			classList.remove('Full');
 		}
@@ -201,7 +201,12 @@ function formatInformation(itemElement) {
 	let delDateString = toDeliveryString(item.ReleaseDates);
 
 	if (item.isFullCollection) {
-		itemCode = formatItemCode(item.Prefix + ' ', item.CollectionName.toUpperCase());
+		let fullCollectionName = item.CollectionName.toUpperCase();
+		fullCollectionName = fullCollectionName.replaceAll('[\'"]', '');
+		fullCollectionName = fullCollectionName.replaceAll(' - DIGITAL', '');
+		fullCollectionName = fullCollectionName.replaceAll('&', 'AND');
+		fullCollectionName = ' ' + fullCollectionName;
+		itemCode = formatItemCode(item.Prefix, fullCollectionName);
 		// 3 Wishes Amazement Park Collection
 		webName = company + ' ' + item.ItemName;
 		// 3 Wishes Amazement Park Collection - 8pc - 12yd Bolts
