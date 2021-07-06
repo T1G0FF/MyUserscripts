@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.22.1
+// @version      2021.07.06.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -302,6 +302,17 @@ String.prototype.toTitleCase = function(ignoreCase = true) {
 		split[i] = split[i].charAt(0).toUpperCase() + endOfWord;
 	}
 	return split.join(' ');
+};
+
+Array.prototype.remove = function() {
+	var what, a = arguments, L = a.length, ax;
+	while (L && this.length) {
+		what = a[--L];
+		while ((ax = this.indexOf(what)) !== -1) {
+			this.splice(ax, 1);
+		}
+	}
+	return this;
 };
 
 // ==UserScript==
