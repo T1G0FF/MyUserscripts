@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.26.2
+// @version      2021.07.06.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -17,9 +17,11 @@
 
 let isSearch = false;
 let isCollectionPage = false;
+let isStudioE = false;
 (function () {
 	'use strict';
 	isSearch = window.location.pathname.includes('search-results-page');
+	isStudioE = window.location.hostname.includes('studioefabrics');
 	let elem = document.querySelector('span.shipin-title');
 	if (!elem) elem = getTitleElement();
 	createButtons(elem);
@@ -36,7 +38,7 @@ let RegexEnum = {
 };
 
 function getCompany() {
-	let company = window.location.hostname.includes('studioefabrics') ? 'Studio E' : 'Blank Quilting';
+	let company = isStudioE ? 'Studio E' : 'Blank Quilting';
 	return company;
 }
 
@@ -84,14 +86,40 @@ function getItemObject(item) {
 	}
 	let givenCode = codeElement.innerText.trim().toUpperCase();
 
+	let prefix = 'BQ';
+	let title = getFormattedTitle();
+	let dates = getReleaseDates();
+
+	if (item.matches('.Full') || item.matches('.FULL')) {
+		// Full Collection Item
+		let imgElement = item.querySelector('img.card-image');
+		let itemName = imgElement.getAttribute('alt');
+		let classList = JSON.parse(JSON.stringify(item.classList)); // Deep Copy Array
+		classList.remove('product', 'item', 'first');
+		if(!isStudioE) {
+			classList.remove('Full');
+		}
+		let purchaseCode = Array.prototype.join.call(classList, ' ');
+		let collectionCount = document.querySelector('div.ship-in-cnt > p:last-of-type > span').innerText;			
+		return { 
+			'isFullCollection': true,
+			'Prefix': 'COL-' + prefix,
+			'CollectionCode': collectionCode,
+			'PurchaseCode': purchaseCode,
+			'CollectionName': title,
+			'ItemName': itemName,
+			'CollectionCount': collectionCount,
+			'BoltLength': { 'Measurement': '11', 'Unit': 'm' },
+			'ReleaseDates': dates,
+		};
+	}
+
 	blankRegEx.lastIndex = 0;
 	let matches = blankRegEx.exec(givenCode);
 	if (!matches || matches.length <= 1) {
 		Notify.log('No matches found for Item!', item);
 		return;
 	}
-
-	let prefix = 'BQ';
 
 	let collectionCode = matches[RegexEnum.Collection];
 	if (matches[RegexEnum.LetterBefore]) {
@@ -126,7 +154,6 @@ function getItemObject(item) {
 	let givenDesc = descElement.innerText.trim();
 	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 
-	let title = getFormattedTitle();
 	let special = '';
 	if (title.indexOf(' - ') > 0) {
 		let dash = title.indexOf(' - ');
@@ -137,8 +164,6 @@ function getItemObject(item) {
 	let material = 'C100%';
 	let width = title.includes('108') ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
-
-	let dates = getReleaseDates();
 
 	return {
 		'Prefix': prefix,
@@ -164,20 +189,37 @@ function formatInformation(itemElement) {
 		return { 'description': item.CollectionName };
 	}
 
-	let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
-	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
-
-	let barCode = formatBarCode(itemCode);
-
 	let company = getCompany();
-	let widthString = item.Width.Measurement + item.Width.Unit;
-	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company === 'Studio E') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
-
-	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
+	let itemCode = '';
+	let description = '';
+	let webName = '';
+	let webDesc = '';
 
 	let relDateString = toReleaseString(item.ReleaseDates);
-	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
 	let delDateString = toDeliveryString(item.ReleaseDates);
+
+	if (item.isFullCollection) {
+		itemCode = formatItemCode(item.Prefix, item.CollectionName);
+		// 3 Wishes Amazement Park Collection
+		webName = company + ' ' + item.ItemName;
+		// 3 Wishes Amazement Park Collection - 8pc - 12yd Bolts
+		let boltString = item.BoltLength.Measurement + item.BoltLength.Unit;
+		description = webName + ' - ' + item.CollectionCount + 'pc - ' + boltString + ' Bolts';
+		
+		webDesc = formatWebDescription({ 'Collection': item.CollectionCount + ' Bolts', 'Bolts': boltString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });;
+	} else {
+		let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
+		itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
+
+		let widthString = item.Width.Measurement + item.Width.Unit;
+		description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company === 'Studio E') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+
+		webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
+
+		webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	}
+
+	let barCode = formatBarCode(itemCode);
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': item.CollectionName };
 	return result;
