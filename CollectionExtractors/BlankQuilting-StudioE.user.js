@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.2
+// @version      2021.07.06.3
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -57,8 +57,11 @@ function getAvailabilityDate() {
 	let availableElement = document.querySelector('span.shipin-title')
 	if (availableElement) {
 		let available = availableElement.innerText;
+		// Ignores everything after the first line, which is probably text from the added buttons.
+		if (available.indexOf('\n') > 0) available = available.split('\n')[0];
 		if (available == 'Shipping Now') return undefined;
 		available = available.replaceAll('Ships in ', '');
+		available = available.replaceAll('Ships ', '');
 		return available;
 	}
 	return undefined;
@@ -104,7 +107,6 @@ function getItemObject(item) {
 		return { 
 			'isFullCollection': true,
 			'Prefix': 'COL-' + prefix,
-			'CollectionCode': collectionCode,
 			'PurchaseCode': purchaseCode,
 			'CollectionName': title,
 			'ItemName': itemName,
