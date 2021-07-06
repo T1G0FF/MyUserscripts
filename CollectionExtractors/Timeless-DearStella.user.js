@@ -188,7 +188,8 @@ function getItemObject(itemElem) {
 			}
 		} else
 		if (collectionCode[0].toUpperCase() == 'S') {
-			special = 'Shirting';
+			// Not sure about this one, doesn't seem consistent.
+			//special = 'Shirting';
 		}
 	} else {
 		if (collectionFuzz === 'HUE') {
