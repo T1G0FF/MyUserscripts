@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.5
+// @version      2021.07.06.6
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -92,6 +92,7 @@ var collections = {
 
 var designers = {
 	'JL': 'August Wren',
+	'AW': 'August Wren',
 	'CWR': 'Caitlin Wallace-Rowland',
 	'CJ': 'Clara Jean Design',
 	'LQ': 'Leezaworks',
@@ -138,6 +139,7 @@ function getItemObject(itemElem) {
 
 	let title = getFormattedTitle();
 	let special = '';
+	let designer = '';
 	if (collections.hasOwnProperty(collectionCode)) {
 		if (CONFIG_IGNORE_BASICS && title !== collections[collectionCode].title) return undefined;
 		title = collections[collectionCode].title;
@@ -149,16 +151,24 @@ function getItemObject(itemElem) {
 	let repeat = '';
 
 	if (isStella) {
+		for (const signature of Object.keys(designers)) {
+			if (collectionCode.toUpperCase().indexOf(signature) >= 0) {
+				designer = designers[signature];
+				break;
+			}
+		}
+
 		if (givenCode[0].toUpperCase() == 'W') {
-			// Wide
+			// Wide | WSTELLA
 			prefix += 'W';
 			width = { 'Measurement': '60', 'Unit': 'in' };
-			material = 'P100%';
+			
 		}
 		else if (givenCode[0].toUpperCase() == 'P') {
-			// Panel
+			// Panel | PSTELLA
 			prefix += 'P';
 		}
+
 		if (collectionCode[0].toUpperCase() == 'D') {
 			special = 'Digital';
 		} else
@@ -169,16 +179,16 @@ function getItemObject(itemElem) {
 			material = 'C95% S5%';
 			special = 'Knit';
 		} else
+		if (collectionCode[0].toUpperCase() == 'P') {
+			// Monochrome is cotton, but has a 'P' prefix?
+			if (title.toUpperCase().indexOf('MONOCHROME') < 0) {
+				material = 'P100%';
+				special = 'Digital';
+			}
+		} else
 		if (collectionCode[0].toUpperCase() == 'S') {
 			special = 'Shirting';
 		}
-		for (const signature of Object.keys(designers)) {
-			if (collectionCode.toUpperCase().indexOf(signature) >= 0) {
-				special += 'By ' + designers[signature];
-				break;
-			}
-		}
-		
 	} else {
 		if (collectionFuzz === 'HUE') {
 			if (colourName.toUpperCase() === 'BLACK' || colourName.toUpperCase() === 'WHITE') {
@@ -214,6 +224,7 @@ function getItemObject(itemElem) {
 		'PatternName': patternName,
 		'CollectionName': title,
 		'SpecialNotes': special,
+		'Designer': designer,
 		'Material': material,
 		'Width': width,
 		'Repeat': repeat,
@@ -239,7 +250,8 @@ function formatInformation(itemElement) {
 	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
 
 	let relDateString = toReleaseString(item.ReleaseDates);
-	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	let designer = item.Designer && item.Designer.length > 0 ? ', By ' + item.Designer : '';
+	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes + designer, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
 	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
 
 	let webCategory = isStella || item.IsTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
