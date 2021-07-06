@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.05.21.1
+// @version      2021.06.07.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -214,7 +214,7 @@ function formatSapDescription(dictionary) {
 }
 
 // Combines as many of the following into the form used by the website html description
-var WebDescriptionOrder = ['Collection', 'Notes', 'Fibre', 'Width', 'Release', 'Delivery From'];
+var WebDescriptionOrder = ['Collection', 'Bolts', 'Notes', 'Fibre', 'Width', 'Release', 'Delivery From'];
 function formatWebDescription(dictionary) {
 	let result = "";
 	WebDescriptionOrder.forEach(key => {
