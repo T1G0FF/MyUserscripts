@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.1
+// @version      2021.07.06.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -94,7 +94,7 @@ function getItemObject(item) {
 		// Full Collection Item
 		let imgElement = item.querySelector('img.card-image');
 		let itemName = imgElement.getAttribute('alt');
-		let classList = JSON.parse(JSON.stringify(item.classList)); // Deep Copy Array
+		let classList = Array.from(item.classList);
 		classList.remove('product', 'item', 'first');
 		if(!isStudioE) {
 			classList.remove('Full');
