@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.9
+// @version      2021.07.09.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -268,8 +268,8 @@ function formatInformation(itemElement) {
 // https://www.ttfabrics.com/image/itemIR-212447/w-280/h-300/0dd618d7/HOLIDAY-CM8511-BLACK.jpg
 // https://www.ttfabrics.com/image/watermark/itemIR-212447/addImg-102/w-500/h-500/0dd618d7/HOLIDAY-CM8511-BLACK.jpg
 
-async function formatImage(item) {
-	let result = await scrapeFullSizeImage(item);
+async function formatImage(item, index, total) {
+	let result = await scrapeFullSizeImage(item, index === total);
 	result = result.replace("watermark/", "");
 	//result = result.replace("image/", "image/addImg-102/");
 	result = result.replace(/(?:\/w-\d+)?(?:\/h-\d+)?/g, "");
@@ -297,7 +297,7 @@ function addScraperIFrame() {
 	document.body.appendChild(ScraperIFrame);
 }
 
-async function scrapeFullSizeImage(item) {
+async function scrapeFullSizeImage(item, lastCall) {
 	let ScraperIFrame = document.querySelector('#scraperFrame');
 	if (!ScraperIFrame) {
 		addScraperIFrame();
@@ -309,14 +309,18 @@ async function scrapeFullSizeImage(item) {
 		ScraperIFrame.style.visibility = 'visible';
 		ScraperIFrame.src = item.querySelector('a[title*=" / "]').getAttribute('href');
 		ScraperIFrame.addEventListener("load", function () {
-			let img = ScraperIFrame.contentDocument.querySelector('ul#ItemImagesGallery li.active');
-			if (img) {
-				let link = img.getAttribute('data-src');
-				returnedLink = link;
-				ScraperIFrame.src = 'about:blank';
-				ScraperIFrame.style.visibility = 'hidden';
-				resolve();
+			if (ScraperIFrame.src != 'about:blank') {
+				let img = ScraperIFrame.contentDocument.querySelector('ul#ItemImagesGallery li.active');
+				if (img) {
+					let link = img.getAttribute('data-src');
+					returnedLink = link;
+					if (lastCall) {
+						ScraperIFrame.src = 'about:blank';
+						ScraperIFrame.style.visibility = 'hidden';
+					}
+				}
 			}
+			resolve();
 		});
 	});
 	await scraperLoadPromise;

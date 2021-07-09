@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.06.07.1
+// @version      2021.07.09.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -224,7 +224,7 @@ function formatWebDescription(dictionary) {
 }
 
 // This should be redefined for every Collection Extractor.
-async function formatImage(item) {
+async function formatImage(item, index, total) {
 	console.warn('WARN: Redefine formatImage() such that it returns an array of image URLs as a Strings.');
 	return undefined;
 }
@@ -302,7 +302,7 @@ async function getImageLinks(collection) {
 	for (let item in collection) {
 		let currentItem = collection[item];
 		if (collection.hasOwnProperty(item)) {
-			let givenURLs = await formatImage(currentItem);
+			let givenURLs = await formatImage(currentItem, count, collection.length);
 			if (Array.isArray(givenURLs)) {
 				for (const key in givenURLs) {
 					if (givenURLs.hasOwnProperty(key)) {
@@ -334,7 +334,7 @@ async function saveImages() {
 	for (let item in collection) {
 		let currentItem = collection[item];
 		if (collection.hasOwnProperty(item)) {
-			let currentURL = getAbsolutePath(formatImage(currentItem));
+			let currentURL = getAbsolutePath(formatImage(currentItem, count, collection.length));
 			let currentExtension = getExtension(currentURL);
 			let formattedInfo = await formatInformation(currentItem);
 			if (!formattedInfo) continue;
