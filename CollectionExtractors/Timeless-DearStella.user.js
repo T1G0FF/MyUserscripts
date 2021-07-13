@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.09.1
+// @version      2021.07.13.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -269,7 +269,7 @@ function formatInformation(itemElement) {
 // https://www.ttfabrics.com/image/watermark/itemIR-212447/addImg-102/w-500/h-500/0dd618d7/HOLIDAY-CM8511-BLACK.jpg
 
 async function formatImage(item, index, total) {
-	let result = await scrapeFullSizeImage(item, index === total);
+	let result = await scrapeFullSizeImage(item, index === total-1);
 	result = result.replace("watermark/", "");
 	//result = result.replace("image/", "image/addImg-102/");
 	result = result.replace(/(?:\/w-\d+)?(?:\/h-\d+)?/g, "");
