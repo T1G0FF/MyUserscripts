@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.19.3
+// @version      2021.07.19.4
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -264,9 +264,11 @@ function fixColourName(colourName) {
 }
 function shortenColourName(colourName) {
 	colourName = colourName.trim();
-	colourName = colourName.replaceAll('Light ', 'Lt ');
-	colourName = colourName.replaceAll('Medium ', 'Md ');
-	colourName = colourName.replaceAll('Dark ', 'Dk ');
+	colourName = colourName.toUpperCase();
+	colourName = colourName.replaceAll('WHITE ON WHITE', 'WOW');
+	colourName = colourName.replaceAll('LIGHT ', 'LT');
+	colourName = colourName.replaceAll('MEDIUM ', 'MD');
+	colourName = colourName.replaceAll('DARK ', 'DK');
 	return colourName;
 }
 
