@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.5
+// @version      2021.07.19.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -50,6 +50,7 @@ function getTitleElement() {
 function getTitle() {
 	let titleElement = isSearch ? document.querySelector('div.snize-search-results-header > a.snize-no-products-found-link') : getTitleElement();
 	let title = !titleElement ? '' : titleElement.innerText.trim();
+	if (title[0] === '*') title = title.substr(1);
 	return title;
 }
 
