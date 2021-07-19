@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.19.1
+// @version      2021.07.19.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -251,13 +251,13 @@ function formatPurchaseCode(itemCode) {
 
 function fixColourName(colourName) {
 	colourName = colourName.trim();
-	colourName = colourName.replaceAll('Lt.', 'Light');
-	colourName = colourName.replaceAll('Md.', 'Medium');
-	colourName = colourName.replaceAll('Med.', 'Medium');
-	colourName = colourName.replaceAll('Dk.', 'Dark');
 	colourName = colourName.replaceAll('Gray', 'Grey');
 	colourName = colourName.replaceAll('-', ' ');   // Remove Dashes
 	colourName = colourName.replaceAll('[.]', ' '); // Remove Periods
+	colourName = colourName.replaceAll('Lt ', 'Light ');
+	colourName = colourName.replaceAll('Md ', 'Medium ');
+	colourName = colourName.replaceAll('Med ', 'Medium ');
+	colourName = colourName.replaceAll('Dk ', 'Dark ');
 	colourName = colourName.replaceAll('[ ]+', ' ');  // Replace Double Spaces
 	colourName = colourName.toTitleCase();
 	return colourName;
