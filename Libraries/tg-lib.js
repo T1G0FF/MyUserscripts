@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.06.1
+// @version      2021.08.06.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -342,6 +342,12 @@ let MyStyles = new function() {
 		.CSSToggleLabel {
 			display: block;
 			text-align: right;
+			color: #F2F2F2;
+			font-family: system-ui;
+			font-size: medium;
+			font-weight: 500;
+			line-height: normal;
+			text-shadow: 1px 1px black, -1px -1px black, -1px 1px black, 1px -1px black;
 		}
 
 		input[id*="CSSToggleCheckbox"] {
