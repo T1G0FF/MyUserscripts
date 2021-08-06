@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Lewis & Irene
 // @namespace    http://tgoff.me/
-// @version      2021.03.16.5
+// @version      2021.08.06.1
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.
 // @author       www.tgoff.me
 // @match        *://www.lewisandirene.com/our-fabrics/*
+// @match        *://www.lewisandirene.com/our-patterns/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
@@ -148,7 +149,7 @@ function compareCodes(aCode, bCode) {
 		//Notify.log('No matches found for Item!', item);
 		return;
 	}
-	
+
 	return comp(aMatches[RegexEnum.CollectionLetters], bMatches[RegexEnum.CollectionLetters]) || comp(padWithZeros(aMatches[RegexEnum.CollectionNumbers], 3), padWithZeros(bMatches[RegexEnum.CollectionNumbers], 3)) || comp(padWithZeros(aMatches[RegexEnum.ColourCode], 3), padWithZeros(bMatches[RegexEnum.ColourCode], 3));
 }
 
