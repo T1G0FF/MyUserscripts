@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.09.03.1
+// @version      2021.09.03.2
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -40,7 +40,7 @@ function getCompany() {
 }
 
 function getTitleElement() {
-	let titleElement = isSearch ? document.querySelector('table td.pageHeading div#WithResult') : document.querySelector('table.pageHeading td.pageHeading h1');
+	let titleElement = isSearch ? document.querySelector('table td.pageHeading div#WithResult') : document.querySelector('table td.pageHeading h1');
 	return titleElement;
 }
 
