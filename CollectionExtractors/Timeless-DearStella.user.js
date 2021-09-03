@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.09.03.4
+// @version      2021.09.03.5
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -84,6 +84,7 @@ var collections = {
 	'C8109': { 'title': '1/8in Stripe', 'desc': '1/8in Stripe' },
 	'C8134': { 'title': 'Burlap', 'desc': 'Crosshatch Burlap Texture' },
 	'C8400': { 'title': 'Blockbuster', 'desc': 'Blockbuster Basic' },
+	'C8760': { 'title': 'Moon Dust Basic', 'desc': 'Texture' },
 	'CM7298': { 'title': 'Geo Blender', 'desc': 'Geo' },
 	'CM8156': { 'title': 'City Brushed', 'desc': 'Metallic Brushed Texture' },
 	'SHIMMER': { 'title': 'Shimmer', 'desc': 'Shimmer' },
