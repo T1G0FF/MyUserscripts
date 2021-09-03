@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.09.03.3
+// @version      2021.09.03.4
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -159,34 +159,34 @@ function getItemObject(itemElem) {
 			}
 		}
 
-		if (givenCode[0].toUpperCase() == 'W') {
+		if (givenCode[0]?.toUpperCase() == 'W') {
 			// Wide | WSTELLA
 			prefix += 'W';
 			width = { 'Measurement': '60', 'Unit': 'in' };
 		}
-		else if (givenCode[0].toUpperCase() == 'P') {
+		else if (givenCode[0]?.toUpperCase() == 'P') {
 			// Panel | PSTELLA
 			prefix += 'P';
 		}
 
-		if (collectionCode[0].toUpperCase() == 'D') {
+		if (collectionCode[0]?.toUpperCase() == 'D') {
 			special = 'Digital';
 		}
-		else if (collectionCode[0].toUpperCase() == 'F') {
+		else if (collectionCode[0]?.toUpperCase() == 'F') {
 			special = 'Flannel';
 		}
-		else if (collectionCode[0].toUpperCase() == 'K') {
+		else if (collectionCode[0]?.toUpperCase() == 'K') {
 			material = 'C95% S5%';
 			special = 'Knit';
 		}
-		else if (collectionCode[0].toUpperCase() == 'P') {
+		else if (collectionCode[0]?.toUpperCase() == 'P') {
 			// Monochrome is cotton, but has a 'P' prefix?
 			if (title.toUpperCase().indexOf('MONOCHROME') < 0) {
 				material = 'P100%';
 				special = 'Digital';
 			}
 		}
-		else if (collectionCode[0].toUpperCase() == 'S') {
+		else if (collectionCode[0]?.toUpperCase() == 'S') {
 			// Not sure about this one, doesn't seem consistent.
 			//special = 'Shirting';
 		}
@@ -206,29 +206,29 @@ function getItemObject(itemElem) {
 			collectionFuzz = 'SOFTIE';
 			width = { 'Measurement': '60', 'Unit': 'in' };
 		}
-		if (givenCode[0].toUpperCase() == 'X' && givenCode[1].toUpperCase() != 'X') {
+		if (givenCode[0]?.toUpperCase() == 'X' && givenCode[1]?.toUpperCase() != 'X') {
 			// eXtra Wide
 			prefix += 'X';
 			width = { 'Measurement': '106', 'Unit': 'in' };
 		}
 
-		if (collectionCode[0].toUpperCase() == 'C') {
+		if (collectionCode[0]?.toUpperCase() == 'C') {
 			material = 'C100%';
 		}
-		else if (collectionCode[0].toUpperCase() == 'B') {
+		else if (collectionCode[0]?.toUpperCase() == 'B') {
 			material = 'C100%';
 		}
-		else if (collectionCode[0].toUpperCase() == 'P') {
+		else if (collectionCode[0]?.toUpperCase() == 'P') {
 			material = 'P100%';
 		}
 
-		if (collectionCode[1].toUpperCase() == 'D') {
+		if (collectionCode[1]?.toUpperCase() == 'D') {
 			special = 'Digital';
 		}
-		else if (collectionCode[1].toUpperCase() == 'M') {
+		else if (collectionCode[1]?.toUpperCase() == 'M') {
 			special = 'Metallic';
 		}
-		else if (collectionCode[1].toUpperCase() == 'G') {
+		else if (collectionCode[1]?.toUpperCase() == 'G') {
 			special = 'Glow';
 		}
 	}
