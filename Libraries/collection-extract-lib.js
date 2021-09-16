@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.19.4
+// @version      2021.09.17.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -225,14 +225,14 @@ function formatWebDescription(dictionary) {
 
 // This should be redefined for every Collection Extractor.
 async function formatImage(item, index, total) {
-	console.warn('WARN: Redefine formatImage() such that it returns an array of image URLs as a Strings.');
+	console.warn('WARN: Redefine formatImage() such that it returns an array of image URL(s) as a Strings.');
 	return undefined;
 }
 
 function formatItemCode(prefix, itemCode) {
 	itemCode = prefix + itemCode;
 	itemCode = itemCode.replaceAll('/', '-');
-	itemCode = truncateLength(itemCode, 50);
+	itemCode = truncateLength(itemCode, 30);
 	return itemCode;
 }
 
