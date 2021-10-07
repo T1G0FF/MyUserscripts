@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.07.1
+// @version      2021.10.08.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -90,7 +90,7 @@ function getItemObject(item) {
 		return;
 	}
 	let givenCode = codeElement.innerText.trim().toUpperCase();
-	if (givenCode.IndexOf('||') > 0) {
+	if (givenCode.indexOf('||') > 0) {
 		givenCode = givenCode.split('||')[0].trim();
 	}
 
@@ -156,13 +156,12 @@ function getItemObject(item) {
 	}
 	purchaseCode = formatPurchaseCode(purchaseCode.trim());
 
+	let patternName = 'PATTERN';
 	let descElement = isSearch ? item.querySelector('span.snize-description') : item.querySelector('h4.card-title > p.card-text');
-	if (!descElement) {
-		Notify.log('Description element not found!', item);
-		return;
+	if (descElement) {
+		let givenDesc = descElement.innerText.trim();
+		patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 	}
-	let givenDesc = descElement.innerText.trim();
-	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 
 	let special = '';
 	if (title.indexOf(' - ') > 0) {
