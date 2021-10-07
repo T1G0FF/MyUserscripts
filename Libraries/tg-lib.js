@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.08.06.1
+// @version      2021.10.08.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -296,12 +296,14 @@ String.prototype.replaceAll = function(search, replacement = '', caseSensitive =
 
 String.prototype.toTitleCase = function(ignoreCase = true) {
 	let target = this;
-	let split = target.replaceAll(' ', ' ').split(' ');
-	for (let i = 0; i < split.length; i++) {
-		let endOfWord = ignoreCase ? split[i].slice(1).toLowerCase() : split[i].slice(1);
-		split[i] = split[i].charAt(0).toUpperCase() + endOfWord;
-	}
-	return split.join(' ');
+	// ([^.]) - The not dot is an attempt to ignore web addresses, it's far from perfect.
+	target = target.replace(/([^.])\b([A-z]+)\b/g, (match, p1, p2, offset, string) => {
+		// Test for Roman Numerals
+		let romanNumeral = /(\b(?:[MDCLXVI])M*(?:C[MD]|D?C{0,3})(?:X[CL]|L?X{0,3})(?:I[XV]|V?I{0,3})\b)/.test(match);
+		let endOfWord = ignoreCase && !romanNumeral ? p2.slice(1).toLowerCase() : p2.slice(1);
+		return p1 + p2.charAt(0).toUpperCase() + endOfWord;
+	});
+	return target;
 };
 
 Array.prototype.remove = function() {
