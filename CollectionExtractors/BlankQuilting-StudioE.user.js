@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.19.1
+// @version      2021.10.07.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -28,13 +28,14 @@ let isStudioE = false;
 	addSortFilterInputs(elem);
 })();
 
-let blankRegEx = /([0-9]+)([A-z]+)?(?:-[ ]*(?:([0-9]+)([A-z]+)?)?)(?:[ ]*([\w\ \-\.\/]+))?/;
+let blankRegEx = /([A-z]+)?([0-9]+)([A-z]+)?(?:-[ ]*(?:([0-9]+)([A-z]+)?)?)(?:[ ]*([\w\ \-\.\/]+))?/;
 let RegexEnum = {
-	'Collection': 1,
-	'LetterBefore': 2,
-	'ColourCode': 3,
-	'LetterAfter': 4,
-	'ColourName': 5,
+	'Prefix': 1,
+	'Collection': 2,
+	'LetterBefore': 3,
+	'ColourCode': 4,
+	'LetterAfter': 5,
+	'ColourName': 6,
 };
 
 function getCompany() {
@@ -89,6 +90,9 @@ function getItemObject(item) {
 		return;
 	}
 	let givenCode = codeElement.innerText.trim().toUpperCase();
+	if (givenCode.IndexOf('||') > 0) {
+		givenCode = givenCode.split('||')[0].trim();
+	}
 
 	let prefix = 'BQ';
 	let title = getFormattedTitle();
@@ -104,8 +108,8 @@ function getItemObject(item) {
 			classList.remove('Full');
 		}
 		let purchaseCode = Array.prototype.join.call(classList, ' ');
-		let collectionCount = document.querySelector('div.ship-in-cnt > p:last-of-type > span').innerText;			
-		return { 
+		let collectionCount = document.querySelector('div.ship-in-cnt > p:last-of-type > span').innerText;
+		return {
 			'isFullCollection': true,
 			'Prefix': 'COL-' + prefix,
 			'PurchaseCode': purchaseCode,
@@ -125,6 +129,9 @@ function getItemObject(item) {
 	}
 
 	let collectionCode = matches[RegexEnum.Collection];
+	if (matches[RegexEnum.Prefix]) {
+		collectionCode = matches[RegexEnum.Prefix] + collectionCode;
+	}
 	if (matches[RegexEnum.LetterBefore]) {
 		collectionCode = collectionCode + matches[RegexEnum.LetterBefore];
 	}
@@ -213,7 +220,7 @@ function formatInformation(itemElement) {
 		// 3 Wishes Amazement Park Collection - 8pc - 12yd Bolts
 		let boltString = item.BoltLength.Measurement + item.BoltLength.Unit;
 		description = webName + ' - ' + item.CollectionCount + 'pc - ' + boltString + ' Bolts';
-		
+
 		webDesc = formatWebDescription({ 'Collection': item.CollectionCount + ' Bolts', 'Bolts': boltString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });;
 	} else {
 		let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
