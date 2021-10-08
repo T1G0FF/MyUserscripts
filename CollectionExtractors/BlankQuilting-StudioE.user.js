@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.08.1
+// @version      2021.10.08.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -147,7 +147,7 @@ function getItemObject(item) {
 	let colourName = '';
 	if (matches[RegexEnum.ColourName] && matches[RegexEnum.ColourName].length > 0) {
 		colourName = fixColourName(matches[RegexEnum.ColourName]);
-		colourName = colourName.trim().toTitleCase(false);
+		colourName = colourName.trim().toTitleCase();
 	}
 
 	let purchaseCode = givenCode;

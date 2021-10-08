@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2021.04.09.1
+// @version      2021.10.08.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -90,7 +90,7 @@ function getItemObject(item) {
 	let colourName = '';
 	if (matches[RegexEnum.ColourName] && matches[RegexEnum.ColourName].length > 0) {
 		colourName = fixColourName(matches[RegexEnum.ColourName]);
-		colourName = colourName.trim().toTitleCase(false);
+		colourName = colourName.trim().toTitleCase();
 	}
 
 	let purchaseCode = givenCode;

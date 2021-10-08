@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2021.04.22.4
+// @version      2021.10.08.1
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -134,7 +134,7 @@ function formatInformation(item) {
 	itemCode = formatItemCode('FT', matches[RegexEnum.Code] + ' ' + givenColourName);
 	barCode = formatBarCode(itemCode);
 
-	let webName = colourName.trim().toTitleCase(false) + ' - ' + title;
+	let webName = colourName.trim().toTitleCase() + ' - ' + title;
 	let webDesc = material + ' - ' + width;
 	let description = webName + ' - ' + webDesc;
 

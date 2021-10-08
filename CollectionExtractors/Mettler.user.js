@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Mettler
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.10.08.1
 // @description  Gets the names and codes from a Mettler Range
 // @author       www.tgoff.me
 // @match        *://www.amann-mettler.com/en/products/details/*
@@ -88,7 +88,7 @@ function formatInformation(item) {
 	let material = document.querySelector('div.product-essentials-wrapper p:first-of-type').innerText.trim();;
 	let length = getLength();
 
-	let webName = givenColour.toTitleCase(false) + ' - ' + title;
+	let webName = givenColour.toTitleCase() + ' - ' + title;
 	let webDesc = material + ' - ' + length;
 	let description = webName + ' - ' + webDesc;
 

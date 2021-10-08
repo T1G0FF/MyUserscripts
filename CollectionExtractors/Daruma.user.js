@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Daruma
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.05.1
+// @version      2021.10.08.1
 // @description  Gets the names and codes from a Daruma product page
 // @author       www.tgoff.me
 // @match        *://www.daruma-ito.co.jp/products/*
@@ -81,7 +81,7 @@ function getItemObject(itemElem) {
 	let colourName = colorElement.innerText.split('\n')[1] ?? '';
 	if (colourName && colourName.length > 0) {
 		colourName = fixColourName(colourName);
-		colourName = colourName.trim().toTitleCase(false);
+		colourName = colourName.trim().toTitleCase();
 	}
 
 	let purchaseCode = formatPurchaseCode(collectionCode + '-' + colourCode);

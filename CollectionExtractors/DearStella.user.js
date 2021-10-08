@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella - OLD WEBSITE < SEP 2020
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.10.08.1
 // @description  Gets the names and codes from a Dear Stella Collection
 // @author       www.tgoff.me
 // @match        OUTDATED - *://dearstelladesign.com/store/index.php?route=product/category&path=*
@@ -129,12 +129,12 @@ function formatInformation(item) {
 
 	let nameString = givenName + ' - ' + title;
 
-	let webName = givenColour.toTitleCase(false) + ' - ' + givenName;
+	let webName = givenColour.toTitleCase() + ' - ' + givenName;
 	let webDesc = title + ' - ' + material + ' - ' + width;
 	let description = webName + ' - ' + webDesc;
 
 	if (givenName.toUpperCase().includes(title.toUpperCase())) {
-		description = givenColour.toTitleCase(false) + ' - ' + givenName + ' - ' + material + ' - ' + width;
+		description = givenColour.toTitleCase() + ' - ' + givenName + ' - ' + material + ' - ' + width;
 	}
 
 	let dates = getReleaseDates(availDate, delDelay);
