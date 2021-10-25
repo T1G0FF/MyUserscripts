@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Mettler
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.08.1
+// @version      2021.10.25.1
 // @description  Gets the names and codes from a Mettler Range
 // @author       www.tgoff.me
-// @match        *://www.amann-mettler.com/en/products/details/*
-// @match        *://amann-mettler.com/en/products/details/*
+// @match        *://www.amann-mettler.com/en/products/detail/*
+// @match        *://amann-mettler.com/en/products/detail/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
@@ -24,7 +24,7 @@ function getCompany() {
 }
 
 function getTitleElement() {
-	let titleElement = document.querySelector('h1.product-title');
+	let titleElement = document.querySelector('div.product-detail__header > span');
 	return titleElement;
 }
 
@@ -36,14 +36,11 @@ function getCollection() {
 let optionElement = undefined;
 function getOptionElement() {
 	if (!optionElement) {
-		let options = document.querySelectorAll('div.product-options-list li');
-		for (let option in options) {
-			if (options.hasOwnProperty(option)) {
-				let currentElement = options[option];
-				if (currentElement.querySelector('span.active')) {
-					optionElement = currentElement;
-					break;
-				}
+		let options = document.querySelectorAll('div.product-detail__product-option-list li');
+		for (let currentElement of options) {
+			if (currentElement.querySelector('span.active')) {
+				optionElement = currentElement;
+				break;
 			}
 		}
 	}
@@ -79,13 +76,20 @@ function formatInformation(item) {
 	let company = getCompany();
 	let givenName = getArticle();
 	let givenColour = item.getAttribute('data-colorname').toTitleCase();
-	let givenCode = padWithZeros(item.getAttribute('data-colorcode'), 4);
-	let givenCodeColour = (givenCode + ' ' + givenColour).toUpperCase();
+	let givenCode = item.getAttribute('data-colorcode'); {
+		// Convert numbers at start of string to an integer
+		let tempColorCode = parseInt(givenCode);
+		let paddedTempColorCode = padWithZeros(tempColorCode, 4);
+		// Replaced numbers at start of string with their padded equivalent
+		givenCode = givenCode.replace(/^[0-9]+/, paddedTempColorCode);
+	}
+	let colorCode = padWithZeros(givenCode, 4);
+	let givenCodeColour = (colorCode + ' ' + givenColour).toUpperCase();
 
 	let itemCode = givenName + ' ' + givenCode;
 	let barCode = formatBarCode(itemCode);
 	let purchaseCode = itemCode;
-	let material = document.querySelector('div.product-essentials-wrapper p:first-of-type').innerText.trim();;
+	let material = document.querySelector('div.product-detail__header > p').innerText.trim();
 	let length = getLength();
 
 	let webName = givenColour.toTitleCase() + ' - ' + title;
