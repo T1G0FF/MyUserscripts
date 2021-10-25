@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Mettler
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.25.1
+// @version      2021.10.25.2
 // @description  Gets the names and codes from a Mettler Range
 // @author       www.tgoff.me
 // @match        *://www.amann-mettler.com/en/products/detail/*
@@ -76,17 +76,16 @@ function formatInformation(item) {
 	let company = getCompany();
 	let givenName = getArticle();
 	let givenColour = item.getAttribute('data-colorname').toTitleCase();
-	let givenCode = item.getAttribute('data-colorcode'); {
+	let givenCode = item.getAttribute('data-colorcode');
+	let colorCode = ''; {
 		// Convert numbers at start of string to an integer
 		let tempColorCode = parseInt(givenCode);
 		let paddedTempColorCode = padWithZeros(tempColorCode, 4);
-		// Replaced numbers at start of string with their padded equivalent
-		givenCode = givenCode.replace(/^[0-9]+/, paddedTempColorCode);
+		// Replace numbers at start of string with their padded equivalent
+		colorCode = givenCode.replace(/^[0-9]+/, paddedTempColorCode);
 	}
-	let colorCode = padWithZeros(givenCode, 4);
-	let givenCodeColour = (colorCode + ' ' + givenColour).toUpperCase();
 
-	let itemCode = givenName + ' ' + givenCode;
+	let itemCode = (givenName + ' ' + colorCode).toUpperCase();
 	let barCode = formatBarCode(itemCode);
 	let purchaseCode = itemCode;
 	let material = document.querySelector('div.product-detail__header > p').innerText.trim();
