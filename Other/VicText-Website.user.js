@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.05.14.2
+// @version      2021.12.03.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -287,6 +287,64 @@ function morePerPage() {
 		option.value = '100';
 		select[0].add(option);
 	}
+
+	let pagerForm = document.getElementsByName('itemsPerPage');
+	if (pagerForm && pagerForm.length > 0) {
+		let pageCount = pagerForm[0].lastElementChild?.innerText;
+		if (pageCount) {
+			pageCount = parseInt(pageCount);
+			if (pageCount > 1) {
+				addFirstLastButtons(pageCount);
+			}
+		}
+	}
+
+	let pagerWrappers = document.querySelectorAll('div.pagerWrapper');
+	if (pagerWrappers && pagerWrappers.length > 0) {
+		addPagerOptionsAtTop(pagerWrappers);
+	}
+}
+
+function addFirstLastButtons(pageCount) {
+	var prevButtonElement = document.querySelector('ul.pagination li:first-of-type');
+	var prevButton = buttonTextChanger(prevButtonElement, -1, '⟨');
+	var firstButtonElement = prevButtonElement.cloneNode(true);
+	var firstButton = buttonTextChanger(firstButtonElement, 1, '⟪');
+	prevButtonElement.parentElement.prepend(firstButtonElement);
+
+	var nextButtonElement = document.querySelector('ul.pagination li:last-of-type');
+	var nextButton = buttonTextChanger(nextButtonElement, -1, '⟩');
+	var lastButtonElement = nextButtonElement.cloneNode(true);
+	var lastButton = buttonTextChanger(lastButtonElement, pageCount, '⟫');
+	nextButtonElement.parentElement.append(lastButtonElement);
+}
+
+function buttonTextChanger(element, page, text) {
+	var button = element.querySelector('a');
+	if (button) {
+		if (page > 0) button.href = button.href.replace(/pager=[0-9]+/i, 'pager=' + page);
+	}
+	else {
+		button = element.querySelector('span');
+	}
+	button.innerText = text;
+	return button;
+}
+
+function addPagerOptionsAtTop(pagerWrappers) {
+	var heading = document.getElementById('productListWrapper').querySelector('h1');
+	var divider = document.querySelector('div.productDetailDivider');
+	var clearFloat = document.querySelector('br.clearfloat');
+
+	var pagerContainer = document.createElement('div');
+	pagerContainer.append(divider.cloneNode(true));
+	for (const pagerWrapper of pagerWrappers) {
+		pagerContainer.append(pagerWrapper.cloneNode(true));
+	}
+	pagerContainer.append(clearFloat.cloneNode(true));
+	pagerContainer.append(divider.cloneNode(true));
+
+	heading.after(pagerContainer);
 }
 
 /***********************************************
