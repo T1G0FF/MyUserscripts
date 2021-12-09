@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.12.03.1
+// @version      2021.12.09.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -17,7 +17,7 @@ const DEBUG = true;
 const WEBADD_CONFIG = {
 	'MISC_CSS': true,
 	'CODES_ON_SWATCHES': true,
-	'MORE_PER_PAGE': true,
+	'MORE_PAGER_OPTIONS': true,
 	'COPY_CODES': true,
 	'COPY_IMAGES': true,
 	'FIND_IMAGELESS': true,
@@ -40,7 +40,7 @@ var cachedChildlessCollection = undefined;
 	'use strict';
 	if (WEBADD_CONFIG.MISC_CSS) addMiscCSS();
 	if (WEBADD_CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
-	if (WEBADD_CONFIG.MORE_PER_PAGE) morePerPage();
+	if (WEBADD_CONFIG.MORE_PAGER_OPTIONS) morePagerOptions();
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
@@ -277,7 +277,7 @@ function addItemCodesToSwatches() {
 	}
 }
 
-function morePerPage() {
+function morePagerOptions() {
 	let select = document.getElementsByName('perPageSelect');
 	if (select.length > 0) {
 		let option = document.createElement('option');
@@ -290,11 +290,17 @@ function morePerPage() {
 
 	let pagerForm = document.getElementsByName('itemsPerPage');
 	if (pagerForm && pagerForm.length > 0) {
+		let prevButtonElement = document.querySelector('ul.pagination li:first-of-type');
+		let prevButton = buttonTextChanger(prevButtonElement, -1, '⟨');
+
+		let nextButtonElement = document.querySelector('ul.pagination li:last-of-type');
+		let nextButton = buttonTextChanger(nextButtonElement, -1, '⟩');
+
 		let pageCount = pagerForm[0].lastElementChild?.innerText;
 		if (pageCount) {
 			pageCount = parseInt(pageCount);
 			if (pageCount > 1) {
-				addFirstLastButtons(pageCount);
+				addFirstLastButtons(prevButtonElement, nextButtonElement, pageCount);
 			}
 		}
 	}
@@ -305,22 +311,18 @@ function morePerPage() {
 	}
 }
 
-function addFirstLastButtons(pageCount) {
-	var prevButtonElement = document.querySelector('ul.pagination li:first-of-type');
-	var prevButton = buttonTextChanger(prevButtonElement, -1, '⟨');
-	var firstButtonElement = prevButtonElement.cloneNode(true);
-	var firstButton = buttonTextChanger(firstButtonElement, 1, '⟪');
+function addPagerButtonsFirstLast(prevButtonElement, nextButtonElement, pageCount) {
+	let firstButtonElement = prevButtonElement.cloneNode(true);
+	let firstButton = buttonTextChanger(firstButtonElement, 1, '⟪');
 	prevButtonElement.parentElement.prepend(firstButtonElement);
 
-	var nextButtonElement = document.querySelector('ul.pagination li:last-of-type');
-	var nextButton = buttonTextChanger(nextButtonElement, -1, '⟩');
-	var lastButtonElement = nextButtonElement.cloneNode(true);
-	var lastButton = buttonTextChanger(lastButtonElement, pageCount, '⟫');
+	let lastButtonElement = nextButtonElement.cloneNode(true);
+	let lastButton = buttonTextChanger(lastButtonElement, pageCount, '⟫');
 	nextButtonElement.parentElement.append(lastButtonElement);
 }
 
-function buttonTextChanger(element, page, text) {
-	var button = element.querySelector('a');
+function changePagerButtonText(element, page, text) {
+	let button = element.querySelector('a');
 	if (button) {
 		if (page > 0) button.href = button.href.replace(/pager=[0-9]+/i, 'pager=' + page);
 	}
@@ -332,11 +334,11 @@ function buttonTextChanger(element, page, text) {
 }
 
 function addPagerOptionsAtTop(pagerWrappers) {
-	var heading = document.getElementById('productListWrapper').querySelector('h1');
-	var divider = document.querySelector('div.productDetailDivider');
-	var clearFloat = document.querySelector('br.clearfloat');
+	let heading = document.getElementById('productListWrapper').querySelector('h1');
+	let divider = document.querySelector('div.productDetailDivider');
+	let clearFloat = document.querySelector('br.clearfloat');
 
-	var pagerContainer = document.createElement('div');
+	let pagerContainer = document.createElement('div');
 	pagerContainer.append(divider.cloneNode(true));
 	for (const pagerWrapper of pagerWrappers) {
 		pagerContainer.append(pagerWrapper.cloneNode(true));
@@ -584,7 +586,7 @@ async function btnAction_addHoverPreview() {
 	`;
 	MyStyles.addStyle('Hover iFrame', cssText);
 
-	var iFramePreview = document.createElement('iframe');
+	let iFramePreview = document.createElement('iframe');
 	iFramePreview.id = iFramePreview.name = 'hoverPreview';
 	iFramePreview.onmouseout = function (event) {
 		if (event.relatedTarget === iFramePreview.caller
@@ -749,8 +751,8 @@ async function btnAction_scrapeImageless() {
 				Array.prototype.push.apply(imglessResult.Collection, localResult);
 
 				// SLEEP - THIS IS BAD, I KNOW.
-				var start = new Date().getTime();
-				for (var i = 0; i < 1e7; i++) {
+				let start = new Date().getTime();
+				for (let i = 0; i < 1e7; i++) {
 					if ((new Date().getTime() - start) > 1000) {
 						break;
 					}
