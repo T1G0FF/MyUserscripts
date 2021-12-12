@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.12.09.1
+// @version      2021.12.13.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -291,10 +291,10 @@ function morePagerOptions() {
 	let pagerForm = document.getElementsByName('itemsPerPage');
 	if (pagerForm && pagerForm.length > 0) {
 		let prevButtonElement = document.querySelector('ul.pagination li:first-of-type');
-		let prevButton = buttonTextChanger(prevButtonElement, -1, '⟨');
+		let prevButton = changePagerButtonText(prevButtonElement, -1, '⟨');
 
 		let nextButtonElement = document.querySelector('ul.pagination li:last-of-type');
-		let nextButton = buttonTextChanger(nextButtonElement, -1, '⟩');
+		let nextButton = changePagerButtonText(nextButtonElement, -1, '⟩');
 
 		let pageCount = pagerForm[0].lastElementChild?.innerText;
 		if (pageCount) {
@@ -313,11 +313,11 @@ function morePagerOptions() {
 
 function addPagerButtonsFirstLast(prevButtonElement, nextButtonElement, pageCount) {
 	let firstButtonElement = prevButtonElement.cloneNode(true);
-	let firstButton = buttonTextChanger(firstButtonElement, 1, '⟪');
+	let firstButton = changePagerButtonText(firstButtonElement, 1, '⟪');
 	prevButtonElement.parentElement.prepend(firstButtonElement);
 
 	let lastButtonElement = nextButtonElement.cloneNode(true);
-	let lastButton = buttonTextChanger(lastButtonElement, pageCount, '⟫');
+	let lastButton = changePagerButtonText(lastButtonElement, pageCount, '⟫');
 	nextButtonElement.parentElement.append(lastButtonElement);
 }
 
