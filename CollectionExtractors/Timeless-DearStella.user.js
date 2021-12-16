@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.08.1
+// @version      2021.12.17.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -64,6 +64,7 @@ var collections = {
 	// DEAR STELLA
 	'1150': { 'title': 'Moonscape', 'desc': 'Moonscape' },
 	'1560': { 'title': 'Jax', 'desc': 'Jax' },
+	'2220': { 'title': 'Biased', 'desc': 'Diagonal Stripe' },
 	'SRR512': { 'title': 'Scallop Dot', 'desc': 'Scallop Dot' },
 	'SRR613': { 'title': 'Triangle Dot', 'desc': 'Triangle Dot' },
 	'SRR1300': { 'title': 'Dash Flow', 'desc': 'Dash Flow' },
