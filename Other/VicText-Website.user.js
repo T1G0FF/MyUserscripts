@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://tgoff.me/
-// @version      2021.12.16.1
+// @version      2022.03.15.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -195,6 +195,15 @@ div.onSpecial > span {
     transform: rotate(-35deg) translateX(-58%) translateY(-25%);
 }`;
 	MyStyles.addStyle('SpecialStar', cssText);
+
+	cssText = `/* Small Stock Indicators */
+.stockIndicator {
+	bottom: 5px;
+	padding: 5px;
+	font-size: 12px;
+}`;
+	MyStyles.addStyle('SmallStockIndicators', cssText);
+
 	document.getElementById('CSSToggleCheckbox_SPECIALSTAR').checked = false;
 	MyStyles.disableStyle('SpecialStar');
 }
