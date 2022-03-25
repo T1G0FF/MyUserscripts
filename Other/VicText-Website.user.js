@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         VicText Website Additions
-// @namespace    http://tgoff.me/
+// @namespace    http://www.tgoff.me/
 // @version      2022.03.15.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
