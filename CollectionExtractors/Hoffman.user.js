@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.08.1
+// @version      2022.03.29.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -17,8 +17,9 @@ let isCollectionPage = false;
 (function () {
 	'use strict';
 	isSearch = !hasParam(window.location.search, 'Category');
-	createButtons();
-	addSortFilterInputs();
+	let inputLoc = document.querySelector('.section.title h3');
+	createButtons(inputLoc, 'afterend');
+	addSortFilterInputs(inputLoc);
 })();
 
 let hoffmanRegEx = /(([A-z]{1,3})?([0-9]+))-([A-z]?)([0-9]+)([A-z]?)-([\w- ]+)/;
