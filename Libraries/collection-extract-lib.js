@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2021.09.17.1
+// @version      2022.03.29.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -374,8 +374,8 @@ async function saveImages() {
  * Dropdown Options Menu
  ***********************************************/
 var DROPDOWN_CONTAINERS = undefined;
-function initDropdownContainer(element, direction = 'right') {
-	if (!element) return;
+function initDropdownContainer(locationElement, location = 'beforeEnd', direction = 'right') {
+	if (!locationElement) return;
 	if (!DROPDOWN_CONTAINERS) {
 		let cssText = `
 /* The container <div> - needed to position the dropdown content */
@@ -479,7 +479,7 @@ function initDropdownContainer(element, direction = 'right') {
 		}
 		DROPDOWN_CONTAINERS = {};
 	}
-	if (!DROPDOWN_CONTAINERS[element]) {
+	if (!DROPDOWN_CONTAINERS[locationElement]) {
 		let dropdownContainer = document.createElement('span');
 		dropdownContainer.style.float = 'none';
 		dropdownContainer.style.padding = '2px 0px';
@@ -512,17 +512,17 @@ function initDropdownContainer(element, direction = 'right') {
 
 		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownButton);
 		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownMenu);
-		element.insertAdjacentElement('beforeEnd', dropdownContainer);
+		locationElement.insertAdjacentElement(location, dropdownContainer);
 
-		DROPDOWN_CONTAINERS[element] = dropdownMenu;
+		DROPDOWN_CONTAINERS[locationElement] = dropdownMenu;
 	}
-	return DROPDOWN_CONTAINERS[element];
+	return DROPDOWN_CONTAINERS[locationElement];
 }
 
 function addElementToDropdownContainer(locationElement, elementsToAdd, location = 'beforeEnd', showIf = true) {
 	if (!locationElement) return;
 
-	let inputContainer = initDropdownContainer(locationElement);
+	let inputContainer = initDropdownContainer(locationElement, location);
 	if (showIf) {
 		let thisContainer = document.createElement('span');
 		thisContainer.style.float = 'none';
@@ -543,7 +543,7 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 				thisContainer.insertAdjacentElement('beforeEnd', elementsToAdd);
 			}
 		}
-		inputContainer.insertAdjacentElement(location, thisContainer);
+		inputContainer.insertAdjacentElement('beforeEnd', thisContainer);
 	}
 }
 
