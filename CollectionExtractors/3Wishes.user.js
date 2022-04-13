@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.13.2
+// @version      2022.04.13.3
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -30,7 +30,7 @@ function getCollection() {
 	return document.querySelectorAll('div.cItemDivContainer');
 }
 
-let ThreeWishesRegEx = /([0-9]{5})-([\w]+)-([\w]+)(?:-([\w]+))*/;
+let ThreeWishesRegEx = /([0-9]{5}|[\w]+)(?:-([\w]+))?-([\w]+)-([\w]+)/;
 let RegexEnum = {
 	'Purchase': 0,
 	'Code': 1,
@@ -90,7 +90,6 @@ let TypeLookup = {
 function getItemObject(itemElement) {
 	let item = itemElement;
 
-	let prefix = 'FT';
 	let givenCode = getCodeFromItem(item);
 
 	ThreeWishesRegEx.lastIndex = 0;
@@ -100,7 +99,50 @@ function getItemObject(itemElement) {
 		return;
 	}
 
+	let prefix = 'FT';
 	let collectionCode = matches[RegexEnum.Code];
+	let purchaseCode = matches[RegexEnum.Purchase].toUpperCase();
+	let title = getFormattedTitle();
+	let dates = getReleaseDates();
+
+	let givenType = matches[RegexEnum.Type].toUpperCase();
+	let typeName = TypeLookup.hasOwnProperty(givenType) ? TypeLookup[givenType] : '';
+	switch (givenType) {
+		default:
+		case 'CTN':
+			break;
+		case 'FLN':
+			special = special.length > 0 ? special + ', ' + typeName : typeName;
+			break;
+		case 'AST':
+			// Full Collection Item
+			prefix = '3W';
+			let itemName = title + ' Full Collection';
+
+			let countingElements = document.querySelectorAll('div.cItemDivContainer div.cItemTitleDiv p.cItemTitle');
+			let collectionCount = 0
+			for (const countingElement in countingElements) {
+				if (countingElements.hasOwnProperty(countingElement)) {
+					const element = countingElements[countingElement];
+					ThreeWishesRegEx.lastIndex = 0;
+					if (ThreeWishesRegEx.test(element.innerText)) {
+						collectionCount++;
+					}
+				}
+			}
+
+			return {
+				'isFullCollection': true,
+				'Prefix': 'COL-' + prefix,
+				'CollectionCode': collectionCode,
+				'PurchaseCode': purchaseCode,
+				'CollectionName': title,
+				'ItemName': itemName,
+				'CollectionCount': collectionCount,
+				'BoltLength': { 'Measurement': '11', 'Unit': 'm' },
+				'ReleaseDates': dates,
+			};
+	}
 
 	let colourCode = matches[RegexEnum.Colour].toUpperCase();
 	let colourName = '';
@@ -114,10 +156,6 @@ function getItemObject(itemElement) {
 			colourName = colourCode.toLowerCase().toTitleCase();
 		}
 	}
-
-	let purchaseCode = matches[RegexEnum.Purchase].toUpperCase();
-
-	let title = getFormattedTitle();
 
 	let parent = document.querySelector('div.cItemsContainer').parentElement;
 	let infoElements = parent.querySelectorAll('div[style="text-align: center;"]');
@@ -144,25 +182,9 @@ function getItemObject(itemElement) {
 		}
 	}
 
-	let givenType = matches[RegexEnum.Type].toUpperCase();
-	let typeName = TypeLookup.hasOwnProperty(givenType) ? TypeLookup[givenType] : '';
-	switch (givenType) {
-		default:
-		case 'CTN':
-			break;
-		case 'FLN':
-			special = special.length > 0 ? special + ', ' + typeName : typeName;
-			break;
-		case 'AST':
-			// 12yd Collection
-			return;
-	}
-
 	let material = 'C100%';
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
-
-	let dates = getReleaseDates();
 
 	return {
 		'Prefix': prefix,
@@ -184,21 +206,40 @@ function formatInformation(itemElement) {
 	let item = getItemObject(itemElement);
 	if (!item) return;
 
-	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + item.ColourCode);
-	
-	let barCode = formatBarCode(itemCode);
-
 	let company = getCompany();
-	let widthString = item.Width.Measurement + item.Width.Unit;
-	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
-
-	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.CollectionName);
+	let itemCode = '';
+	let barCode = '';
+	let description = '';
+	let webName = '';
+	let webDesc = '';
 
 	let relDateString = toReleaseString(item.ReleaseDates);
-	let comma = item.SpecialNotes && item.SpecialNotes.length > 0 ? ', ' : '';
-	let designer = item.Designer && item.Designer.length > 0 ? comma + 'By ' + item.Designer : '';
-	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes + designer, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
 	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
+
+	if (item.isFullCollection) {
+		itemCode = formatItemCode(item.Prefix, item.CollectionCode);
+		barCode = formatBarCode(itemCode.replace('-', ''));
+		// 3 Wishes Amazement Park Collection
+		webName = company + ' ' + item.ItemName;
+		// 3 Wishes Amazement Park Collection - 8pc - 12yd Bolts
+		let boltString = item.BoltLength.Measurement + item.BoltLength.Unit;
+		description = webName + ' - ' + item.CollectionCount + 'pc - ' + boltString + ' Bolts';
+
+		webDesc = formatWebDescription({ 'Collection': item.CollectionCount + ' Bolts', 'Bolts': boltString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	}
+	else {
+		itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + item.ColourCode);
+		barCode = formatBarCode(itemCode);
+
+		let widthString = item.Width.Measurement + item.Width.Unit;
+		description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+
+		let comma = item.SpecialNotes && item.SpecialNotes.length > 0 ? ', ' : '';
+		let designer = item.Designer && item.Designer.length > 0 ? comma + 'By ' + item.Designer : '';
+
+		webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.CollectionName);
+		webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes + designer, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	}
 
 	let webCategory = item.CollectionName;
 
