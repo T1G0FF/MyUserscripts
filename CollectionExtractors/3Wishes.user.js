@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.13.1
+// @version      2022.04.13.2
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -32,12 +32,14 @@ function getCollection() {
 
 let ThreeWishesRegEx = /([0-9]{5})-([\w]+)-([\w]+)(?:-([\w]+))*/;
 let RegexEnum = {
+	'Purchase': 0,
 	'Code': 1,
 	'Colour': 2,
 	'Type': 3,
 };
 
 let ColourLookup = {
+	'AQU': 'Aqua',
 	'BGE': 'Beige',
 	'BLK': 'Black',
 	'BLU': 'Blue',
@@ -85,36 +87,60 @@ let TypeLookup = {
 	'AST': 'Assorted',
 }
 
-function formatInformation(item) {
-	let title = getFormattedTitle();
-	let company = getCompany();
+function getItemObject(itemElement) {
+	let item = itemElement;
 
+	let prefix = 'FT';
 	let givenCode = getCodeFromItem(item);
-
-	let itemCode = '';
-	let barCode = '';
-	let purchaseCode = givenCode;
-	let material = 'C100%';
-	let width = title.includes('108') ? 'W108in' : 'W45in';
 
 	ThreeWishesRegEx.lastIndex = 0;
 	let matches = ThreeWishesRegEx.exec(givenCode);
-	let separator = '';
 	if (!matches || matches.length <= 1) {
 		//Notify.log('No matches found for Item!', item);
 		return;
 	}
 
-	let givenColourName = matches[RegexEnum.Colour].toUpperCase();
+	let collectionCode = matches[RegexEnum.Code];
+
+	let colourCode = matches[RegexEnum.Colour].toUpperCase();
 	let colourName = '';
-	if (ColourLookup.hasOwnProperty(givenColourName)) {
-		colourName = ColourLookup[givenColourName];
+	if (ColourLookup.hasOwnProperty(colourCode)) {
+		colourName = ColourLookup[colourCode];
 	} else {
-		console.log('Unlisted Colour: ' + givenCode + " | " + givenColourName);
-		if (givenColourName.startsWith('LT')) {
-			colourName = givenColourName.replace('LT', 'Light ').toLowerCase().toTitleCase();
+		console.log('Unlisted Colour: ' + givenCode + " | " + colourCode);
+		if (colourCode.startsWith('LT')) {
+			colourName = colourCode.replace('LT', 'Light ').toLowerCase().toTitleCase();
 		} else {
-			colourName = givenColourName.toLowerCase().toTitleCase();
+			colourName = colourCode.toLowerCase().toTitleCase();
+		}
+	}
+
+	let purchaseCode = matches[RegexEnum.Purchase].toUpperCase();
+
+	let title = getFormattedTitle();
+
+	let parent = document.querySelector('div.cItemsContainer').parentElement;
+	let infoElements = parent.querySelectorAll('div[style="text-align: center;"]');
+
+	let designer = '';
+	let special = '';
+	for (const infoElem of infoElements) {
+		let innerText = infoElem.innerText;
+		if (innerText.toUpperCase().indexOf('LICENSED BY') >= 0) {
+			designer = innerText.substring('LICENSED BY'.length).trim();
+			continue;
+		}
+		if (innerText.toUpperCase().indexOf('DIGITALLY PRINTED') >= 0) {
+			special = 'Digital';
+			continue;
+		}
+		if (innerText.toUpperCase().indexOf('METALLIC') >= 0) {
+			special = 'Metallic';
+			continue;
+		}
+		if (innerText.toUpperCase().indexOf('GLITTER') >= 0) {
+			special = 'Glitter';
+			continue;
 		}
 	}
 
@@ -125,22 +151,58 @@ function formatInformation(item) {
 		case 'CTN':
 			break;
 		case 'FLN':
-			title += typeName.length > 0 ? ' - ' + typeName : '';
+			special = special.length > 0 ? special + ', ' + typeName : typeName;
 			break;
 		case 'AST':
+			// 12yd Collection
 			return;
 	}
 
-	itemCode = formatItemCode('FT', matches[RegexEnum.Code] + ' ' + givenColourName);
-	barCode = formatBarCode(itemCode);
+	let material = 'C100%';
+	let width = { 'Measurement': '45', 'Unit': 'in' };
+	let repeat = '';
 
-	let webName = colourName.trim().toTitleCase() + ' - ' + title;
-	let webDesc = material + ' - ' + width;
-	let description = webName + ' - ' + webDesc;
+	let dates = getReleaseDates();
 
-	let delDate = "Not Given - " + toDeliveryString(getReleaseDates());
+	return {
+		'Prefix': prefix,
+		'CollectionCode': collectionCode,
+		'ColourCode': colourCode,
+		'ColourName': colourName,
+		'PurchaseCode': purchaseCode,
+		'CollectionName': title,
+		'SpecialNotes': special,
+		'Designer': designer,
+		'Material': material,
+		'Width': width,
+		'Repeat': repeat,
+		'ReleaseDates': dates,
+	};
+}
 
-	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDate, 'purchaseCode': purchaseCode };
+function formatInformation(itemElement) {
+	let item = getItemObject(itemElement);
+	if (!item) return;
+
+	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + item.ColourCode);
+	
+	let barCode = formatBarCode(itemCode);
+
+	let company = getCompany();
+	let widthString = item.Width.Measurement + item.Width.Unit;
+	let description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+
+	let webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.CollectionName);
+
+	let relDateString = toReleaseString(item.ReleaseDates);
+	let comma = item.SpecialNotes && item.SpecialNotes.length > 0 ? ', ' : '';
+	let designer = item.Designer && item.Designer.length > 0 ? comma + 'By ' + item.Designer : '';
+	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes + designer, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
+	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
+
+	let webCategory = item.CollectionName;
+
+	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': webCategory };
 	return result;
 }
 
