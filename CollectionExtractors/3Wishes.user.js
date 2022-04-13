@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.13.3
+// @version      2022.04.13.4
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -104,6 +104,7 @@ function getItemObject(itemElement) {
 	let purchaseCode = matches[RegexEnum.Purchase].toUpperCase();
 	let title = getFormattedTitle();
 	let dates = getReleaseDates();
+	let special = '';
 
 	let givenType = matches[RegexEnum.Type].toUpperCase();
 	let typeName = TypeLookup.hasOwnProperty(givenType) ? TypeLookup[givenType] : '';
@@ -161,7 +162,6 @@ function getItemObject(itemElement) {
 	let infoElements = parent.querySelectorAll('div[style="text-align: center;"]');
 
 	let designer = '';
-	let special = '';
 	for (const infoElem of infoElements) {
 		let innerText = infoElem.innerText;
 		if (innerText.toUpperCase().indexOf('LICENSED BY') >= 0) {
