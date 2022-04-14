@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.2
+// @version      2022.04.14.3
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -563,20 +563,20 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
  * Collection Sorting & Filtering
  ***********************************************/
 var SORT_DIR = 0;
-const SORT_DIR_LOOKUP = {
-	0: {
+const SORT_DIR_LOOKUP = [
+	{
 		'direction': 0,
 		'string': ''
 	},
-	1: {
+	{
 		'direction': 1,
 		'string': ' ▲'
 	},
-	2: {
+	{
 		'direction': -1,
 		'string': ' ▼'
 	},
-}
+]
 
 var SORT_BY = 0;
 var SORT_BY_LOOKUP = [
@@ -586,11 +586,11 @@ var SORT_BY_LOOKUP = [
 	},
 ];
 
-function addSortBy(string, aSelector, bSelector) {
+function addSortBy(string, selectorFunc) {
 	let obj = {
 		'compare': (aItem, bItem) => {
-			let aComp = aSelector(aItem);
-			let bComp = bSelector(bItem);
+			let aComp = selectorFunc(aItem);
+			let bComp = selectorFunc(bItem);
 			return comp(aComp, bComp);
 		},
 		'string': string
@@ -600,7 +600,7 @@ function addSortBy(string, aSelector, bSelector) {
 
 var WARN_SORT_COMPAREITEMS = true;
 function isSorted() {
-	return !(SORT_DIR % Object.getOwnPropertyNames(SORT_DIR_LOOKUP).length === 0);
+	return !(SORT_DIR % SORT_DIR_LOOKUP.length === 0);
 }
 
 async function addSortFilterInputs(locationElement = getTitleElement()) {
@@ -659,9 +659,10 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 }
 
 async function btnAction_sortCollection(sortButton = undefined) {
-	let SORT_DIR_MAX = Object.getOwnPropertyNames(SORT_DIR_LOOKUP).length;
-	let temp_SORT_DIR = (SORT_DIR + 1) % SORT_DIR_MAX;
-	if (temp_SORT_DIR < SORT_DIR) SORT_BY = (SORT_BY + 1) % Object.getOwnPropertyNames(SORT_BY_LOOKUP).length;
+	let temp_SORT_DIR = (SORT_DIR + 1) % SORT_DIR_LOOKUP.length;
+	if (temp_SORT_DIR < SORT_DIR) { // If we cycled through all the directions cycle to the next by option.
+		SORT_BY = (SORT_BY + 1) % SORT_BY_LOOKUP.length;
+	}
 	SORT_DIR = temp_SORT_DIR;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortButton) {
