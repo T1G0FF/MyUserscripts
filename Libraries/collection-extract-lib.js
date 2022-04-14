@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.5
+// @version      2022.04.14.6
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -623,7 +623,7 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	testItem = undefined;
 
 	let sortDirButton = document.createElement('button');
-	sortDirButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string;
+	sortDirButton.innerText = 'Sort ' + SORT_DIR_LOOKUP[SORT_DIR].string;
 	sortDirButton.classList.add('tg-dropdown-option');
 	sortDirButton.onclick = function () { resetWarnings(); btnAction_sortCollectionDir(sortDirButton) };
 
