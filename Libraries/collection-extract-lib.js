@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.03.29.1
+// @version      2022.04.14.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -562,34 +562,33 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
 /***********************************************
  * Collection Sorting & Filtering
  ***********************************************/
-var SORTING = 0;
+var SORT_DIR = 0;
+var SORT_DIR_LOOKUP = {
+	0: {
+		'direction': 0,
+		'string': ''
+	},
+	1: {
+		'direction': 1,
+		'string': ' ▲'
+	},
+	2: {
+		'direction': -1,
+		'string': ' ▼'
+	},
+}
+
+var SORT_BY = 0;
+var SORT_BY_LOOKUP = {
+	0: {
+		'compare': (aItem, bItem) => { return compareItems(aItem, bItem); },
+		'string': 'Codes'
+	},
+};
+
 var WARN_SORT_COMPAREITEMS = true;
 function isSorted() {
-	return !(getSortDirection() === 0);
-}
-
-function getSortDirection() {
-	switch (SORTING % 3) {
-		default:
-		case 0:
-			return 0;
-		case 1:
-			return 1;
-		case 2:
-			return -1;
-	}
-}
-
-function getSortDirectionString() {
-	switch (SORTING % 3) {
-		default:
-		case 0:
-			return '';
-		case 1:
-			return ' ▲';
-		case 2:
-			return ' ▼';
-	}
+	return !(SORT_DIR % Object.getOwnPropertyNames(SORT_DIR_LOOKUP).length === 0);
 }
 
 async function addSortFilterInputs(locationElement = getTitleElement()) {
@@ -612,7 +611,7 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	testItem = undefined;
 
 	let sortButton = document.createElement('button');
-	sortButton.innerText = 'Sort Codes';
+	sortButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string;
 	sortButton.classList.add('tg-dropdown-option');
 	sortButton.onclick = function () { resetWarnings(); btnAction_sortCollection(sortButton) };
 
@@ -648,20 +647,24 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 }
 
 async function btnAction_sortCollection(sortButton = undefined) {
-	SORTING = (SORTING + 1) % 3;
+	let SORT_DIR_MAX = Object.getOwnPropertyNames(SORT_DIR_LOOKUP).length;
+	let temp_SORT_DIR = (SORT_DIR + 1) % SORT_DIR_MAX;
+	if (temp_SORT_DIR < SORT_DIR) SORT_BY = (SORT_BY + 1) % Object.getOwnPropertyNames(SORT_BY_LOOKUP).length;
+	SORT_DIR = temp_SORT_DIR;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortButton) {
-		sortButton.innerText = 'Sort Codes ' + getSortDirectionString();
+		sortButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string + ' ' + SORT_DIR_LOOKUP[SORT_DIR].string;
 	}
 }
 
 async function sortCollection(collection = undefined) {
 	collection = collection || await getCollection();
 	let itemList = Array.from(collection);
-	let sortDir = getSortDirection();
+	let sortDir = SORT_DIR_LOOKUP[SORT_DIR].direction;
+	let sortFunction = SORT_BY_LOOKUP[SORT_BY].compare;
 	itemList.sort(function (a, b) {
 		let result = 0;
-		result = compareItems(a, b) * sortDir;
+		result = sortFunction(a, b) * sortDir;
 		return result;
 	});
 	return itemList;
