@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.6
+// @version      2022.04.14.7
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -587,12 +587,25 @@ var SORT_BY_LOOKUP = [
 ];
 
 function addSortBy(string, selectorFunc) {
+	let compFunc = (aItem, bItem) => {
+		let aComp = selectorFunc(aItem);
+		let bComp = selectorFunc(bItem);
+
+		if (Object.prototype.toString(aComp) === '[object Array]') {
+			let result = 0;
+			for (let i = 0; i < aComp.length; i++) {
+				const aCompI = aComp[i];
+				const bCompI = bComp[i];
+				result = comp(aCompI, bCompI);
+				if (result !== 0) break;
+			}
+			return result;
+		}
+		return comp(aComp, bComp);
+	};
+
 	let obj = {
-		'compare': (aItem, bItem) => {
-			let aComp = selectorFunc(aItem);
-			let bComp = selectorFunc(bItem);
-			return comp(aComp, bComp);
-		},
+		'compare': compFunc,
 		'string': string
 	};
 	SORT_BY_LOOKUP.push(obj);
@@ -810,8 +823,7 @@ function getCodeFromItem(item) {
 
 function compareItems(aItem, bItem) {
 	if (WARN_SORT_COMPAREITEMS) {
-		console.log('INFO: Redefine compareItems() to change the default comparer, allowing chain comparisons.' + 
-		'\n' + 'Use addSortBy(Name, SelectorFunction: (item) => DoTheThing(item)) to add more sorting options');
+		console.log('INFO: Use addSortBy(Name, SelectorFunction: (item) => DoTheThing(item)) to add more sorting options. SelectorFunction can return an array of results to chain comparisons.');
 	}
 	WARN_SORT_COMPAREITEMS = false;
 	return comp(getCodeFromItem(aItem), getCodeFromItem(bItem));
