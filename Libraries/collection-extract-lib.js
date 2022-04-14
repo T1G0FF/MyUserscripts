@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.4
+// @version      2022.04.14.5
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -630,7 +630,7 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	addElementToDropdownContainer(locationElement, [sortDirButton], 'beforeEnd');
 
 	let sortByButton = document.createElement('button');
-	sortByButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string;
+	sortByButton.innerText = 'By ' + SORT_BY_LOOKUP[SORT_BY].string;
 	sortByButton.classList.add('tg-dropdown-option');
 	sortByButton.onclick = function () { resetWarnings(); btnAction_sortCollectionBy(sortByButton) };
 
@@ -810,7 +810,8 @@ function getCodeFromItem(item) {
 
 function compareItems(aItem, bItem) {
 	if (WARN_SORT_COMPAREITEMS) {
-		console.log('INFO: Redefining compareItems() will allow you to chain comparisons.');
+		console.log('INFO: Redefine compareItems() to change the default comparer, allowing chain comparisons.' + 
+		'\n' + 'Use addSortBy(Name, SelectorFunction: (item) => DoTheThing(item)) to add more sorting options');
 	}
 	WARN_SORT_COMPAREITEMS = false;
 	return comp(getCodeFromItem(aItem), getCodeFromItem(bItem));
