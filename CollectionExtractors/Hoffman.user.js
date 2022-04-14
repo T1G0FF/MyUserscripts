@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2022.03.29.1
+// @version      2022.04.14.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -205,21 +205,17 @@ function getCodeFromItem(item) {
 	return givenCode.trim();
 }
 
-function compareCodes(aCode, bCode) {
-	//	hoffmanRegEx.lastIndex = 0;
-	let aMatches = hoffmanRegEx.exec(aCode);
-	let bMatches = hoffmanRegEx.exec(bCode);
-	if (!aMatches || !bMatches || aMatches.length <= 1 || bMatches.length <= 1) {
-		Notify.log('No matches found for Item!', aCode, bCode);
-		return;
+addSortBy('Codes', (item) => {
+	let matches = hoffmanRegEx.exec(item);
+	if (!matches || matches.length <= 1) {
+		Notify.log('No matches found for Item!', item);
+		return 0;
 	}
-	let aCollection = aMatches[RegexEnum.Collection];
-	let bCollection = bMatches[RegexEnum.Collection];
-	let aColour = padWithZeros(aMatches[RegexEnum.ColourCode], 3);
-	let bColour = padWithZeros(bMatches[RegexEnum.ColourCode], 3);
 
-	return comp(aCollection, bCollection) || comp(aColour, bColour)
-}
+	let collection = matches[RegexEnum.Collection];
+	let colour = padWithZeros(matches[RegexEnum.ColourCode], 3);
+	return [collection, colour]
+});
 
 function testFilterAgainst(item) {
 	return getCodeFromItem(item);
