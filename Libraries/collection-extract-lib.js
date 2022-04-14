@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.1
+// @version      2022.04.14.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -563,7 +563,7 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
  * Collection Sorting & Filtering
  ***********************************************/
 var SORT_DIR = 0;
-var SORT_DIR_LOOKUP = {
+const SORT_DIR_LOOKUP = {
 	0: {
 		'direction': 0,
 		'string': ''
@@ -579,12 +579,24 @@ var SORT_DIR_LOOKUP = {
 }
 
 var SORT_BY = 0;
-var SORT_BY_LOOKUP = {
-	0: {
+var SORT_BY_LOOKUP = [
+	{
 		'compare': (aItem, bItem) => { return compareItems(aItem, bItem); },
-		'string': 'Codes'
+		'string': 'Default'
 	},
-};
+];
+
+function addSortBy(string, aSelector, bSelector) {
+	let obj = {
+		'compare': (aItem, bItem) => {
+			let aComp = aSelector(aItem);
+			let bComp = bSelector(bItem);
+			return comp(aComp, bComp);
+		},
+		'string': string
+	};
+	SORT_BY_LOOKUP.push(obj);
+}
 
 var WARN_SORT_COMPAREITEMS = true;
 function isSorted() {
