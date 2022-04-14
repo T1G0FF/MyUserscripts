@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.3
+// @version      2022.04.14.4
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -622,12 +622,19 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	if (reqsNotMet) return;
 	testItem = undefined;
 
-	let sortButton = document.createElement('button');
-	sortButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string;
-	sortButton.classList.add('tg-dropdown-option');
-	sortButton.onclick = function () { resetWarnings(); btnAction_sortCollection(sortButton) };
+	let sortDirButton = document.createElement('button');
+	sortDirButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string;
+	sortDirButton.classList.add('tg-dropdown-option');
+	sortDirButton.onclick = function () { resetWarnings(); btnAction_sortCollectionDir(sortDirButton) };
 
-	addElementToDropdownContainer(locationElement, [sortButton], 'beforeEnd');
+	addElementToDropdownContainer(locationElement, [sortDirButton], 'beforeEnd');
+
+	let sortByButton = document.createElement('button');
+	sortByButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string;
+	sortByButton.classList.add('tg-dropdown-option');
+	sortByButton.onclick = function () { resetWarnings(); btnAction_sortCollectionBy(sortByButton) };
+
+	addElementToDropdownContainer(locationElement, [sortByButton], 'beforeEnd');
 
 	let filterButton = document.createElement('button');
 	filterButton.innerText = 'Filter Items';
@@ -658,15 +665,19 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	filterCollection();
 }
 
-async function btnAction_sortCollection(sortButton = undefined) {
-	let temp_SORT_DIR = (SORT_DIR + 1) % SORT_DIR_LOOKUP.length;
-	if (temp_SORT_DIR < SORT_DIR) { // If we cycled through all the directions cycle to the next by option.
-		SORT_BY = (SORT_BY + 1) % SORT_BY_LOOKUP.length;
-	}
-	SORT_DIR = temp_SORT_DIR;
+async function btnAction_sortCollectionDir(sortDirButton = undefined) {
+	SORT_DIR = (SORT_DIR + 1) % SORT_DIR_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
-	if (sortButton) {
-		sortButton.innerText = 'Sort ' + SORT_BY_LOOKUP[SORT_BY].string + ' ' + SORT_DIR_LOOKUP[SORT_DIR].string;
+	if (sortDirButton) {
+		sortDirButton.innerText = 'Sort ' + SORT_DIR_LOOKUP[SORT_DIR].string;
+	}
+}
+
+async function btnAction_sortCollectionBy(sortByButton = undefined) {
+	SORT_BY = (SORT_BY + 1) % SORT_BY_LOOKUP.length;
+	refreshCollection(getItemContainer(), await sortCollection());
+	if (sortByButton) {
+		sortByButton.innerText = 'By ' + SORT_BY_LOOKUP[SORT_BY].string;
 	}
 }
 
