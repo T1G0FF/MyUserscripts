@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.21.2
+// @version      2022.04.21.3
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -211,12 +211,14 @@ function waitForElements(selector, timeout = -1) {
 		}
 
 		const observer = new MutationObserver(mutations => {
-			let obsElements = mutations.addedNodes.find(node => node.matchesSelector(selector));
+			mutations.forEach((record) => {
+				let obsElements = record.addedNodes.filter(node => node.matchesSelector(selector));
 
-			if (obsElements.length) {
-				resolve(obsElements);
-				observer.disconnect();
-			}
+				if (obsElements.length) {
+					resolve(obsElements);
+					observer.disconnect();
+				}
+			});
 		});
 
 		observer.observe(document.body, {
