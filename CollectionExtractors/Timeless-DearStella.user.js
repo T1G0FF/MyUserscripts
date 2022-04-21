@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.21.3
+// @version      2022.04.21.4
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -375,6 +375,39 @@ function getCodeFromItem(item) {
 		return code + ' ' + colour;
 	}
 }
+
+addSortBy('Default', (item) => {
+	let codeElements = item.querySelectorAll('td.ItemsListingInfo > table td');
+	if (codeElements.length > 0) {
+		let collection = codeElements[0].innerText.trim();
+		let code = '';
+		let dash = codeElements[0].innerText.indexOf('-')
+		if (dash > 0) {
+			code = collection.substring(dash + 1).trim();
+			collection = collection.substring(0, dash).trim();
+		}
+		let colour = codeElements[1].innerText.trim();
+		return [collection, code, colour];
+	}
+});
+
+addSortBy('Code', (item) => {
+	let codeElements = item.querySelectorAll('td.ItemsListingInfo > table td');
+	if (codeElements.length > 0) {
+		let code = codeElements[0].innerText.substring(codeElements[0].innerText.indexOf('-') + 1).trim();
+		let colour = codeElements[1].innerText.trim();
+		return [code, colour];
+	}
+});
+
+addSortBy('Colours', (item) => {
+	let codeElements = item.querySelectorAll('td.ItemsListingInfo > table td');
+	if (codeElements.length > 0) {
+		let code = codeElements[0].innerText.substring(codeElements[0].innerText.indexOf('-') + 1).trim();
+		let colour = codeElements[1].innerText.trim();
+		return [colour, code];
+	}
+});
 
 function testFilterAgainst(item) {
 	let codeElements = item.querySelectorAll('td.ItemsListingInfo');
