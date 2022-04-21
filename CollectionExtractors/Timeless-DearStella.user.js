@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.21.1
+// @version      2022.04.21.2
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -29,7 +29,7 @@ let isStella = false;
 	isSearch = hasParam(window.location.search, "search-key");
 	isStella = window.location.hostname.includes('dearstelladesign');
 
-	waitForElements('div#P_Items_Listing_Img_Class').then((elems) => {
+	waitForElements('div.P-Items-Listing-Class').then((elems) => {
 		createButtons();
 		addSortFilterInputs();
 	});
