@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.21.2
+// @version      2022.04.21.3
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -581,7 +581,13 @@ const SORT_DIR_LOOKUP = [
 var SORT_BY = 0;
 var SORT_BY_LOOKUP = [
 	{
-		'compare': (aItem, bItem) => { return compareItems(aItem, bItem); },
+		'compare': (aItem, bItem) => {
+			if (WARN_SORT_COMPAREITEMS) {
+				console.log('INFO: Use addSortBy(Name, SelectorFunction: (item) => DoTheThing(item)) to add more sorting options. SelectorFunction can return an array of results to chain comparisons. Use Name = \'Default\' to override default comparer.');
+			}
+			WARN_SORT_COMPAREITEMS = false;
+			return comp(getCodeFromItem(aItem), getCodeFromItem(bItem));
+		},
 		'string': 'Default'
 	},
 ];
@@ -608,7 +614,13 @@ function addSortBy(string, selectorFunc) {
 		'compare': compFunc,
 		'string': string
 	};
-	SORT_BY_LOOKUP.push(obj);
+	
+	if(string === 'Default') {
+		SORT_BY_LOOKUP[0] = obj;
+	}
+	else {
+		SORT_BY_LOOKUP.push(obj);
+	}
 }
 
 var WARN_SORT_COMPAREITEMS = true;
@@ -823,14 +835,6 @@ function getItemContainer() {
 function getCodeFromItem(item) {
 	console.warn('WARN: Redefine getCodeFromItem() such that it returns the item code as a String.');
 	return undefined;
-}
-
-function compareItems(aItem, bItem) {
-	if (WARN_SORT_COMPAREITEMS) {
-		console.log('INFO: Use addSortBy(Name, SelectorFunction: (item) => DoTheThing(item)) to add more sorting options. SelectorFunction can return an array of results to chain comparisons.');
-	}
-	WARN_SORT_COMPAREITEMS = false;
-	return comp(getCodeFromItem(aItem), getCodeFromItem(bItem));
 }
 
 function testFilterAgainst(item) {
