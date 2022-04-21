@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.7
+// @version      2022.04.21.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -225,7 +225,7 @@ function formatWebDescription(dictionary) {
 
 // This should be redefined for every Collection Extractor.
 async function formatImage(item, index, total) {
-	console.warn('WARN: Redefine formatImage() such that it returns an array of image URL(s) as a Strings.');
+	console.warn('WARN: Redefine formatImage() such that it returns an array of image URL(s) as Strings.');
 	return undefined;
 }
 
@@ -632,7 +632,10 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 		reqsNotMet = true;
 	}
 	reqsNotMet = reqsNotMet || !testItem;
-	if (reqsNotMet) return;
+	if (reqsNotMet) {
+		console.warn('WARN: Requirements for Sorting/Filtering not met.');
+		return;
+	}
 	testItem = undefined;
 
 	let sortDirButton = document.createElement('button');
