@@ -1,9 +1,10 @@
 // ==UserScript==
-// @name         OpenFright - Consignment Link
+// @name         OpenFreight - Consignment Link
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.22.1
+// @version      2022.04.26.1
 // @description  Adds a link to the Consignment page from the tracking window and visa versa
 // @author       www.tgoff.me
+// @match        *://app.openfreight.com.au/track
 // @match        *://app.openfreight.com.au/track/*
 // @match        *://app.openfreight.com.au/consign/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=openfreight.com.au
@@ -23,26 +24,29 @@
 					//console.log(type);
 					return;
 				} else {
-					let modalParent = element.closest('div#trackTraceMainResultsModal');
-					if (modalParent) {
-						let header = modalParent.querySelector('h3.panel-title');
-						if (!header || header?.querySelector('#connLink')) return;
+					// Tracking modal
+					tryAddLinkToModalHeader(
+						element.closest('div#trackTraceMainResultsModal'), 'connLink', 'Find Consignment',
+						function () {
+							let localHeader = document.querySelector('div#trackTraceMainResultsModal h3.panel-title');
+							let connNumber = localHeader?.innerText.replace(localHeader.querySelector('span')?.innerText, '');
+							$(".modal").modal("hide");
+							searchConsignments(false, connNumber);
+							return false;
+						});
 
-						let href = window.location.href;
-						href = href.replace('/track/', '/consign/');
+					// Enquiry modal
+					tryAddLinkToModalHeader(
+						element.closest('div#trackTraceEnquiryModal'), 'enquiryLink', 'Tracking',
+						function () {
+							let connNumber = document.querySelector('div#trackTraceEnquiryModal span.trackTraceEnquiryModalEnquiryDetailsConsignment')?.innerText;
+							$(".modal").modal("hide");
+							trackTraceBuildTrackingResultsModal([connNumber], undefined, undefined, false);
+							return false;
+						});
 
-						let span = document.createElement('span');
-						span.innerText = ' | ';
-						let link = document.createElement('a');
-						link.id = 'connLink';
-						link.innerText = 'Consignment';
-						link.href = href;
-						span.appendChild(link);
 
-						header.insertAdjacentElement('beforeEnd', span);
-						observer.disconnect();
-					}
-
+					// Consignment modal
 					let selector = 'span#existingConsignmentNotificationConsignmentNumber';
 					let alertParent = (element.matches(selector) ? element : null)?.closest('.alert');
 					if (alertParent) {
@@ -50,8 +54,7 @@
 
 						let href = window.location.href;
 						href = href.replace('/consign/', '/track/');
-						createNewNavBarItem('trackLink', 'Tracking', href, 'Open Tracking for current Consignment');
-						observer.disconnect();
+						createNewNavBarItem('trackLink', 'Go to Tracking', href, 'Open Tracking for current Consignment');
 					}
 				}
 			});
@@ -83,4 +86,21 @@ function createNewNavBarItem(id, text, href, description) {
 
 		navBar.appendChild(newNavBarItem);
 	}
+}
+
+function tryAddLinkToModalHeader(modalParent, linkId, linkText = 'Search', onClick) {
+	if (!modalParent) return;
+	let header = modalParent.querySelector('h3.panel-title');
+	if (!header || header?.querySelector('#' + linkId)) return;
+
+	let span = document.createElement('span');
+	span.innerText = ' | ';
+	let link = document.createElement('a');
+	link.id = linkId;
+	link.innerText = linkText;
+	link.href = '#';
+	link.onclick = onClick;
+	span.appendChild(link);
+
+	header.insertAdjacentElement('beforeEnd', span);
 }
