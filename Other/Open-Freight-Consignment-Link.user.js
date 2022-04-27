@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         OpenFreight - Consignment Link
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.26.1
-// @description  Adds a link to the Consignment page from the tracking window and visa versa
+// @version      2022.04.28.1
+// @description  Adds a links to the Consignment page from the tracking window and visa versa
 // @author       www.tgoff.me
 // @match        *://app.openfreight.com.au/track
 // @match        *://app.openfreight.com.au/track/*
@@ -20,8 +20,6 @@
 		mutations.forEach((record) => {
 			record.addedNodes.forEach((element) => {
 				if (!(element instanceof Element)) {
-					//let type = Object.prototype.toString.call(element);
-					//console.log(type);
 					return;
 				} else {
 					// Tracking modal
@@ -35,13 +33,22 @@
 							return false;
 						});
 
+
 					// Enquiry modal
 					tryAddLinkToModalHeader(
-						element.closest('div#trackTraceEnquiryModal'), 'enquiryLink', 'Tracking',
+						element.closest('div#trackTraceEnquiryModal'), 'enquiryTrackLink', 'Tracking',
 						function () {
 							let connNumber = document.querySelector('div#trackTraceEnquiryModal span.trackTraceEnquiryModalEnquiryDetailsConsignment')?.innerText;
 							$(".modal").modal("hide");
 							trackTraceBuildTrackingResultsModal([connNumber], undefined, undefined, false);
+							return false;
+						});
+					tryAddLinkToModalHeader(
+						element.closest('div#trackTraceEnquiryModal'), 'enquiryConnLink', 'Find Consignment',
+						function () {
+							let connNumber = document.querySelector('div#trackTraceEnquiryModal span.trackTraceEnquiryModalEnquiryDetailsConsignment')?.innerText;
+							$(".modal").modal("hide");
+							searchConsignments(false, connNumber);
 							return false;
 						});
 
