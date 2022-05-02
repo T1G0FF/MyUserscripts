@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.02.4
+// @version      2022.05.02.5
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -25,9 +25,13 @@ let isStudioE = false;
 	isStudioE = window.location.hostname.includes('studioefabrics');
 	let elem = document.querySelector('div.ship-in span.shipin-title');
 	if (!elem) elem = getTitleElement();
-	createButtons(elem);
-	createButton('Copy All Collections', function () { CollectionsToClipBoard(GetAllCollections()); }, elem, 'beforeEnd', isCollectionPage);
-	createButton('Copy New Collections', function () { CollectionsToClipBoard(GetNewCollections()); }, elem, 'beforeEnd', isCollectionPage);
+	if (isCollectionPage) {
+		createButton('Copy All Collections', function () { CollectionsToClipBoard(GetAllCollections()); }, elem, 'beforeEnd', isCollectionPage);
+		createButton('Copy New Collections', function () { CollectionsToClipBoard(GetNewCollections()); }, elem, 'beforeEnd', isCollectionPage);
+	}
+	else {
+		createButtons(elem);
+	}
 	addSortFilterInputs(elem);
 })();
 
@@ -46,7 +50,7 @@ function GetAllCollections() {
 
 async function CollectionsToClipBoard(collection) {
 	let result = {
-		info: 'CollectionName' + '\t' + 'ImageLink' + '\n',
+		info: '<html>\n<body>',
 		count: 0
 	};
 	collection.forEach((item) => {
@@ -54,10 +58,11 @@ async function CollectionsToClipBoard(collection) {
 		let image = link.querySelector('img');
 		let title = link.title;
 		if (title[0] === '*') title = title.substr(1).trim();
-		let current = title + '\t' + image.src + '\n';
+		let current = '<span>' + title + '</span><img src="' + image.src + '">\n';
 		result.info += current;
 		result.count++;
 	});
+	result.info += '</body>\n</html>'
 
 	let msg = 'None found!';
 	if (result.count > 0) {
