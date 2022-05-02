@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.02.2
+// @version      2022.05.02.4
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -89,7 +89,11 @@ function getTitleElement() {
 
 function getTitle() {
 	let titleElement = isSearch ? document.querySelector('div.snize-search-results-header > a.snize-no-products-found-link') : getTitleElement();
-	let title = !titleElement ? '' : titleElement.innerText.trim();
+	let title = titleElement?.innerText.trim();
+	let dropdownElement = titleElement.querySelector('span.tg-dropdown-container');
+	if (dropdownElement) {
+		title = title.replace(dropdownElement.innerText, '');
+	}
 	if (title[0] === '*') title = title.substr(1);
 	return title;
 }
@@ -325,10 +329,10 @@ function testFilterAgainst(item) {
 
 function addFilterMatchStyle(item) {
 	let elem = item.querySelector('div.card-body');
-	elem?.style.boxShadow = 'green inset 0 25px 5px -20px';
+	if (elem) elem.style.boxShadow = 'green inset 0 25px 5px -20px';
 }
 
 function removeFilterMatchStyle(item) {
 	let elem = item.querySelector('div.card-body');
-	elem?.style.boxShadow = '';
+	if (elem) elem.style.boxShadow = '';
 }
