@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.08.2
+// @version      2022.05.02.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -21,12 +21,51 @@ let isStudioE = false;
 (function () {
 	'use strict';
 	isSearch = window.location.pathname.includes('search-results-page');
+	isCollectionPage = document.querySelectorAll('div.parent-category-area li').length > 0;
 	isStudioE = window.location.hostname.includes('studioefabrics');
-	let elem = document.querySelector('span.shipin-title');
+	let elem = document.querySelector('div.ship-in span.shipin-title');
 	if (!elem) elem = getTitleElement();
 	createButtons(elem);
+	createButton('Copy All Collections', function () { CollectionsToClipBoard(GetAllCollections()); }, elem, 'beforeEnd', isCollectionPage);
+	createButton('Copy New Collections', function () { CollectionsToClipBoard(GetNewCollections()); }, elem, 'beforeEnd', isCollectionPage);
 	addSortFilterInputs(elem);
 })();
+
+function GetNewCollections() {
+	let collection = GetAllCollections();
+	return Array.prototype.filter.call(collection, (item) => {
+		let link = item.querySelector('a');
+		return link.title.indexOf('*') >= 0;
+	});
+}
+
+function GetAllCollections() {
+	let collection = document.querySelectorAll('div.parent-category-area li div.cat-img');
+	return collection;
+}
+
+function CollectionsToClipBoard(collection) {
+	let result = {
+		info: 'CollectionName' + '\t' + 'ImageLink' + '\n',
+		count: 0
+	};
+	collection.forEach((item) => {
+		let link = item.querySelector('a');
+		let image = link.querySelector('img');
+		let title = link.title;
+		if (title[0] === '*') title = title.substr(1).trim();
+		let current = title + '\t' + image.src + '\n';
+		result.info += current;
+		result.count++;
+	});
+
+	let msg = 'None found!';
+	if (result.count > 0) {
+		GM_setClipboard(result.info);
+		msg = result.count + ' found and copied!';
+	}
+	await Notify.log(msg);
+}
 
 let blankRegEx = /([A-z]+)?([0-9]+)([A-z]+)?(?:-[ ]*(?:([0-9]+)([A-z]+)?)?)(?:[ ]*([\w\ \-\.\/]+))?/;
 let RegexEnum = {
@@ -70,10 +109,19 @@ function getAvailabilityDate() {
 }
 
 function getCollection() {
-	let collection = isSearch ? document.querySelectorAll('div.snize-search-results li.snize-product') : document.querySelectorAll('main.page-content li.product.item');
-	if (!collection || collection.length < 1) {
+	let collection;
+	if (isCollectionPage) {
 		collection = document.querySelectorAll('div.parent-category-area li');
-		isCollectionPage = collection.length > 0;
+	}
+	else if (isSearch) {
+		collection = document.querySelectorAll('div.snize-search-results li.snize-product');
+	}
+	else {
+		collection = document.querySelectorAll('main.page-content li.product.item');
+	}
+
+	if (!collection || collection.length < 1) {
+		Notify.log('Collection elements not found!', item);
 	}
 	return collection;
 }
@@ -195,7 +243,10 @@ function formatInformation(itemElement) {
 	if (!item) return;
 
 	if (isCollectionPage) {
-		return { 'description': item.CollectionName };
+		return { 
+			'itemCode': 'Collection',
+			'description': item.CollectionName
+		};
 	}
 
 	let company = getCompany();
@@ -263,7 +314,7 @@ function getItemContainer() {
 
 function getCodeFromItem(item) {
 	let codeElement = isSearch ? item.querySelector('span.snize-title') : item.querySelector('h4.card-title > a');
-	return codeElement.innerText.trim();
+	return codeElement?.innerText.trim();
 }
 
 function testFilterAgainst(item) {
@@ -274,10 +325,10 @@ function testFilterAgainst(item) {
 
 function addFilterMatchStyle(item) {
 	let elem = item.querySelector('div.card-body');
-	if (elem) elem.style.boxShadow = 'green inset 0 25px 5px -20px';
+	elem?.style.boxShadow = 'green inset 0 25px 5px -20px';
 }
 
 function removeFilterMatchStyle(item) {
 	let elem = item.querySelector('div.card-body');
-	if (elem) elem.style.boxShadow = '';
+	elem?.style.boxShadow = '';
 }
