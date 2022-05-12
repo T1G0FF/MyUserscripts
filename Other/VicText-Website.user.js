@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.12.1
+// @version      2022.05.12.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -263,11 +263,11 @@ function replaceStockIndicatorsWithIcons() {
 	let PurpleFG = SWAP_FG_BG ? colDkPurple : colLtPurple;
 	let PurpleBG = SWAP_FG_BG ? colLtPurple : colDkPurple;
 
-	cssText = `/* Icon Stock Indicators */
+	let cssText = `/* Icon Stock Indicators */
 .stockIndicator > span {
 	display: none;
 }
-.stockIndicator > span:hover {
+.stockIndicator:hover > span {
 	display: block;
 }
 
@@ -305,25 +305,25 @@ function replaceStockIndicatorsWithIcons() {
 	MyStyles.addStyle('IconStockIndicators', cssText);
 
 	let collection = document.querySelectorAll('.stockIndicator');
-	for (let stockElement in collection) {
-		if (collection.hasOwnProperty(stockElement)) {
-			if (stock.indexOf('In Stock') >= 0) {
-				let tempStr = stock.substring(0, stock.indexOf(' '));
-				let tempNum = parseInt(tempStr);
-				if(!isNaN(tempNum)) {
-					// Do something?
-				}
-				stockElement.classList.add('stockcolor-instock');
+	for (const stockElement of collection) {
+		let span = stockElement.querySelector('span');
+		let stock = span.innerText;
+		if (stock.indexOf('In Stock') >= 0) {
+			let tempStr = stock.substring(0, stock.indexOf(' '));
+			let tempNum = parseInt(tempStr);
+			if(!isNaN(tempNum)) {
+				// Do something?
 			}
-			else if (stock.indexOf('On Backorder') >= 0) {
-				stockElement.classList.add('stockcolor-backorder');
-			}
-			else if (stock.indexOf('Indent Only') >= 0) {
-				stockElement.classList.add('stockcolor-indent');
-			}
-			else if (stock.indexOf('On Order With Supplier') >= 0) {
-				stockElement.classList.add('stockcolor-coming');
-			}
+			stockElement.classList.add('stockcolor-instock');
+		}
+		else if (stock.indexOf('On Backorder') >= 0) {
+			stockElement.classList.add('stockcolor-backorder');
+		}
+		else if (stock.indexOf('Indent Only') >= 0) {
+			stockElement.classList.add('stockcolor-indent');
+		}
+		else if (stock.indexOf('On Order With Supplier') >= 0) {
+			stockElement.classList.add('stockcolor-coming');
 		}
 	}
 }
@@ -384,25 +384,23 @@ function addItemCodesToSwatches() {
 }`;
 	MyStyles.addStyle('SwatchHover', cssText);
 	let collection = document.querySelectorAll('.swatcher-swatch');
-	for (let item in collection) {
-		if (collection.hasOwnProperty(item)) {
-			let currentItem = collection[item];
-			let currentImage = currentItem.querySelector('img');
-			let productCode = getCodeFromItem(currentItem);
+	for (const item of collection) {
+		let currentItem = collection[item];
+		let currentImage = currentItem.querySelector('img');
+		let productCode = getCodeFromItem(currentItem);
 
-			let imgElement = document.createElement('img');
-			imgElement.classList.add('swatch-product-img');
-			imgElement.src = '-';
-			imgElement.setAttribute('thumbImage', currentImage.src.replaceAll('/swatches', ''));
-			currentItem.insertAdjacentElement('beforeEnd', imgElement);
+		let imgElement = document.createElement('img');
+		imgElement.classList.add('swatch-product-img');
+		imgElement.src = '-';
+		imgElement.setAttribute('thumbImage', currentImage.src.replaceAll('/swatches', ''));
+		currentItem.insertAdjacentElement('beforeEnd', imgElement);
 
-			let codeElement = document.createElement('span');
-			codeElement.classList.add('swatch-product-code');
-			codeElement.innerText = productCode;
-			currentItem.insertAdjacentElement('beforeEnd', codeElement);
+		let codeElement = document.createElement('span');
+		codeElement.classList.add('swatch-product-code');
+		codeElement.innerText = productCode;
+		currentItem.insertAdjacentElement('beforeEnd', codeElement);
 
-			currentItem.addEventListener('mouseover', lazyLoadThumbImages);
-		}
+		currentItem.addEventListener('mouseover', lazyLoadThumbImages);
 	}
 }
 
