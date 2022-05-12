@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.12.2
+// @version      2022.05.13.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -16,9 +16,9 @@
 const DEBUG = true;
 const WEBADD_CONFIG = {
 	'MISC_CSS': true,
+	'STOCK_ICONS': true,
 	'CODES_ON_SWATCHES': true,
 	'MORE_PAGER_OPTIONS': true,
-	'STOCK_ICONS': true,
 	'COPY_CODES': true,
 	'COPY_IMAGES': true,
 	'FIND_IMAGELESS': true,
@@ -40,9 +40,9 @@ var cachedChildlessCollection = undefined;
 (async function () {
 	'use strict';
 	if (WEBADD_CONFIG.MISC_CSS) addMiscCSS();
+	if (WEBADD_CONFIG.STOCK_ICONS) replaceStockIndicatorsWithIcons();
 	if (WEBADD_CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
 	if (WEBADD_CONFIG.MORE_PAGER_OPTIONS) morePagerOptions();
-	if (WEBADD_CONFIG.STOCK_ICONS) replaceStockIndicatorsWithIcons();
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
@@ -134,13 +134,13 @@ function addMiscCSS() {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }`;
-	MyStyles.addStyle('CategoryMargins', cssText);
+	MyStyles._addStyle(cssText); // 'CategoryMargins'
 
 	cssText = `/* Remove Register */
 .login-widget > a:nth-child(6) {
 	display:none;
 }`;
-	MyStyles.addStyle('RemoveRegister', cssText);
+	MyStyles._addStyle(cssText); // 'RemoveRegister'
 
 	cssText = `/* Special Star */
 div.onSpecial, div.onSpecial > span {
@@ -197,41 +197,16 @@ div.onSpecial > span {
     transform: rotate(-35deg) translateX(-58%) translateY(-25%);
 }`;
 	MyStyles.addStyle('SpecialStar', cssText);
+	document.getElementById('CSSToggleCheckbox_SPECIALSTAR').checked = false;
+	MyStyles.disableStyle('SpecialStar');
 
 	cssText = `/* Small Stock Indicators */
 .stockIndicator {
 	bottom: 5px;
 	padding: 5px;
 	font-size: 12px;
-}
-
-.stockcolor-instock {
-	bottom: 5px;
-	padding: 5px;
-	font-size: 12px;
-}
-
-.stockcolor-backorder {
-	bottom: 5px;
-	padding: 5px;
-	font-size: 12px;
-}
-
-.stockcolor-indent {
-	bottom: 5px;
-	padding: 5px;
-	font-size: 12px;
-}
-
-.stockcolor-coming {
-	bottom: 5px;
-	padding: 5px;
-	font-size: 12px;
 }`;
-	MyStyles.addStyle('SmallStockIndicators', cssText);
-
-	document.getElementById('CSSToggleCheckbox_SPECIALSTAR').checked = false;
-	MyStyles.disableStyle('SpecialStar');
+	MyStyles.addStyle('StockIndicatorsSmall', cssText);
 }
 
 function replaceStockIndicatorsWithIcons() {
@@ -263,68 +238,77 @@ function replaceStockIndicatorsWithIcons() {
 	let PurpleFG = SWAP_FG_BG ? colDkPurple : colLtPurple;
 	let PurpleBG = SWAP_FG_BG ? colLtPurple : colDkPurple;
 
-	let cssText = `/* Icon Stock Indicators */
+	let cssText = `/* Hide Stock Indicator Icons by Default */
+.stockIndicatorIcon {
+	display: none;
+}`;
+	MyStyles._addStyle(cssText);
+
+	cssText = `/* Icon Stock Indicators */
 .stockIndicator > span {
 	display: none;
 }
 .stockIndicator:hover > span {
-	display: block;
+	display: inline-block;
+}
+
+.stockIndicatorIcon {
+	display: inline-block;
 }
 
 .stockcolor-instock {
 	background-color: ${COLOURFUL ? GreenBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour};
 }
-.stockcolor-instock::after {
-	content: '✓'
-}
 
 .stockcolor-backorder {
 	background-color: ${COLOURFUL ? OrangeBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? OrangeFG : defFGColour};
-}
-.stockcolor-backorder::after {
-	content: 'X'
 }
 
 .stockcolor-indent {
 	background-color: ${COLOURFUL ? PurpleBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? PurpleFG : defFGColour};
 }
-.stockcolor-indent::after {
-	content: '<'
-}
 
 .stockcolor-coming {
 	background-color: ${COLOURFUL ? BlueBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour};
-}
-.stockcolor-coming::after {
-	content: '<'
 }`;
-	MyStyles.addStyle('IconStockIndicators', cssText);
+	MyStyles.addStyle('StockIndicatorsIcon', cssText);
 
 	let collection = document.querySelectorAll('.stockIndicator');
 	for (const stockElement of collection) {
 		let span = stockElement.querySelector('span');
-		let stock = span.innerText;
-		if (stock.indexOf('In Stock') >= 0) {
-			let tempStr = stock.substring(0, stock.indexOf(' '));
+		let stockText = span.innerText;
+		let stockIconText;
+		if (stockText.indexOf('In Stock') >= 0) {
+			let tempStr = stockText.substring(0, stockText.indexOf(' '));
 			let tempNum = parseInt(tempStr);
-			if(!isNaN(tempNum)) {
-				// Do something?
-			}
+			
 			stockElement.classList.add('stockcolor-instock');
+			stockIconText = '✓';
+			if (!isNaN(tempNum)) { // Is a number, append it.
+				stockIconText += ' ' + tempNum;
+			}
 		}
-		else if (stock.indexOf('On Backorder') >= 0) {
+		else if (stockText.indexOf('On Backorder') >= 0) {
 			stockElement.classList.add('stockcolor-backorder');
+			stockIconText = 'X';
 		}
-		else if (stock.indexOf('Indent Only') >= 0) {
+		else if (stockText.indexOf('Indent Only') >= 0) {
 			stockElement.classList.add('stockcolor-indent');
+			stockIconText = '<';
 		}
-		else if (stock.indexOf('On Order With Supplier') >= 0) {
+		else if (stockText.indexOf('On Order With Supplier') >= 0) {
 			stockElement.classList.add('stockcolor-coming');
+			stockIconText = '>';
 		}
+
+		let stockIconElement = document.createElement('span');
+		stockIconElement.classList.add('stockIndicatorIcon');
+		stockIconElement.innerText = stockIconText;
+		stockElement.insertAdjacentElement('beforeEnd', stockIconElement);
 	}
 }
 
