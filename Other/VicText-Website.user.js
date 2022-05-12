@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.14.2
+// @version      2022.05.12.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -18,6 +18,7 @@ const WEBADD_CONFIG = {
 	'MISC_CSS': true,
 	'CODES_ON_SWATCHES': true,
 	'MORE_PAGER_OPTIONS': true,
+	'STOCK_ICONS': true,
 	'COPY_CODES': true,
 	'COPY_IMAGES': true,
 	'FIND_IMAGELESS': true,
@@ -41,6 +42,7 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.MISC_CSS) addMiscCSS();
 	if (WEBADD_CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
 	if (WEBADD_CONFIG.MORE_PAGER_OPTIONS) morePagerOptions();
+	if (WEBADD_CONFIG.STOCK_ICONS) replaceStockIndicatorsWithIcons();
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
@@ -201,11 +203,129 @@ div.onSpecial > span {
 	bottom: 5px;
 	padding: 5px;
 	font-size: 12px;
+}
+
+.stockcolor-instock {
+	bottom: 5px;
+	padding: 5px;
+	font-size: 12px;
+}
+
+.stockcolor-backorder {
+	bottom: 5px;
+	padding: 5px;
+	font-size: 12px;
+}
+
+.stockcolor-indent {
+	bottom: 5px;
+	padding: 5px;
+	font-size: 12px;
+}
+
+.stockcolor-coming {
+	bottom: 5px;
+	padding: 5px;
+	font-size: 12px;
 }`;
 	MyStyles.addStyle('SmallStockIndicators', cssText);
 
 	document.getElementById('CSSToggleCheckbox_SPECIALSTAR').checked = false;
 	MyStyles.disableStyle('SpecialStar');
+}
+
+function replaceStockIndicatorsWithIcons() {
+	let COLOURFUL = true;
+	let COLOURFUL_TEXT = true;
+	let SWAP_FG_BG = true;
+
+	let colWhite = '#FFFFFF';
+	let colOffWhite = '#FAF8EB';
+	let colBlack = '#000000';
+	let colLtGreen = '#80CA9E';
+	let colDkGreen = '#075D2A';
+	let colLtOrange = '#FF9200';
+	let colDkOrange = '#9B5900';
+	let colLtBlue = '#659AD4';
+	let colDkBlue = '#083A71';
+	let colLtPurple = '#CEAAE2';
+	let colDkPurple = '#6F348F';
+
+	let defFGColour = colBlack;
+	let defBGColour = colOffWhite;
+
+	let GreenFG = SWAP_FG_BG ? colDkGreen : colLtGreen;
+	let GreenBG = SWAP_FG_BG ? colLtGreen : colDkGreen;
+	let OrangeFG = SWAP_FG_BG ? colDkOrange : colLtOrange;
+	let OrangeBG = SWAP_FG_BG ? colLtOrange : colDkOrange;
+	let BlueFG = SWAP_FG_BG ? colDkBlue : colLtBlue;
+	let BlueBG = SWAP_FG_BG ? colLtBlue : colDkBlue;
+	let PurpleFG = SWAP_FG_BG ? colDkPurple : colLtPurple;
+	let PurpleBG = SWAP_FG_BG ? colLtPurple : colDkPurple;
+
+	cssText = `/* Icon Stock Indicators */
+.stockIndicator > span {
+	display: none;
+}
+.stockIndicator > span:hover {
+	display: block;
+}
+
+.stockcolor-instock {
+	background-color: ${COLOURFUL ? GreenBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour};
+}
+.stockcolor-instock::after {
+	content: '✓'
+}
+
+.stockcolor-backorder {
+	background-color: ${COLOURFUL ? OrangeBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? OrangeFG : defFGColour};
+}
+.stockcolor-backorder::after {
+	content: 'X'
+}
+
+.stockcolor-indent {
+	background-color: ${COLOURFUL ? PurpleBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? PurpleFG : defFGColour};
+}
+.stockcolor-indent::after {
+	content: '<'
+}
+
+.stockcolor-coming {
+	background-color: ${COLOURFUL ? BlueBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour};
+}
+.stockcolor-coming::after {
+	content: '<'
+}`;
+	MyStyles.addStyle('IconStockIndicators', cssText);
+
+	let collection = document.querySelectorAll('.stockIndicator');
+	for (let stockElement in collection) {
+		if (collection.hasOwnProperty(stockElement)) {
+			if (stock.indexOf('In Stock') >= 0) {
+				let tempStr = stock.substring(0, stock.indexOf(' '));
+				let tempNum = parseInt(tempStr);
+				if(!isNaN(tempNum)) {
+					// Do something?
+				}
+				stockElement.classList.add('stockcolor-instock');
+			}
+			else if (stock.indexOf('On Backorder') >= 0) {
+				stockElement.classList.add('stockcolor-backorder');
+			}
+			else if (stock.indexOf('Indent Only') >= 0) {
+				stockElement.classList.add('stockcolor-indent');
+			}
+			else if (stock.indexOf('On Order With Supplier') >= 0) {
+				stockElement.classList.add('stockcolor-coming');
+			}
+		}
+	}
 }
 
 function addItemCodesToSwatches() {
