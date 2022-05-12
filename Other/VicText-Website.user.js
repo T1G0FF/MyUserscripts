@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.1
+// @version      2022.05.13.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -239,39 +239,39 @@ function replaceStockIndicatorsWithIcons() {
 	let PurpleBG = SWAP_FG_BG ? colLtPurple : colDkPurple;
 
 	let cssText = `/* Hide Stock Indicator Icons by Default */
-.stockIndicatorIcon {
+.stockIndicator > span.stockIndicatorIcon {
 	display: none;
 }`;
 	MyStyles._addStyle(cssText);
 
 	cssText = `/* Icon Stock Indicators */
-.stockIndicator > span {
+.stockIndicator > span.stockIndicatorText {
 	display: none;
 }
-.stockIndicator:hover > span {
+.stockIndicator:hover > span.stockIndicatorText {
 	display: inline-block;
 }
 
-.stockIndicatorIcon {
+.stockIndicator > span.stockIndicatorIcon {
 	display: inline-block;
 }
 
-.stockcolor-instock {
+.stockColor-instock {
 	background-color: ${COLOURFUL ? GreenBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour};
 }
 
-.stockcolor-backorder {
+.stockColor-backorder {
 	background-color: ${COLOURFUL ? OrangeBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? OrangeFG : defFGColour};
 }
 
-.stockcolor-indent {
+.stockColor-indent {
 	background-color: ${COLOURFUL ? PurpleBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? PurpleFG : defFGColour};
 }
 
-.stockcolor-coming {
+.stockColor-coming {
 	background-color: ${COLOURFUL ? BlueBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour};
 }`;
@@ -279,36 +279,37 @@ function replaceStockIndicatorsWithIcons() {
 
 	let collection = document.querySelectorAll('.stockIndicator');
 	for (const stockElement of collection) {
-		let span = stockElement.querySelector('span');
-		let stockText = span.innerText;
+		let spanTextSpan = stockElement.querySelector('span');
+		spanTextSpan.classList.add('stockIndicatorText');
+		let stockText = spanTextSpan.innerText;
 		let stockIconText;
 		if (stockText.indexOf('In Stock') >= 0) {
 			let tempStr = stockText.substring(0, stockText.indexOf(' '));
 			let tempNum = parseInt(tempStr);
 			
-			stockElement.classList.add('stockcolor-instock');
+			stockElement.classList.add('stockColor-instock');
 			stockIconText = '✓';
 			if (!isNaN(tempNum)) { // Is a number, append it.
 				stockIconText += ' ' + tempNum;
 			}
 		}
 		else if (stockText.indexOf('On Backorder') >= 0) {
-			stockElement.classList.add('stockcolor-backorder');
+			stockElement.classList.add('stockColor-backorder');
 			stockIconText = 'X';
 		}
 		else if (stockText.indexOf('Indent Only') >= 0) {
-			stockElement.classList.add('stockcolor-indent');
+			stockElement.classList.add('stockColor-indent');
 			stockIconText = '<';
 		}
 		else if (stockText.indexOf('On Order With Supplier') >= 0) {
-			stockElement.classList.add('stockcolor-coming');
+			stockElement.classList.add('stockColor-coming');
 			stockIconText = '>';
 		}
 
 		let stockIconElement = document.createElement('span');
 		stockIconElement.classList.add('stockIndicatorIcon');
 		stockIconElement.innerText = stockIconText;
-		stockElement.insertAdjacentElement('beforeEnd', stockIconElement);
+		stockElement.insertAdjacentElement('afterbegin', stockIconElement);
 	}
 }
 
