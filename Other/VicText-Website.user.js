@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.2
+// @version      2022.05.13.3
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -239,7 +239,8 @@ function replaceStockIndicatorsWithIcons() {
 	let PurpleBG = SWAP_FG_BG ? colLtPurple : colDkPurple;
 
 	let cssText = `/* Hide Stock Indicator Icons by Default */
-.stockIndicator > span.stockIndicatorIcon {
+.stockIndicator > span.stockIndicatorIcon,
+.stockIndicator > span.stockIndicatorCount {
 	display: none;
 }`;
 	MyStyles._addStyle(cssText);
@@ -251,8 +252,12 @@ function replaceStockIndicatorsWithIcons() {
 .stockIndicator:hover > span.stockIndicatorText {
 	display: inline-block;
 }
+.stockIndicator:hover > span.stockIndicatorCount {
+	display: none;
+}
 
-.stockIndicator > span.stockIndicatorIcon {
+.stockIndicator > span.stockIndicatorIcon,
+.stockIndicator > span.stockIndicatorCount {
 	display: inline-block;
 }
 
@@ -290,7 +295,10 @@ function replaceStockIndicatorsWithIcons() {
 			stockElement.classList.add('stockColor-instock');
 			stockIconText = '✓';
 			if (!isNaN(tempNum)) { // Is a number, append it.
-				stockIconText += ' ' + tempNum;
+				let stockCountElement = document.createElement('span');
+				stockCountElement.classList.add('stockIndicatorCount');
+				stockCountElement.innerText = ` ${tempNum}`;
+				stockElement.insertAdjacentElement('afterbegin', stockCountElement);
 			}
 		}
 		else if (stockText.indexOf('On Backorder') >= 0) {
