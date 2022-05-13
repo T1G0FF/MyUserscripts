@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.4
+// @version      2022.05.13.5
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -377,8 +377,7 @@ function addItemCodesToSwatches() {
 }`;
 	MyStyles.addStyle('SwatchHover', cssText);
 	let collection = document.querySelectorAll('.swatcher-swatch');
-	for (const item of collection) {
-		let currentItem = collection[item];
+	for (const currentItem of collection) {
 		let currentImage = currentItem.querySelector('img');
 		let productCode = getCodeFromItem(currentItem);
 
@@ -502,15 +501,12 @@ async function getImagelessCollection(doc) {
 		}
 
 		let result = [];
-		for (let item in collection) {
-			if (collection.hasOwnProperty(item)) {
-				let currentItem = collection[item];
-				let currentImage = currentItem.querySelector('img');
-				if (currentImage.getAttribute('src').includes('NoImage.gif')
-					|| (currentImage.naturalWidth > 0 && currentImage.naturalWidth < compareSize)
-					|| (currentImage.naturalHeight > 0 && currentImage.naturalHeight < compareSize)) {
-					result.push(currentItem);
-				}
+		for (const currentItem of collection) {
+			let currentImage = currentItem.querySelector('img');
+			if (currentImage.getAttribute('src').includes('NoImage.gif')
+				|| (currentImage.naturalWidth > 0 && currentImage.naturalWidth < compareSize)
+				|| (currentImage.naturalHeight > 0 && currentImage.naturalHeight < compareSize)) {
+				result.push(currentItem);
 			}
 		}
 		cachedImagelessCollection[doc]['collection'] = { 'Collection': result, 'CompareSize': compareSize };
@@ -529,13 +525,10 @@ async function getChildlessCollection(doc) {
 
 		let collection = await getCollection();
 		let result = [];
-		for (let item in collection) {
-			if (collection.hasOwnProperty(item)) {
-				let currentItem = collection[item];
-				let productCode = getCodeFromItem(currentItem);
-				if (productCode.indexOf('WEB-') == 0) {
-					result.push(currentItem);
-				}
+		for (const currentItem of collection) {
+			let productCode = getCodeFromItem(currentItem);
+			if (productCode.indexOf('WEB-') == 0) {
+				result.push(currentItem);
 			}
 		}
 		cachedChildlessCollection[doc]['collection'] = result;
@@ -559,14 +552,11 @@ async function getCodesOnPage() {
 	let collection = await getCollection();
 	// For Swatch Pages
 	if (collection.length < 1) collection = document.querySelectorAll('.swatcher-swatch');
-	for (let item in collection) {
-		if (collection.hasOwnProperty(item)) {
-			let currentItem = collection[item];
-			let productCode = getCodeFromItem(currentItem);
-			let productName = currentItem.querySelector('img').getAttribute('title');
-			result += productCode + '\t' + productName + '\n';
-			count++;
-		}
+	for (const currentItem of collection) {
+		let productCode = getCodeFromItem(currentItem);
+		let productName = currentItem.querySelector('img').getAttribute('title');
+		result += productCode + '\t' + productName + '\n';
+		count++;
 	}
 	let msg = 'None found!';
 	if (count > 0) {
@@ -586,15 +576,12 @@ async function getImagesOnPage() {
 		compareSize = 50;
 	}
 	let count = 0;
-	for (let item in collection) {
-		if (collection.hasOwnProperty(item)) {
-			let currentItem = collection[item];
-			console.log(compareSize + ': ' + currentItem.naturalWidth + 'x' + currentItem.naturalHeight);
-			let givenURL = currentItem.getAttribute('src');
-			let currentURL = getAbsolutePath(givenURL).replaceAll('thumbnails/swatches/', '');
-			imageHtml = imageHtml + '<img src="' + currentURL + '">\n';
-			count++;
-		}
+	for (const currentItem of collection) {
+		console.log(compareSize + ': ' + currentItem.naturalWidth + 'x' + currentItem.naturalHeight);
+		let givenURL = currentItem.getAttribute('src');
+		let currentURL = getAbsolutePath(givenURL).replaceAll('thumbnails/swatches/', '');
+		imageHtml = imageHtml + '<img src="' + currentURL + '">\n';
+		count++;
 	}
 	imageHtml = imageHtml + '</body>\n</html>';
 
@@ -638,29 +625,19 @@ function formatImageless(imageless) {
 	result.OddSize = '';
 	let count = 0;
 
-	for (let item in imageless.Collection) {
-		if (imageless.Collection.hasOwnProperty(item)) {
-			let currentItem = imageless.Collection[item];
-
-			let currentImage = currentItem.querySelector('img');
-			if (currentImage.getAttribute('src').includes('NoImage.gif')) {
-				let currentItem = imageless.Collection[item];
-				let currentImage = currentItem.querySelector('img');
-				let productCode = getCodeFromItem(currentItem);
-				let productName = currentImage.getAttribute('title');
-				result.NoImage += productCode + '\t' + productName + '\n';
-				count++;
-				continue;
-			}
-			if (currentImage.naturalWidth < imageless.CompareSize || currentImage.naturalHeight < imageless.CompareSize) {
-				let currentItem = imageless.Collection[item];
-				let currentImage = currentItem.querySelector('img');
-				let productCode = getCodeFromItem(currentItem);
-				let productName = currentImage.getAttribute('title');
-				result.OddSize += productCode + '\t' + productName + '\n';
-				count++;
-				continue;
-			}
+	for (const currentItem of imageless.Collection) {
+		let currentImage = currentItem.querySelector('img');
+		let productCode = getCodeFromItem(currentItem);
+		let productName = currentImage.getAttribute('title');
+		if (currentImage.getAttribute('src').includes('NoImage.gif')) {
+			result.NoImage += productCode + '\t' + productName + '\n';
+			count++;
+			continue;
+		}
+		if (currentImage.naturalWidth < imageless.CompareSize || currentImage.naturalHeight < imageless.CompareSize) {
+			result.OddSize += productCode + '\t' + productName + '\n';
+			count++;
+			continue;
 		}
 	}
 	return { 'Output': result, 'Count': count };
@@ -669,15 +646,12 @@ function formatImageless(imageless) {
 function formatChildless(collection) {
 	let result = '';
 	let count = 0;
-	for (let item in collection) {
-		if (collection.hasOwnProperty(item)) {
-			let currentItem = collection[item];
-			let currentImage = currentItem.querySelector('img');
-			let productCode = getCodeFromItem(currentItem);
-			let productName = currentImage.getAttribute('title');
-			if (currentItem.querySelector('div.galleryPrice')) {
-				result += productCode + '\t' + productName + '\n';
-			}
+	for (const currentItem of collection) {
+		let currentImage = currentItem.querySelector('img');
+		let productCode = getCodeFromItem(currentItem);
+		let productName = currentImage.getAttribute('title');
+		if (currentItem.querySelector('div.galleryPrice')) {
+			result += productCode + '\t' + productName + '\n';
 		}
 	}
 	return { 'Output': result, 'Count': count };
@@ -772,56 +746,24 @@ function addScraperIFrame() {
 	document.body.appendChild(ScraperIFrame);
 }
 
-async function btnAction_scrapeFirstImage() {
-	let imageHtml = '<html>\n<body>\n';
-	let imageless = await getImagelessCollection();
-	let collection = imageless.Collection;
-	let count = 0;
-	for (let item in collection) {
-		if (collection.hasOwnProperty(item)) {
-			let currentItem = collection[item];
-			let productCode = getCodeFromItem(currentItem);
-			if (productCode === "Collection") {
-				count++;
-				if (count <= parseInt(SCRAPER_CALL_FIELD.value, 10)) continue;
-				let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length) - 1; // Last in increment or last in collection
-				if (count > lastCall + 1) break;
-
-				let link = getAbsolutePath(await scrapeFirstImage(currentItem, count == lastCall));
-				link = link.replaceAll('thumbnails/swatches/', '');
-				link = link.replaceAll('thumbnails/', '');
-				imageHtml = imageHtml + '<img src="' + link + '">\n';
-			}
-		}
-	}
-	imageHtml = imageHtml + '</body>\n</html>';
-
-	let msg = 'None found!';
-	if (count > 0) {
-		GM_setClipboard(imageHtml);
-		msg = count + ' found and copied!';
-	}
-	if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
-}
-async function scrapeFirstImage(item, lastCall) {
+async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
 	let ScraperIFrame = document.querySelector('#scraperFrame');
 	if (!ScraperIFrame) {
 		addScraperIFrame();
 		ScraperIFrame = document.querySelector('#scraperFrame')
 	}
 
-	let returnedLink;
-	const scraperLoadPromise = new Promise(resolve => {
+	let scrapedResult;
+	const scraperLoadedPromise = new Promise(resolve => {
 		ScraperIFrame.style.visibility = 'visible';
 		ScraperIFrame.src = item.querySelector('a').getAttribute('href');
-		ScraperIFrame.addEventListener("load", function () {
+		ScraperIFrame.addEventListener("load", async function () {
 			if (ScraperIFrame.src != 'about:blank') {
-				let img = ScraperIFrame.contentDocument.querySelectorAll('div.col-md-4.col-sm-4 img')[0];
-				if (img) {
-					let link = img.getAttribute('src');
-					returnedLink = link;
+				let localResult = await onLoad(ScraperIFrame.contentDocument);
+				if (localResult) {
+					scrapedResult = await onReturn(localResult);
 					if (lastCall) {
-						ScraperIFrame.src = 'about:blank';
+						ScraperIFrame.src = 'about:blank'; // This counts against our navigation count, so only do it once at the end.
 						ScraperIFrame.style.visibility = 'hidden';
 					}
 				}
@@ -829,9 +771,60 @@ async function scrapeFirstImage(item, lastCall) {
 			resolve();
 		});
 	});
-	await scraperLoadPromise;
+	await scraperLoadedPromise;
+	return scrapedResult;
+}
 
-	return returnedLink;
+async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, onFrameReturn, aggregateItem, onEnd) {
+	let count = 0;
+	let result = await initResult();
+	for (const currentItem of collection) {
+		let productCode = getCodeFromItem(currentItem);
+		if (productCode === "Collection") {
+			count++;
+			if (count <= parseInt(SCRAPER_CALL_FIELD.value, 10)) continue;
+			let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length);// -1; // Last in increment or last in collection
+			if (count > lastCall) break;
+
+			let scrapedResult = await scrapeItemWithIFrame(currentItem, count == lastCall, onFrameLoad, onFrameReturn);
+
+			await aggregateItem(result, scrapedResult);
+		}
+	}
+	await onEnd(count, result);
+	return { 'Output': result, 'Count': count };
+}
+
+async function btnAction_scrapeFirstImage() {
+	await scrapeCollectionWithIFrame(
+		(await getImagelessCollection()).Collection,
+		() => { // initResult
+			return '<html>\n<body>\n';
+		},
+		(iFrameDocument) => { // onFrameLoad
+			return iFrameDocument.querySelectorAll('div.col-md-4.col-sm-4 img')[0];
+		},
+		(scrapedResult) => { // onFrameReturn
+			let link = scrapedResult.getAttribute('src');
+			link = getAbsolutePath(link);
+			link = link.replaceAll('thumbnails/swatches/', '');
+			link = link.replaceAll('thumbnails/', '');
+			return link;
+		},
+		(result, scrapedResult) => { // aggregateItem
+			result = result + '<img src="' + scrapedResult + '">\n';
+		},
+		(count, result) => { // onEnd
+			result = result + '</body>\n</html>';
+
+			let msg = 'None found!';
+			if (count > 0) {
+				GM_setClipboard(result);
+				msg = count + ' found and copied!';
+			}
+			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
+		}
+	);
 }
 
 function addScrapeImagelessInputs() {
@@ -853,64 +846,39 @@ function addScrapeImagelessInputs() {
 }
 
 async function btnAction_scrapeImageless() {
-	// Grab all the imageless on current page first
-	let imglessResult = await getImagelessCollection();
-	let collection = await getCollection();
-	let count = 0;
-	for (let item in collection) {
-		if (collection.hasOwnProperty(item)) {
-			let currentItem = collection[item];
-			let productCode = getCodeFromItem(currentItem);
-			if (productCode === "Collection") {
-				count++;
-				if (count <= parseInt(SCRAPER_CALL_FIELD.value, 10)) continue;
-				let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length);// -1; // Last in increment or last in collection
-				if (count > lastCall) break;
+	await scrapeCollectionWithIFrame(
+		await getCollection(),
+		() => { // initResult
+			return await getImagelessCollection();
+		},
+		(iFrameDocument) => { // itemOnLoad
+			return getImagelessCollection(iFrameDocument);
+		},
+		(scrapedResult) => { // itemOnReturn
+			return scrapedResult.Collection;
+		},
+		(result, scrapedResult) => { // aggregateItem
+			Array.prototype.push.apply(result, scrapedResult);
 
-				let localResult = await scrapeImageless(currentItem, count == lastCall);
-				Array.prototype.push.apply(imglessResult.Collection, localResult);
-
-				// SLEEP - THIS IS BAD, I KNOW.
-				let start = new Date().getTime();
-				for (let i = 0; i < 1e7; i++) {
-					if ((new Date().getTime() - start) > 1000) {
-						break;
-					}
+			// SLEEP - THIS IS BAD, I KNOW.
+			let start = new Date().getTime();
+			for (let i = 0; i < 1e7; i++) {
+				if ((new Date().getTime() - start) > 1000) {
+					break;
 				}
 			}
+		},
+		(count, result) => { // onEnd
+			let formatResult = formatImageless(result);
+
+			let msg = 'None found!';
+			if (formatResult.Count > 0) {
+				GM_setClipboard(formatResult.Output);
+				msg = formatResult.Count + ' found and copied!';
+			}
+			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
 		}
-	}
-
-	formatImageless(imglessResult);
-}
-async function scrapeImageless(item, lastCall) {
-	let ScraperIFrame = document.querySelector('#scraperFrame');
-	if (!ScraperIFrame) {
-		addScraperIFrame();
-		ScraperIFrame = document.querySelector('#scraperFrame')
-	}
-
-	let returnedImgless;
-	const scraperLoadPromise = new Promise(resolve => {
-		ScraperIFrame.style.visibility = 'visible';
-		ScraperIFrame.src = item.querySelector('a').getAttribute('href');
-		ScraperIFrame.addEventListener("load", async function () {
-			if (ScraperIFrame.src != 'about:blank') {
-				let localCollection = await getImagelessCollection(ScraperIFrame.contentDocument);
-				if (localCollection) {
-					returnedImgless = localCollection.Collection;
-					if (lastCall) {
-						ScraperIFrame.src = 'about:blank'; // This counts against our navigation count, so only do it once at the end.
-						ScraperIFrame.style.visibility = 'hidden';
-					}
-				}
-			}
-			resolve();
-		});
-	});
-	await scraperLoadPromise;
-
-	return returnedImgless;
+	);
 }
 
 /***********************************************
