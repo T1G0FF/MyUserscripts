@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.1
+// @version      2022.05.13.2
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -111,7 +111,7 @@ function getParam(field) {
 	return getParam(window.location.search, field);
 }
 function getParam(url, field) {
-	let result = null;
+	let result = undefined;
 	let tmp = [];
 	let items = url.split("?")[1] ? url.split("?")[1].split("&") : [];
 	for (var index = 0; index < items.length; index++) {
@@ -684,25 +684,25 @@ let Toast = new function() {
 let Notify = new function() {
 	if (!Toast.created) Toast.init();
 
-	this.log = async function(msg, object = null, timer = 3000) {
+	this.log = async function(msg, object = undefined, timer = 3000) {
 		let func = console.log;
 		await this._notify(func, msg, object, timer);
 		return;
 	};
 
-	this.warn = async function(msg, object = null, timer = 3000) {
+	this.warn = async function (msg, object = undefined, timer = 3000) {
 		let func = console.warn;
 		await this._notify(func, msg, object, timer);
 		return;
 	};
 
-	this.error = async function(msg, object = null, timer = 3000) {
+	this.error = async function (msg, object = undefined, timer = 3000) {
 		let func = console.error;
 		await this._notify(func, msg, object, timer);
 		return;
 	};
 
-	this._notify = async function(func, msg, object = null, timer = 3000) {
+	this._notify = async function (func, msg, object = undefined, timer = 3000) {
 		if (Toast.CONFIG_TOAST_POPUPS) {
 			await Toast.enqueue(msg, timer);
 		}
@@ -783,7 +783,7 @@ function Queue() {
 function DownloadQueue() {
 	this._check = async function() {
 		if (typeof GM_download === 'undefined') {
-			await Notify.log('GM_download is not defined!', 5000);
+			await Notify.log('GM_download is not defined!', undefined, 5000);
 			return false;
 		}
 		return true;
