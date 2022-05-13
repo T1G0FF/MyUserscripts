@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.5
+// @version      2022.05.13.6
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -291,7 +291,7 @@ function replaceStockIndicatorsWithIcons() {
 		if (stockText.indexOf('In Stock') >= 0) {
 			let tempStr = stockText.substring(0, stockText.indexOf(' '));
 			let tempNum = parseInt(tempStr);
-			
+
 			stockElement.classList.add('stockColor-instock');
 			stockIconText = '✓';
 			if (!isNaN(tempNum)) { // Is a number, append it.
@@ -814,7 +814,7 @@ async function btnAction_scrapeFirstImage() {
 		(result, scrapedResult) => { // aggregateItem
 			result = result + '<img src="' + scrapedResult + '">\n';
 		},
-		(count, result) => { // onEnd
+		async (count, result) => { // onEnd
 			result = result + '</body>\n</html>';
 
 			let msg = 'None found!';
@@ -848,7 +848,7 @@ function addScrapeImagelessInputs() {
 async function btnAction_scrapeImageless() {
 	await scrapeCollectionWithIFrame(
 		await getCollection(),
-		() => { // initResult
+		async () => { // initResult
 			return await getImagelessCollection();
 		},
 		(iFrameDocument) => { // itemOnLoad
@@ -868,7 +868,7 @@ async function btnAction_scrapeImageless() {
 				}
 			}
 		},
-		(count, result) => { // onEnd
+		async (count, result) => { // onEnd
 			let formatResult = formatImageless(result);
 
 			let msg = 'None found!';
