@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.6
+// @version      2022.05.13.7
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -475,8 +475,8 @@ async function getCollection(doc) {
 	doc = doc || document;
 	let now = Date.now();
 	if (!cachedCollection || !cachedCollection[doc] || cachedCollection[doc]['timestamp'] - now > 5000) {
-		cachedCollection = {};
-		cachedCollection[doc] = {};
+		cachedCollection = cachedCollection || {};
+		cachedCollection[doc] = cachedCollection[doc] || {};
 		cachedCollection[doc]['timestamp'] = now;
 		cachedCollection[doc]['collection'] = doc.querySelectorAll('div.col-md-4.col-sm-4'); // .item
 	}
@@ -486,9 +486,9 @@ async function getCollection(doc) {
 async function getImagelessCollection(doc) {
 	doc = doc || document;
 	let now = Date.now();
-	if (!cachedImagelessCollection || !cachedImagelessCollection[doc] || cachedImagelessCollection['timestamp'] - now > 5000) {
-		cachedImagelessCollection = {};
-		cachedImagelessCollection[doc] = {};
+	if (!cachedImagelessCollection || !cachedImagelessCollection[doc] || cachedImagelessCollection[doc]['timestamp'] - now > 5000) {
+		cachedImagelessCollection = cachedImagelessCollection || {};
+		cachedImagelessCollection[doc] = cachedImagelessCollection[doc] || {};
 		cachedImagelessCollection[doc]['timestamp'] = now;
 
 		let collection = await getCollection(doc);
@@ -518,9 +518,9 @@ async function getImagelessCollection(doc) {
 async function getChildlessCollection(doc) {
 	doc = doc || document;
 	let now = Date.now();
-	if (!cachedChildlessCollection || !cachedChildlessCollection[doc] || cachedChildlessCollection['timestamp'] - now > 5000) {
-		cachedChildlessCollection = {};
-		cachedChildlessCollection[doc] = {};
+	if (!cachedChildlessCollection || !cachedChildlessCollection[doc] || cachedChildlessCollection[doc]['timestamp'] - now > 5000) {
+		cachedChildlessCollection = cachedChildlessCollection || {};
+		cachedChildlessCollection[doc] = cachedChildlessCollection[doc] || {};
 		cachedChildlessCollection[doc]['timestamp'] = now;
 
 		let collection = await getCollection();
