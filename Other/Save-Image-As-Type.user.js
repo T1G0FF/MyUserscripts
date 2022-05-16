@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         General - Save Image as Type
 // @namespace    http://www.tgoff.me/
-// @version      2022.03.18.2
+// @version      2022.05.16.1
 // @description  Based on 'Save image as Type' Chrome extension by 'html5gamer' (https://chrome.google.com/webstore/detail/save-image-as-type/gabfmnliflodkdafenbcpjdlppllnemd)
 // @author       www.tgoff.me
 // @match        *://*/*
@@ -15,26 +15,29 @@ var downloadLink;
 
 (function () {
 	'use strict';
-	window.addEventListener('mousedown', buttonAction);
-
-	//['JPG','PNG','WebP'].forEach(function (type) {
-	//	GM_registerMenuCommand('Save as ' + type + '...', (event) => {
-	//		let target = event.target;
-	//		if (target.nodeName == 'IMG') {
-	//			saveAsType(event.target, type)
-	//		}
-	//	});
-	//});
+	window.addEventListener('mousedown', rightClickAction);
 })();
 
-function buttonAction(event) {
+function rightClickAction(event) {
 	let target = event.target;
 	if (target.nodeName == 'IMG') {
 		if (event.ctrlKey && event.button === 2) {
 			event.preventDefault();
-			saveAsType(target, 'png');
+			// If also holding shift save as jpg
+			target.addEventListener("load", event.shiftKey ? _saveAsJPEG : _saveAsPNG); 
+			target.src = target.src; // Force Onload event to reoccur.
 		}
 	}
+}
+
+function _saveAsPNG(event) {
+	let img = event.target;
+	saveAsType(img, 'png');
+}
+
+function _saveAsJPEG(event) {
+	let img = event.target;
+	saveAsType(img, 'jpeg');
 }
 
 function saveAsType(img, type) {
@@ -42,8 +45,8 @@ function saveAsType(img, type) {
 	if (!canvas) {
 		canvas = document.createElement('canvas');
 	}
-	canvas.width = img.width;
-	canvas.height = img.height;
+	canvas.width = img.naturalWidth;
+	canvas.height = img.naturalHeight;
 	var context = canvas.getContext('2d');
 	var mimeType = 'image/' + (type == 'jpg' ? 'jpeg' : type);
 	context.drawImage(img, 0, 0);
