@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.2
+// @version      2022.05.17.3
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -750,7 +750,7 @@ async function addHoverPreview() {
 			if (event.shiftKey) {
 				if (event.relatedTarget === iFramePreview) return;
 
-				let itemCoords = hoverElement.getCoords();
+				let itemCoords = target.getCoords();
 				let x = (itemCoords.top + (iFramePreview.clientHeight / 2));
 				let y = (itemCoords.left - (target.clientWidth / 2));
 				iFramePreview.style.top = x + 'px';
