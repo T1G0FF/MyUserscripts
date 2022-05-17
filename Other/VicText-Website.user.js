@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.4
+// @version      2022.05.17.5
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -541,7 +541,7 @@ async function getChildlessCollection(doc) {
 		let result = [];
 		for (const currentItem of collection) {
 			let productCode = getCodeFromItem(currentItem);
-			if (productCode.indexOf('WEB-') == 0) {
+			if (productCode.indexOf('WEB-') === 0) {
 				result.push(currentItem);
 			}
 		}
@@ -710,7 +710,7 @@ let MyiFrame = new function() {
 
 	this.show = function(iFrame, src, caller = undefined) {
 		iFrame.caller = caller;
-		iFrame.src = src;
+		if (iFrame.src !== src) iFrame.src = src;
 		iFrame.style.display = 'block';
 		iFrame.style.visibility = 'visible';
 	}
@@ -807,7 +807,7 @@ async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, o
 			let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length); // Last in increment or last in collection
 			if (count > lastCall) break;
 
-			let scrapedResult = await scrapeItemWithIFrame(currentItem, count == lastCall, onFrameLoad, onFrameReturn);
+			let scrapedResult = await scrapeItemWithIFrame(currentItem, count === lastCall, onFrameLoad, onFrameReturn);
 
 			result = await aggregateItem(result, scrapedResult);
 		}
