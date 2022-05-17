@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.1
+// @version      2022.05.17.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -50,7 +50,7 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
 	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
-	if (WEBADD_CONFIG.HOVER_PREVIEW) btnAction_addHoverPreview();
+	if (WEBADD_CONFIG.HOVER_PREVIEW) addHoverPreview();
 })();
 
 function addMiscCSS() {
@@ -672,36 +672,76 @@ function formatChildless(collection) {
 }
 
 /***********************************************
+ * Default iFrame Setup
+ ***********************************************/
+let MyiFrame = new function() {
+	this.added = false;
+	this.init = function() {
+		let cssText = `
+.tg-iframe {
+	height: 25%;
+	width: 25%;
+	position: absolute;
+	display: none;
+	visibility: hidden;
+	top: 0px;
+	left: 0px;
+	z-index: 999;
+}`;
+		MyStyles._addStyle(cssText);
+	}
+
+	this.create = function(name) {
+		if (!this.added) this.init();
+
+		let iFrame = document.querySelector('#' + name);
+		if (!iFrame) {
+			if (inIframe()) return;
+
+			iFrame = document.createElement('iframe');
+			iFrame.id = iFrame.name = name;
+			iFrame.classList.add('tg-iframe');
+			iFrame.sandbox = 'allow-same-origin allow-scripts';
+			iFrame.domain = document.domain;
+			document.body.appendChild(iFrame);
+		}
+		return iFrame;
+	}
+
+	this.show = function(iFrame, src, caller = undefined) {
+		iFrame.caller = caller;
+		iFrame.src = src;
+		iFrame.style.display = 'block';
+		iFrame.style.visibility = 'visible';
+	}
+
+	this.hide = function(iFrame, src = undefined) {
+		iFrame.caller = undefined;
+		if (src) iFrame.src = src;
+		iFrame.style.display = 'none';
+		iFrame.style.visibility = 'hidden';
+	}
+}
+
+/***********************************************
  * Hover Preview iFrame
  ***********************************************/
-async function btnAction_addHoverPreview() {
+async function addHoverPreview() {
 	if (inIframe()) return;
-	let cssText = `
-	#hoverPreview {
-		height: 25%;
-		width: 25%;
-		position: absolute;
-		display: block;
-		visibility: hidden;
-		top: 0px;
-		left: 0px;
-		z-index: 999;
-	}
+	let iFramePreview = MyiFrame.create('hoverPreview');
 
+	let cssText = `/* Keep preview visible while hovered */
 	#hoverPreview:hover {
+		display: block;
 		visibility: visible;
-	}
-	`;
-	MyStyles.addStyle('Hover iFrame', cssText);
+	}`;
+	MyStyles._addStyle(cssText); // Hover iFrame
 
-	let iFramePreview = document.createElement('iframe');
-	iFramePreview.id = iFramePreview.name = 'hoverPreview';
 	iFramePreview.onmouseout = function (event) {
 		if (event.relatedTarget === iFramePreview.caller
 			|| iFramePreview.caller.getAllChildren().includes(event.relatedTarget)) return;
 		hidePreview(iFramePreview);
 	};
-	document.body.appendChild(iFramePreview);
 
 	let coll = await getCollection();
 	coll.forEach((currentValue) => {
@@ -709,83 +749,50 @@ async function btnAction_addHoverPreview() {
 		currentValue.onmouseover = function (event) {
 			if (event.shiftKey) {
 				if (event.relatedTarget === iFramePreview) return;
-				showPreview(iFramePreview, target);
+
+				let itemCoords = hoverElement.getCoords();
+				let x = (itemCoords.top + (iFramePreview.clientHeight / 2));
+				let y = (itemCoords.left - (target.clientWidth / 2));
+				iFramePreview.style.top = x + 'px';
+				iFramePreview.style.left = y + 'px';
+
+				let src = target.querySelector('a').getAttribute('href');
+				MyiFrame.show(iFramePreview, src, target);
 			}
 		};
 		currentValue.onmouseout = function (event) {
 			if (event.relatedTarget === iFramePreview) return;
-			hidePreview(iFramePreview);
+			MyiFrame.hide(iFramePreview);
 		};
 	});
-}
-
-function showPreview(iFrame, hoverElement) {
-	let itemCoords = hoverElement.getCoords();
-	let x = (itemCoords.top + (iFrame.clientHeight / 2));
-	let y = (itemCoords.left - (hoverElement.clientWidth / 2));
-	iFrame.caller = hoverElement;
-	iFrame.style.top = x + 'px';
-	iFrame.style.left = y + 'px';
-	iFrame.src = hoverElement.querySelector('a').getAttribute('href');
-	iFrame.style.visibility = 'visible';
-}
-
-function hidePreview(iFrame) {
-	iFrame.caller = undefined;
-	iFrame.src = 'about:blank';
-	iFrame.style.visibility = 'hidden';
 }
 
 /***********************************************
  * Scraping iFrame
  ***********************************************/
-function addScraperIFrame() {
-	if (inIframe()) return;
-	let cssText = `
-	#scraperFrame {
-		height: 25%;
-		width: 25%;
-		position: absolute;
-		display: block;
-		top: 0px;
-		left: 0px;
-		z-index: 999;
-	}`;
-	MyStyles.addStyle('Scraper iFrame', cssText);
-
-	let ScraperIFrame = document.createElement('iframe');
-	ScraperIFrame.id = ScraperIFrame.name = 'scraperFrame';
-	ScraperIFrame.sandbox = 'allow-same-origin allow-scripts';
-	ScraperIFrame.domain = document.domain;
-	document.body.appendChild(ScraperIFrame);
-}
-
 async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
-	let ScraperIFrame = document.querySelector('#scraperFrame');
-	if (!ScraperIFrame) {
-		addScraperIFrame();
-		ScraperIFrame = document.querySelector('#scraperFrame')
-	}
+	if (inIframe()) return;
+	let iFrameScraper = MyiFrame.create('scraperFrame');
 
 	let scrapedResult;
 	const scraperLoadedPromise = new Promise(resolve => {
-		ScraperIFrame.style.visibility = 'visible';
-		ScraperIFrame.src = item.querySelector('a').getAttribute('href');
-		ScraperIFrame.addEventListener("load", async function () {
-			if (ScraperIFrame.src != 'about:blank') {
-				let localResult = await onLoad(ScraperIFrame.contentDocument);
+		iFrameScraper.addEventListener("load", async function () {
+			if (iFrameScraper.src != 'about:blank') {
+				let localResult = await onLoad(iFrameScraper.contentDocument);
 				if (localResult) {
 					scrapedResult = await onReturn(localResult);
 				}
 			}
 			resolve();
 		});
+		
+		let src = item.querySelector('a').getAttribute('href');
+		MyiFrame.show(iFrameScraper, src);
 	});
 	await scraperLoadedPromise;
-	if (lastCall) {
-		ScraperIFrame.src = 'about:blank'; // This counts against our navigation count, so only do it once at the end.
-		ScraperIFrame.style.visibility = 'hidden';
-	}
+	// Sets the source to 'about:blank' on last call
+	// This counts against our navigation count, so we only do it once at the end.
+	MyiFrame.hide(iFrameScraper, lastCall ? 'about:blank' : undefined);
 	return scrapedResult;
 }
 
@@ -797,7 +804,7 @@ async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, o
 		if (productCode === "Collection") {
 			count++;
 			if (count <= parseInt(SCRAPER_CALL_FIELD.value, 10)) continue;
-			let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length);// -1; // Last in increment or last in collection
+			let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length); // Last in increment or last in collection
 			if (count > lastCall) break;
 
 			let scrapedResult = await scrapeItemWithIFrame(currentItem, count == lastCall, onFrameLoad, onFrameReturn);
@@ -963,8 +970,8 @@ function getTitleElement() {
 	return titleElement;
 }
 
-function lazyLoadThumbImages(e) {
-	let currentItem = e.currentTarget;
+function lazyLoadThumbImages(event) {
+	let currentItem = event.currentTarget;
 	let imgElement = currentItem.querySelector('img.swatch-product-img');
 	if (imgElement.src === getAbsolutePath('-')) {
 		//if (DEBUG) console.log('mouseOver Success! Lazy updated: ', imgElement.getAttribute('thumbImage'));
