@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.1
+// @version      2022.05.17.2
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -409,11 +409,7 @@ let MyStyles = new function() {
 		let that = this;
 		this._addStyleToggle('SelectAll', function() {
 			let checkBox = that.addedCheckboxes['SELECTALL'];
-			if (checkBox.checked) {
-				that.enableAllAddedStyles();
-			} else {
-				that.disableAllAddedStyles();
-			}
+			that._setAllAddedStyles(checkBox.checked, true);
 		});
 
 		document.body.appendChild(this.container);
@@ -424,13 +420,15 @@ let MyStyles = new function() {
 		if (!this.added) this.init();
 		let nameKey = name.toUpperCase();
 		let node;
-		if (this.addedStyles.hasOwnProperty(nameKey)) {
-			node = this.addedStyles[nameKey];
-			node = this._updateStyle(node, css);
-			if (disabled) disableStyle(nameKey);
-		} else {
+		if (!this.addedStyles.hasOwnProperty(nameKey)) {
+			// Create
 			node = this._addStyle(css);
 			this.addStyleToggle(name, !disabled);
+		} else {
+			// Update
+			node = this.addedStyles[nameKey];
+			node = this._updateStyle(node, css);
+			this._setStyle(nameKey, !disabled);
 		}
 		this.addedStyles[nameKey] = node;
 		node.id = nameKey;
@@ -462,11 +460,7 @@ let MyStyles = new function() {
 
 		this._addStyleToggle(name, function() {
 			let checkBox = that.addedCheckboxes[nameKey];
-			if (checkBox.checked) {
-				that.enableStyle(nameKey, false);
-			} else {
-				that.disableStyle(nameKey, false);
-			}
+			that._setStyle(nameKey, checkBox.checked, false);
 		}, checked);
 	};
 
@@ -489,38 +483,37 @@ let MyStyles = new function() {
 		this.addedCheckboxes[nameKey] = checkbox;
 	};
 
-	this.enableStyle = function(name, updateCheckBox = true) {
+	this._setStyle = function(name, enabled, updateCheckBox = true) {
 		let nameKey = name.toUpperCase();
 		if (this.addedStyles.hasOwnProperty(nameKey)) {
-			this.addedStyles[nameKey].disabled = false;
+			this.addedStyles[nameKey].disabled = !enabled;
 		}
 		// If this is called from the checkbox, we don't need to update the checkbox
 		if (updateCheckBox && this.addedCheckboxes.hasOwnProperty(nameKey)) {
-			this.addedCheckboxes[nameKey].checked = true;
+			this.addedCheckboxes[nameKey].checked = enabled;
 		}
+	};
+
+	this._setAllAddedStyles = function(enabled, updateCheckBox = true) {
+		for (var nameKey in this.addedStyles) {
+			this._setStyle(nameKey, enabled, updateCheckBox);
+		}
+	};
+
+	this.enableStyle = function(name, updateCheckBox = true) {
+		this._setStyle(name, true, updateCheckBox);
 	};
 
 	this.enableAllAddedStyles = function() {
-		for (var nameKey in this.addedStyles) {
-			enableStyle(nameKey);
-		}
+		this._setAllAddedStyles(true, true);
 	};
 
 	this.disableStyle = function(name, updateCheckBox = true) {
-		let nameKey = name.toUpperCase();
-		if (this.addedStyles.hasOwnProperty(nameKey)) {
-			this.addedStyles[nameKey].disabled = true;
-		}
-		// If this is called from the checkbox, we don't need to update the checkbox
-		if (updateCheckBox && this.addedCheckboxes.hasOwnProperty(nameKey)) {
-			this.addedCheckboxes[nameKey].checked = false;
-		}
+		this._setStyle(name, false, updateCheckBox);
 	};
 
 	this.disableAllAddedStyles = function() {
-		for (var nameKey in this.addedStyles) {
-			disableStyle(nameKey);
-		}
+		this._setAllAddedStyles(false, true);
 	};
 };
 
