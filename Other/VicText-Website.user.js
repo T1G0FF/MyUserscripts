@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.10
+// @version      2022.05.17.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -196,9 +196,7 @@ div.onSpecial > span {
     color: black;
     transform: rotate(-35deg) translateX(-58%) translateY(-25%);
 }`;
-	MyStyles.addStyle('SpecialStar', cssText);
-	document.getElementById('CSSToggleCheckbox_SPECIALSTAR').checked = false;
-	MyStyles.disableStyle('SpecialStar');
+	MyStyles.addStyle('SpecialStar', cssText, true); // Disabled by Default
 
 	cssText = `/* Small Stock Indicators */
 .stockIndicator {
@@ -326,35 +324,47 @@ function addItemCodesToSwatches() {
 	let cssText = `
 .swatcher-swatch {
 	position: relative;
-	margin-bottom: calc(2px + ${swatchSpace});
 }
 
+/* Hide Swatch Labels by Default */
 .swatch-product-code {
+	position: absolute;
+	display: none;
 	font-size: 9px;
 	font-weight: 900;
-	position: absolute;
-	display: inline-block;
-	height: 1em;
-	width: 100%;
-	bottom: calc(-1 * ${swatchSpace});
-	left: 0;
-	z-index: 100;
 	color: #7E8075;
 	text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
-}`;
-	MyStyles.addStyle('SwatchLabels', cssText);
-	cssText = `
+}
+
+/* Hide Swatch Previews by Default */
 .swatch-product-img {
 	position: absolute;
 	display: none;
 	z-index: 100;
 }`;
 	MyStyles._addStyle(cssText);
-	cssText = `
+
+	cssText = `/* Add Labels to Swatches */
+.swatcher-swatch {
+	margin-bottom: calc(2px + ${swatchSpace});
+}
+
+.swatch-product-code {
+	display: inline-block;
+	height: 1em;
+	width: 100%;
+	bottom: calc(-1 * ${swatchSpace});
+	left: 0;
+	z-index: 100;
+}`;
+	MyStyles.addStyle('SwatchLabels', cssText);
+
+	cssText = `/* Enlarge Label on Hover */
 .swatcher-swatch:hover .swatch-product-code {
 	font-size: 18px;
 	width: 100%;
 	height: calc(100% + 1em);
+	display: inline-block;
 	z-index: 101;
 	left: 0px;
 	bottom: auto;
@@ -362,9 +372,10 @@ function addItemCodesToSwatches() {
 	color: black;
 	overflow-x: visible;
 	white-space: nowrap;
-    text-indent: -100%;
+    text-indent: -50%;
 }
 
+/* Display Thumbnail Image on  Hover */
 .swatcher-swatch:hover .swatch-product-img {
 	width: 250px;
 	height: 250px;
@@ -372,10 +383,13 @@ function addItemCodesToSwatches() {
 	max-height: 250px;
 	display: block;
 	z-index: 101;
+	/* - Height of Thumbnail */
 	top: -250px;
+	/* Half Width of Swatch - Half Width of Thumbnail */
 	left: calc((50px / 2) - (250px / 2));
 }`;
 	MyStyles.addStyle('SwatchHover', cssText);
+
 	let collection = document.querySelectorAll('.swatcher-swatch');
 	for (const currentItem of collection) {
 		let currentImage = currentItem.querySelector('img');
