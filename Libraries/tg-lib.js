@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.13.2
+// @version      2022.05.17.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -359,6 +359,7 @@ Array.prototype.remove = function() {
 let MyStyles = new function() {
 	this.added = false;
 	this.addedStyles = {};
+	this.addedCheckboxes = {};
 	this.container = {};
 
 	this.init = function() {
@@ -407,7 +408,7 @@ let MyStyles = new function() {
 
 		let that = this;
 		this._addStyleToggle('SelectAll', function() {
-			let checkBox = document.getElementById('CSSToggleCheckbox_SELECTALL');
+			let checkBox = that.addedCheckboxes['SELECTALL'];
 			if (checkBox.checked) {
 				that.enableAllAddedStyles();
 			} else {
@@ -419,19 +420,19 @@ let MyStyles = new function() {
 		this.added = true;
 	};
 
-	this.addStyle = function(name, css) {
+	this.addStyle = function(name, css, disabled = false) {
 		if (!this.added) this.init();
 		let nameKey = name.toUpperCase();
 		let node;
 		if (this.addedStyles.hasOwnProperty(nameKey)) {
 			node = this.addedStyles[nameKey];
 			node = this._updateStyle(node, css);
-			this.addedStyles[nameKey] = node;
+			if (disabled) disableStyle(nameKey);
 		} else {
 			node = this._addStyle(css);
-			this.addedStyles[nameKey] = node;
-			this.addStyleToggle(name);
+			this.addStyleToggle(name, !disabled);
 		}
+		this.addedStyles[nameKey] = node;
 		node.id = nameKey;
 	};
 
@@ -455,27 +456,28 @@ let MyStyles = new function() {
 		return node;
 	};
 
-	this.addStyleToggle = function(name) {
+	this.addStyleToggle = function(name, checked = true) {
+		let nameKey = name.toUpperCase();
 		let that = this;
+
 		this._addStyleToggle(name, function() {
-			let nameKey = name.toUpperCase();
-			let checkBox = document.getElementById('CSSToggleCheckbox_' + nameKey);
+			let checkBox = that.addedCheckboxes[nameKey];
 			if (checkBox.checked) {
-				that.enableStyle(nameKey);
+				that.enableStyle(nameKey, false);
 			} else {
-				that.disableStyle(nameKey);
+				that.disableStyle(nameKey, false);
 			}
-		});
+		}, checked);
 	};
 
-	this._addStyleToggle = function(name, func) {
+	this._addStyleToggle = function(name, func, checked = true) {
 		let nameKey = name.toUpperCase();
 
 		let checkbox = document.createElement('input');
 		checkbox.type = 'checkbox';
 		checkbox.id = 'CSSToggleCheckbox_' + nameKey;
 		checkbox.onclick = func;
-		checkbox.checked = true;
+		checkbox.checked = checked;
 
 		let label = document.createElement('label');
 		label.setAttribute('for', checkbox.id);
@@ -484,37 +486,40 @@ let MyStyles = new function() {
 
 		label.appendChild(checkbox);
 		this.container.appendChild(label);
+		this.addedCheckboxes[nameKey] = checkbox;
 	};
 
-	this.disableStyle = function(name) {
-		let nameKey = name.toUpperCase();
-		if (this.addedStyles.hasOwnProperty(nameKey)) {
-			this.addedStyles[nameKey].disabled = true;
-		}
-	};
-
-	this.enableStyle = function(name) {
+	this.enableStyle = function(name, updateCheckBox = true) {
 		let nameKey = name.toUpperCase();
 		if (this.addedStyles.hasOwnProperty(nameKey)) {
 			this.addedStyles[nameKey].disabled = false;
 		}
-	};
-
-	this.disableAllAddedStyles = function() {
-		for (var key in this.addedStyles) {
-			if (this.addedStyles.hasOwnProperty(key)) {
-				this.addedStyles[key].disabled = true;
-				document.getElementById('CSSToggleCheckbox_' + key).checked = false;
-			}
+		// If this is called from the checkbox, we don't need to update the checkbox
+		if (updateCheckBox && this.addedCheckboxes.hasOwnProperty(nameKey)) {
+			this.addedCheckboxes[nameKey].checked = true;
 		}
 	};
 
 	this.enableAllAddedStyles = function() {
-		for (var key in this.addedStyles) {
-			if (this.addedStyles.hasOwnProperty(key)) {
-				this.addedStyles[key].disabled = false;
-				document.getElementById('CSSToggleCheckbox_' + key).checked = true;
-			}
+		for (var nameKey in this.addedStyles) {
+			enableStyle(nameKey);
+		}
+	};
+
+	this.disableStyle = function(name, updateCheckBox = true) {
+		let nameKey = name.toUpperCase();
+		if (this.addedStyles.hasOwnProperty(nameKey)) {
+			this.addedStyles[nameKey].disabled = true;
+		}
+		// If this is called from the checkbox, we don't need to update the checkbox
+		if (updateCheckBox && this.addedCheckboxes.hasOwnProperty(nameKey)) {
+			this.addedCheckboxes[nameKey].checked = false;
+		}
+	};
+
+	this.disableAllAddedStyles = function() {
+		for (var nameKey in this.addedStyles) {
+			disableStyle(nameKey);
 		}
 	};
 };
