@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.21.3
+// @version      2022.05.17.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -377,7 +377,13 @@ var DROPDOWN_CONTAINERS = undefined;
 function initDropdownContainer(locationElement, location = 'beforeEnd', direction = 'right') {
 	if (!locationElement) return;
 	if (!DROPDOWN_CONTAINERS) {
-		let cssText = `
+		let cssText = `/* Hide the dropdown container by Default */
+.tg-dropdown-container {
+	display: none;
+}`
+		MyStyles._addStyle(cssText);
+
+		cssText = `
 /* The container <div> - needed to position the dropdown content */
 .tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
 	position: relative;
@@ -462,8 +468,7 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 
 .show {
 	display:block !important;
-}
-`;
+}`;
 		MyStyles.addStyle('DropdownCSS', cssText);
 		window.onclick = function (event) {
 			var dropdowns = document.getElementsByClassName('tg-dropdown-menu');
