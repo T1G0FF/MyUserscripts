@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.2
+// @version      2022.05.17.3
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -13,7 +13,7 @@ function comp(a, b) { return a > b ? +1 : b > a ? -1 : 0; }
 function colorLightenDarken(col, amt) {
 	let usePound = false;
 
-	if (col[0] == '#') {
+	if (col[0] === '#') {
 		col = col.slice(1);
 		usePound = true;
 	}
@@ -35,7 +35,7 @@ function colorLightenDarken(col, amt) {
 	if (g > 255) g = 255;
 	else if (g < 0) g = 0;
 
-	return (usePound ? '#' : '"' + (g | (b << 8) | (r << 16)).toString(16));
+	return (usePound ? '#' : '' + (g | (b << 8) | (r << 16)).toString(16));
 }
 
 function defaultFor(arg, val) { return typeof arg !== 'undefined' ? arg : val; }
@@ -100,9 +100,9 @@ function hasParam(field) {
 	return hasParam(window.location.search, field);
 }
 function hasParam(url, field) {
-	if (url.indexOf('?' + field + '=') != -1)
+	if (url.indexOf('?' + field + '=') !== -1)
 		return true;
-	else if (url.indexOf('&' + field + '=') != -1)
+	else if (url.indexOf('&' + field + '=') !== -1)
 		return true;
 	return false
 }
@@ -241,7 +241,7 @@ HTMLElement.prototype.addClass = function(classes) {
 	let tempArray = [];
 	while (current.length) {
 		temp = current.shift();
-		if (temp && temp != classes) tempArray[tempArray.length] = temp;
+		if (temp && temp !== classes) tempArray[tempArray.length] = temp;
 	}
 	tempArray[tempArray.length] = classes;
 	this.className = tempArray.join(' ');
@@ -304,7 +304,7 @@ HTMLElement.prototype.getTextNode = function(index = 1, ignoreEmpty = true) {
 				continue;
 			}
 			count++;
-			if (count == index) {
+			if (count === index) {
 				return curNode;
 			}
 		}
@@ -726,7 +726,7 @@ function Queue() {
 	this.length = 0;
 
 	this.isEmpty = function() {
-		return (this.length == 0);
+		return (this.length === 0);
 	};
 
 	this.enqueue = function(data) {
