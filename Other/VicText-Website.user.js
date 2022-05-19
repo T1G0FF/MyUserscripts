@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.7
+// @version      2022.05.19.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -23,7 +23,8 @@ const WEBADD_CONFIG = {
 	'COPY_IMAGES': true,
 	'FIND_IMAGELESS': true,
 	'FIND_CHILDLESS': true,
-	'SCRAPE_TEMP_PARENTS': true,
+	'SCRAPE_TEMP_PARENTS': !true,
+	'SCRAPE_COLLECTION_COUNT': true,
 	'SCRAPE_IMAGELESS': true,
 	'SORT_CODES': true,
 	'HOVER_PREVIEW': true,
@@ -47,7 +48,8 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
-	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButton('Count in Collection', btnAction_countCollection, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
 	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
 	if (WEBADD_CONFIG.HOVER_PREVIEW) addHoverPreview();
@@ -898,6 +900,62 @@ async function btnAction_scrapeImageless() {
 			if (formatResult.Count > 0) {
 				GM_setClipboard(formatResult.Output);
 				msg = formatResult.Count + ' found and copied!';
+			}
+			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
+		}
+	);
+}
+
+async function btnAction_countCollection() {
+	await scrapeCollectionWithIFrame(
+		await getCollection(),
+		() => { // initResult
+			return '';
+		},
+		async (iFrameDocument) => { // onFrameLoad
+			let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
+			let collectionName = listWrapper.querySelector('h1').getTextNode(1);
+			let itemsOnPage = listWrapper.querySelectorAll('div.item');
+			let pagerForm = iFrameDocument.getElementsByName('itemsPerPage');
+
+			return {
+				CollectionName: collectionName,
+				ItemsOnPage: itemsOnPage,
+				PerPageForm: pagerForm
+			}
+		},
+		(scrapedResult) => { // onFrameReturn
+			let pageCount = 1;
+			let perPage = 100;
+			if (scrapedResult.PerPageForm && scrapedResult.PerPageForm.length > 0) {
+				let pageCountText = scrapedResult.PerPageForm[0].lastElementChild?.innerText;
+				if (pageCountText) {
+					pageCount = parseInt(pageCountText);
+				}
+
+				let perPageElement = scrapedResult.PerPageForm.getElementsByName('perPageSelect').querySelector('option[selected="selected"]');
+				if (perPageElement) {
+					perPage = parseInt(perPageElement.Value);
+				}
+			}
+
+			if (pageCount === 1) {
+				perPage = scrapedResult.ItemsOnPage.length;
+			}
+
+			return { 
+				CollectionName: '', 
+				Count: pageCount * perPage
+			};
+		},
+		(result, scrapedResult) => { // aggregateItem
+			return result + `${scrapedResult.CollectionName}\t${scrapedResult.Count}\n`;
+		},
+		async (count, result) => { // onEnd
+			let msg = 'None found!';
+			if (count > 0) {
+				GM_setClipboard(result);
+				msg = count + ' found and copied!';
 			}
 			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
 		}
