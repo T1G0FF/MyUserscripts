@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.19.7
+// @version      2022.05.19.8
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -752,10 +752,10 @@ async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
 	return scrapedResult;
 }
 
-async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, onFrameReturn, aggregateItem, onEnd, maxCallsOverride = DEFAULT_SCRAPER_MAX_CALLS) {
+async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, onFrameReturn, aggregateItem, onEnd, maxCallsOverride = undefined) {
 	let callOffset = SCRAPER_START_OFFSET_FIELD.value ? parseInt(SCRAPER_START_OFFSET_FIELD.value, 10) : 0;
-	let maxCalls = SCRAPER_MAX_CALLS_FIELD.value ? parseInt(SCRAPER_MAX_CALLS_FIELD.value, 10) : DEFAULT_SCRAPER_MAX_CALLS;
-	let lastCall = maxCalls < 0 ? collection.length : Math.min((callOffset + maxCalls), collection.length); // Last in increment or last in collection
+	let maxCalls = maxCalls = maxCallsOverride ? (maxCallsOverride < 0 ? collection.length : maxCallsOverride) : parseInt(SCRAPER_MAX_CALLS_FIELD.value, 10);
+	let lastCall = maxCallsOverride < 0 ? collection.length : Math.min((callOffset + maxCalls), collection.length); // Last in collection or in increment
 
 	let count = 0;
 	let result = await initResult();
