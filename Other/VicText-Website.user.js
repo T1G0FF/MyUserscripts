@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.19.4
+// @version      2022.05.19.5
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -798,15 +798,17 @@ async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
 	return scrapedResult;
 }
 
-async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, onFrameReturn, aggregateItem, onEnd) {
+async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, onFrameReturn, aggregateItem, onEnd, maxCalls = SCRAPER_MAX_CALLS) {
+	let callOffset = SCRAPER_CALL_FIELD.value ? parseInt(SCRAPER_CALL_FIELD.value, 10) : 0;
+	let lastCall = maxCalls < 0 ? collection.length : Math.min((callOffset + maxCalls), collection.length); // Last in increment or last in collection
+
 	let count = 0;
 	let result = await initResult();
 	for (const currentItem of collection) {
 		let productCode = getCodeFromItem(currentItem);
 		if (productCode === "Collection") {
 			count++;
-			if (count <= parseInt(SCRAPER_CALL_FIELD.value, 10)) continue;
-			let lastCall = Math.min((parseInt(SCRAPER_CALL_FIELD.value, 10) + SCRAPER_MAX_CALLS), collection.length); // Last in increment or last in collection
+			if (count <= callOffset) continue;
 			if (count > lastCall) break;
 
 			let scrapedResult = await scrapeItemWithIFrame(currentItem, count === lastCall, onFrameLoad, onFrameReturn);
@@ -927,13 +929,13 @@ async function btnAction_countCollection() {
 			let pagerForm = iFrameDocument.getElementsByName('itemsPerPage');
 			if (pagerForm && pagerForm.length > 0) {
 				let pageCountText = pagerForm[0].lastElementChild?.innerText;
-				pageCount = pageCountText ? parseInt(pageCountText) : 1;
+				pageCount = pageCountText ? parseInt(pageCountText, 10) : 1;
 			}
 
 			let selectElement = iFrameDocument.getElementsByName('perPageSelect');
 			if (selectElement && selectElement.length > 0) {
 				let selected = selectElement[0].querySelector('option[selected="selected"]');
-				perPage = selected ? parseInt(selected.value) : 100;
+				perPage = selected ? parseInt(selected.value, 10) : 100;
 			}
 
 			if (pageCount === 1) {
@@ -974,7 +976,7 @@ async function btnAction_countCollection() {
 			}
 			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
 		}
-	);
+	, -1);
 }
 
 /***********************************************
