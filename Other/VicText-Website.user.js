@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.19.8
+// @version      2022.05.19.9
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -808,24 +808,58 @@ async function btnAction_scrapeFirstImage() {
 }
 
 function addScraperOptions() {
-	SCRAPER_START_OFFSET_FIELD = document.createElement('INPUT');
+	SCRAPER_START_OFFSET_FIELD = document.createElement('input');
 	SCRAPER_START_OFFSET_FIELD.type = 'number';
 	SCRAPER_START_OFFSET_FIELD.value = 0;
 	SCRAPER_START_OFFSET_FIELD.step = DEFAULT_SCRAPER_MAX_CALLS;
 	SCRAPER_START_OFFSET_FIELD.style.marginLeft = '2px';
 	SCRAPER_START_OFFSET_FIELD.style.padding = '6px 2px';
 	SCRAPER_START_OFFSET_FIELD.style.width = '60px';
-	SCRAPER_START_OFFSET_FIELD.style.height = '100%';
 
-	SCRAPER_MAX_CALLS_FIELD = document.createElement('INPUT');
+	SCRAPER_MAX_CALLS_FIELD = document.createElement('input');
 	SCRAPER_MAX_CALLS_FIELD.type = 'number';
 	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
 	SCRAPER_MAX_CALLS_FIELD.style.marginLeft = '2px';
 	SCRAPER_MAX_CALLS_FIELD.style.padding = '6px 2px';
 	SCRAPER_MAX_CALLS_FIELD.style.width = '60px';
-	SCRAPER_MAX_CALLS_FIELD.style.height = '100%';
 
-	addElementToDropdownContainer(getTitleElement(), [SCRAPER_START_OFFSET_FIELD, SCRAPER_MAX_CALLS_FIELD], 'beforeEnd');
+
+	let table = document.createElement('table');
+	table.style.width = '100%';
+	table.style.textAlign = 'center';
+	let tbody = document.createElement('tbody');
+	let tr = document.createElement('tr');
+	tr.style.color = 'white';
+	let td = document.createElement('td');
+	td.setAttribute('colSpan', '2');
+	td.style.textDecorationLine = 'underline';
+	td.appendChild(document.createTextNode('Scraper Options'))
+	tr.appendChild(td);
+	tbody.appendChild(tr);
+
+	tr = document.createElement('tr');
+	tr.style.color = 'white';
+	td = document.createElement('td');
+	td.appendChild(document.createTextNode('Offset'))
+	tr.appendChild(td);
+
+	td = document.createElement('td');
+	td.appendChild(document.createTextNode('Max'))
+	tr.appendChild(td)
+	tbody.appendChild(tr);
+	
+	tr = document.createElement('tr');
+	td = document.createElement('td');
+	td.appendChild(SCRAPER_START_OFFSET_FIELD);
+	tr.appendChild(td);
+
+	td = document.createElement('td');
+	td.appendChild(SCRAPER_MAX_CALLS_FIELD);
+	tr.appendChild(td);
+	tbody.appendChild(tr);
+	table.appendChild(tbody);
+
+	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
 }
 
 async function btnAction_scrapeImageless() {
