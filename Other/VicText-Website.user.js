@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.19.5
+// @version      2022.05.19.6
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -31,8 +31,9 @@ const WEBADD_CONFIG = {
 };
 
 // Browser doesn't like when we make too many navigation calls
-let SCRAPER_CALL_FIELD = {};
-let SCRAPER_MAX_CALLS = 15;
+let SCRAPER_START_OFFSET_FIELD = {};
+let DEFAULT_SCRAPER_MAX_CALLS = 15;
+let SCRAPER_MAX_CALLS_FIELD = {};
 
 var cachedCollection = undefined;
 var cachedImagelessCollection = undefined;
@@ -44,15 +45,20 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.STOCK_ICONS) replaceStockIndicatorsWithIcons();
 	if (WEBADD_CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
 	if (WEBADD_CONFIG.MORE_PAGER_OPTIONS) morePagerOptions();
+	if (WEBADD_CONFIG.HOVER_PREVIEW) addHoverPreview();
+	
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
-	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButton('Count in Collection', btnAction_countCollection, getTitleElement(), 'beforeEnd');
-	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) addScrapeImagelessInputs();
 	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
-	if (WEBADD_CONFIG.HOVER_PREVIEW) addHoverPreview();
+	
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
+		addScraperOptions();
+	}
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButton('Collection Count', btnAction_countCollection, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'beforeEnd');
 })();
 
 function addMiscCSS() {
@@ -798,8 +804,9 @@ async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
 	return scrapedResult;
 }
 
-async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, onFrameReturn, aggregateItem, onEnd, maxCalls = SCRAPER_MAX_CALLS) {
-	let callOffset = SCRAPER_CALL_FIELD.value ? parseInt(SCRAPER_CALL_FIELD.value, 10) : 0;
+async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, onFrameReturn, aggregateItem, onEnd, maxCallsOverride = DEFAULT_SCRAPER_MAX_CALLS) {
+	let callOffset = SCRAPER_START_OFFSET_FIELD.value ? parseInt(SCRAPER_START_OFFSET_FIELD.value, 10) : 0;
+	let maxCalls = SCRAPER_MAX_CALLS_FIELD.value ? parseInt(SCRAPER_MAX_CALLS_FIELD.value, 10) : DEFAULT_SCRAPER_MAX_CALLS;
 	let lastCall = maxCalls < 0 ? collection.length : Math.min((callOffset + maxCalls), collection.length); // Last in increment or last in collection
 
 	let count = 0;
@@ -852,22 +859,25 @@ async function btnAction_scrapeFirstImage() {
 	);
 }
 
-function addScrapeImagelessInputs() {
-	let imgButton = document.createElement('button');
-	imgButton.innerText = 'Scrape Imageless';
-	imgButton.classList.add('tg-dropdown-option');
-	imgButton.onclick = btnAction_scrapeImageless;
+function addScraperOptions() {
+	SCRAPER_START_OFFSET_FIELD = document.createElement('INPUT');
+	SCRAPER_START_OFFSET_FIELD.type = 'number';
+	SCRAPER_START_OFFSET_FIELD.value = 0;
+	SCRAPER_START_OFFSET_FIELD.step = DEFAULT_SCRAPER_MAX_CALLS;
+	SCRAPER_START_OFFSET_FIELD.style.marginLeft = '2px';
+	SCRAPER_START_OFFSET_FIELD.style.padding = '6px 2px';
+	SCRAPER_START_OFFSET_FIELD.style.width = '60px';
+	SCRAPER_START_OFFSET_FIELD.style.height = '100%';
 
-	SCRAPER_CALL_FIELD = document.createElement('INPUT');
-	SCRAPER_CALL_FIELD.type = 'number';
-	SCRAPER_CALL_FIELD.value = 0;
-	SCRAPER_CALL_FIELD.step = SCRAPER_MAX_CALLS;
-	SCRAPER_CALL_FIELD.style.marginLeft = '2px';
-	SCRAPER_CALL_FIELD.style.padding = '6px 2px';
-	SCRAPER_CALL_FIELD.style.width = '60px';
-	SCRAPER_CALL_FIELD.style.height = '100%';
+	SCRAPER_MAX_CALLS_FIELD = document.createElement('INPUT');
+	SCRAPER_MAX_CALLS_FIELD.type = 'number';
+	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
+	SCRAPER_MAX_CALLS_FIELD.style.marginLeft = '2px';
+	SCRAPER_MAX_CALLS_FIELD.style.padding = '6px 2px';
+	SCRAPER_MAX_CALLS_FIELD.style.width = '60px';
+	SCRAPER_MAX_CALLS_FIELD.style.height = '100%';
 
-	addElementToDropdownContainer(getTitleElement(), [imgButton, SCRAPER_CALL_FIELD], 'beforeEnd');
+	addElementToDropdownContainer(getTitleElement(), [SCRAPER_START_OFFSET_FIELD, SCRAPER_MAX_CALLS_FIELD], 'beforeEnd');
 }
 
 async function btnAction_scrapeImageless() {
