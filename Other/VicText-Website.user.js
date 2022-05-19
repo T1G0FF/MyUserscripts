@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.19.1
+// @version      2022.05.19.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -913,39 +913,53 @@ async function btnAction_countCollection() {
 			return '';
 		},
 		async (iFrameDocument) => { // onFrameLoad
+			let pageCount = -1;
+			let perPage = -1;
+
 			let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
-			let collectionName = listWrapper.querySelector('h1').getTextNode(1);
-			let itemsOnPage = listWrapper.querySelectorAll('div.item');
-			let pagerForm = iFrameDocument.getElementsByName('itemsPerPage');
 
-			return {
-				CollectionName: collectionName,
-				ItemsOnPage: itemsOnPage,
-				PerPageForm: pagerForm
+			let collectionName = listWrapper.querySelector('h1')?.innerText || 'Collection';
+			let dropdown = iFrameDocument.querySelector('.tg-dropdown-container');
+			if (dropdown) {
+				collectionName = collectionName.replace(dropdown.innerText, '');
 			}
-		},
-		(scrapedResult) => { // onFrameReturn
-			let pageCount = 1;
-			let perPage = 100;
-			if (scrapedResult.PerPageForm && scrapedResult.PerPageForm.length > 0) {
-				let pageCountText = scrapedResult.PerPageForm[0].lastElementChild?.innerText;
-				if (pageCountText) {
-					pageCount = parseInt(pageCountText);
-				}
 
-				let perPageElement = scrapedResult.PerPageForm.getElementsByName('perPageSelect').querySelector('option[selected="selected"]');
-				if (perPageElement) {
-					perPage = parseInt(perPageElement.Value);
-				}
+			let pagerForm = iFrameDocument.getElementsByName('itemsPerPage');
+			if (pagerForm && pagerForm.length > 0) {
+				let pageCountText = pagerForm[0].lastElementChild?.innerText;
+				pageCount = pageCountText ? parseInt(pageCountText) : 1;
+			}
+
+			let selectElement = iFrameDocument.getElementsByName('perPageSelect');
+			if (selectElement && selectElement.length > 0) {
+				let selected = selectElement[0].querySelector('option[selected="selected"]');
+				perPage = selected ? parseInt(selected.value) : 100;
 			}
 
 			if (pageCount === 1) {
-				perPage = scrapedResult.ItemsOnPage.length;
+				let itemsOnPage = listWrapper.querySelectorAll('div.item');
+				perPage = itemsOnPage.length;
 			}
 
-			return { 
-				CollectionName: '', 
-				Count: pageCount * perPage
+			return {
+				CollectionName: collectionName,
+				PageCount: pageCount,
+				PerPage: perPage
+			};
+		},
+		(scrapedResult) => { // onFrameReturn
+			let count = -1;
+			if (scrapedResult.PageCount === 1) {
+				count = scrapedResult.PerPage;
+			}
+			else {
+				count = ((pageCount - 1) * perPage) + 1;
+				count = count + '+';
+			}
+
+			return {
+				CollectionName: scrapedResult.CollectionName,
+				Count: count
 			};
 		},
 		(result, scrapedResult) => { // aggregateItem
