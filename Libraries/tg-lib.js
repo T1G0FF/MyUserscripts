@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.3
-// @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue and URL Parameters.
+// @version      2022.05.19.1
+// @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
 
@@ -924,3 +924,62 @@ Params.sort = function(urlFull) {
 	urlParamsObject._sortParams();
 	return urlParamsObject.toURL();
 };
+
+// ==UserScript==
+// @name         Default iFrame Setup
+// @namespace    http://www.tgoff.me/
+// @description  Object for dealing with URL Parameters
+// @author       www.tgoff.me
+// ==/UserScript==
+
+/***********************************************
+ * 
+ ***********************************************/
+let MyiFrame = new function () {
+	this.added = false;
+	this.init = function () {
+		let cssText = `
+.tg-iframe {
+	height: 25%;
+	width: 25%;
+	position: absolute;
+	display: none;
+	visibility: hidden;
+	top: 0px;
+	left: 0px;
+	z-index: 999;
+}`;
+		MyStyles._addStyle(cssText);
+	}
+
+	this.create = function (name) {
+		if (!this.added) this.init();
+
+		let iFrame = document.querySelector('#' + name);
+		if (!iFrame) {
+			if (inIframe()) return;
+
+			iFrame = document.createElement('iframe');
+			iFrame.id = iFrame.name = name;
+			iFrame.classList.add('tg-iframe');
+			iFrame.sandbox = 'allow-same-origin allow-scripts';
+			iFrame.domain = document.domain;
+			document.body.appendChild(iFrame);
+		}
+		return iFrame;
+	}
+
+	this.show = function (iFrame, src, caller = undefined) {
+		iFrame.caller = caller;
+		if (iFrame.src !== src) iFrame.src = src;
+		iFrame.style.display = 'block';
+		iFrame.style.visibility = 'visible';
+	}
+
+	this.hide = function (iFrame, src = undefined) {
+		iFrame.caller = undefined;
+		if (src) iFrame.src = src;
+		iFrame.style.display = 'none';
+		iFrame.style.visibility = 'hidden';
+	}
+}

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.19.6
+// @version      2022.05.19.7
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -677,58 +677,6 @@ function formatChildless(collection) {
 		}
 	}
 	return { 'Output': result, 'Count': count };
-}
-
-/***********************************************
- * Default iFrame Setup
- ***********************************************/
-let MyiFrame = new function() {
-	this.added = false;
-	this.init = function() {
-		let cssText = `
-.tg-iframe {
-	height: 25%;
-	width: 25%;
-	position: absolute;
-	display: none;
-	visibility: hidden;
-	top: 0px;
-	left: 0px;
-	z-index: 999;
-}`;
-		MyStyles._addStyle(cssText);
-	}
-
-	this.create = function(name) {
-		if (!this.added) this.init();
-
-		let iFrame = document.querySelector('#' + name);
-		if (!iFrame) {
-			if (inIframe()) return;
-
-			iFrame = document.createElement('iframe');
-			iFrame.id = iFrame.name = name;
-			iFrame.classList.add('tg-iframe');
-			iFrame.sandbox = 'allow-same-origin allow-scripts';
-			iFrame.domain = document.domain;
-			document.body.appendChild(iFrame);
-		}
-		return iFrame;
-	}
-
-	this.show = function(iFrame, src, caller = undefined) {
-		iFrame.caller = caller;
-		if (iFrame.src !== src) iFrame.src = src;
-		iFrame.style.display = 'block';
-		iFrame.style.visibility = 'visible';
-	}
-
-	this.hide = function(iFrame, src = undefined) {
-		iFrame.caller = undefined;
-		if (src) iFrame.src = src;
-		iFrame.style.display = 'none';
-		iFrame.style.visibility = 'hidden';
-	}
 }
 
 /***********************************************
