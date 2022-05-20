@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.5
+// @version      2022.05.20.6
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -19,15 +19,15 @@ const WEBADD_CONFIG = {
 	'STOCK_ICONS': true,
 	'CODES_ON_SWATCHES': true,
 	'MORE_PAGER_OPTIONS': true,
+	'HOVER_PREVIEW': true,
 	'COPY_CODES': true,
 	'COPY_IMAGES': true,
 	'FIND_IMAGELESS': true,
 	'FIND_CHILDLESS': true,
+	'SORT_CODES': true,
 	'SCRAPE_TEMP_PARENTS': !true,
 	'SCRAPE_COLLECTION_COUNT': true,
 	'SCRAPE_IMAGELESS': true,
-	'SORT_CODES': true,
-	'HOVER_PREVIEW': true,
 };
 
 // Browser doesn't like when we make too many navigation calls
@@ -51,7 +51,7 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
-	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
+	if (WEBADD_CONFIG.SORT_CODES) await addSortFilterInputs();
 
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
 		addScraperOptions();
@@ -739,11 +739,11 @@ function addScraperOptions() {
 	<tr class="tg-table-header">
 		<td colspan="2" class="tg-dropdown-text">Scraper Options</td>
 	</tr>
-	<tr class="tg-table-text">
+	<tr class="tg-table-row tg-table-text">
 		<td>Offset</td>
 		<td>Max</td>
 	</tr>
-	<tr>
+	<tr class="tg-table-row">
 		<td><input id="tg-offset-field"></td>
 		<td><input id="tg-max-calls-field"></td>
 	</tr>
