@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.6
+// @version      2022.05.20.7
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -411,6 +411,13 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 
 		cssText = `
 /* The container <div> - needed to position the dropdown content */
+.tg-dropdown-container {
+	float: none;
+	padding: 2px 0px;
+	font-size: unset;
+	line-height: unset;
+}
+
 .tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
 	position: relative;
 	display: inline-flex;
@@ -511,6 +518,9 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 
 .show {
 	display:block !important;
+}
+.showRow {
+	display:table-row !important;
 }`;
 		MyStyles.addStyle('DropdownCSS', cssText);
 		window.onclick = function (event) {
@@ -529,10 +539,6 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	}
 	if (!DROPDOWN_CONTAINERS[locationElement]) {
 		let dropdownContainer = document.createElement('span');
-		dropdownContainer.style.float = 'none';
-		dropdownContainer.style.padding = '2px 0px';
-		dropdownContainer.style.fontSize = 'unset';
-		dropdownContainer.style.lineHeight = 'unset';
 		dropdownContainer.classList.add('tg-dropdown-container');
 		switch (direction) {
 			case 'down':
@@ -612,7 +618,7 @@ function hideDropdownTableElements(tableElement) {
 
 	tableElement.onclick = (event) => {
 		for (const row of otherRows) {
-			row.classList.toggle('show');
+			row.classList.toggle('showRow');
 		}
 	};
 }
@@ -727,7 +733,7 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 
 	let filterButton = tableElement.querySelector("button#tg-filter-button");
 	filterButton.classList.add('tg-dropdown-option-half');
-	filterTextbox.style.width = '50px';
+	filterButton.style.width = '50px';
 	filterButton.innerText = 'X';
 	filterButton.onclick = function () { resetWarnings(); btnAction_filterCollection(filterButton) };
 
