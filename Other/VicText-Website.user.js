@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.4
+// @version      2022.05.20.5
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -730,7 +730,11 @@ async function addHoverPreview() {
  * Scraping iFrame
  ***********************************************/
 function addScraperOptions() {
-	let htmlText =
+	let table = document.createElement('table');
+	table.id = 'scraperOptions';
+	table.classList.add('tg-dropdown-option');
+	table.classList.add('tg-table');
+	table.innerHTML =
 `<tbody>
 	<tr class="tg-table-header">
 		<td colspan="2" class="tg-dropdown-text">Scraper Options</td>
@@ -743,16 +747,11 @@ function addScraperOptions() {
 		<td><input id="tg-offset-field"></td>
 		<td><input id="tg-max-calls-field"></td>
 	</tr>
-</tbody>`;
-
-	let table = document.createElement('table');
-	table.id = 'scraperOptions';
-	table.classList.add('tg-dropdown-option');
-	table.classList.add('tg-table');
-	table.innerHTML = htmlText.replace(/\r\n|\n|\r|\t/gm, '');
+</tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
 	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
 
 	let tableElement = document.querySelector("table#scraperOptions");
+	hideDropdownTableElements(tableElement);
 
 	SCRAPER_START_OFFSET_FIELD = tableElement.querySelector("input#tg-offset-field");
 	SCRAPER_START_OFFSET_FIELD.classList.add('tg-input');
@@ -766,19 +765,6 @@ function addScraperOptions() {
 	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
 
 	let otherRows = tableElement.querySelectorAll("tr:not(.tg-table-header)");
-
-	tableElement.onmouseover = (event) => {
-		for (const row of otherRows) {
-			row.style.display = '';
-		}
-	};
-
-	tableElement.onmouseout = (event) => {
-		for (const row of otherRows) {
-			row.style.display = 'none';
-		}
-	};
-	tableElement.onmouseout();
 }
 
 async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
