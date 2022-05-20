@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.5
+// @version      2022.05.20.6
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -392,6 +392,10 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	text-decoration-line: underline;
 }
 
+.tg-table-row {
+	display: none;
+}
+
 .tg-table-header,
 .tg-table-text {
 	color: #ECF0F1;
@@ -606,18 +610,11 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
 function hideDropdownTableElements(tableElement) {
 	let otherRows = tableElement.querySelectorAll("tr:not(.tg-table-header)");
 
-	tableElement.onmouseover = (event) => {
+	tableElement.onclick = (event) => {
 		for (const row of otherRows) {
-			row.style.display = '';
+			row.classList.toggle('show');
 		}
 	};
-
-	tableElement.onmouseout = (event) => {
-		for (const row of otherRows) {
-			row.style.display = 'none';
-		}
-	};
-	tableElement.onmouseout();
 }
 
 /***********************************************
@@ -685,11 +682,11 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	<tr class="tg-table-header">
 		<td colspan="2" class="tg-dropdown-text">Sort Options</td>
 	</tr>
-	<tr class="tg-table-text">
+	<tr class="tg-table-row tg-table-text">
 		<td>Dir</td>
 		<td>By</td>
 	</tr>
-	<tr>
+	<tr class="tg-table-row">
 		<td><button id="tg-sortdir-button"></button></td>
 		<td><button id="tg-sortby-button"></button></td>
 	</tr>
@@ -718,7 +715,7 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	<tr class="tg-table-header">
 		<td colspan="2" class="tg-dropdown-text">Filter Options</td>
 	</tr>
-	<tr>
+	<tr class="tg-table-row">
 		<td><input id="tg-filter-input"></td>	
 		<td><button id="tg-filter-button"></button></td>
 	</tr>
@@ -729,7 +726,8 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	hideDropdownTableElements(tableElement);
 
 	let filterButton = tableElement.querySelector("button#tg-filter-button");
-	filterButton.classList.add('tg-dropdown-option-quart');
+	filterButton.classList.add('tg-dropdown-option-half');
+	filterTextbox.style.width = '50px';
 	filterButton.innerText = 'X';
 	filterButton.onclick = function () { resetWarnings(); btnAction_filterCollection(filterButton) };
 
@@ -791,7 +789,7 @@ async function btnAction_sortCollectionDir(sortDirButton = undefined) {
 	SORT_DIR = (SORT_DIR + 1) % SORT_DIR_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortDirButton) {
-		sortDirButton.innerText = 'Sort ' + SORT_DIR_LOOKUP[SORT_DIR].string;
+		sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
 	}
 }
 
@@ -799,7 +797,7 @@ async function btnAction_sortCollectionBy(sortByButton = undefined) {
 	SORT_BY = (SORT_BY + 1) % SORT_BY_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortByButton) {
-		sortByButton.innerText = 'By ' + SORT_BY_LOOKUP[SORT_BY].string;
+		sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
 	}
 }
 
@@ -830,7 +828,7 @@ async function btnAction_filterCollection(filterButton = undefined) {
 async function typeAction_filterCollection(filterButton = undefined) {
 	let result = await filterCollection();
 	if (filterButton) {
-		filterButton.innerText = 'Filter' + (!result.filtered ? '' : (' (' + result.found + '/' + result.total + ')'));
+		filterButton.innerText = (!result.filtered ? '' : `(${result.found}/${result.total})`);
 	}
 }
 
