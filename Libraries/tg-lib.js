@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.2
+// @version      2022.05.20.3
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -438,13 +438,13 @@ let MyStyles = new function() {
 		let node = document.createElement('style');
 		node.type = 'text/css';
 		node.appendChild(document.createTextNode(css));
-		node.disabled = disabled;
 		let heads = document.getElementsByTagName('head');
 		if (heads.length > 0) {
 			heads[0].appendChild(node);
 		} else {
 			document.documentElement.appendChild(node);
 		}
+		node.disabled = disabled;
 		return node;
 	};
 
