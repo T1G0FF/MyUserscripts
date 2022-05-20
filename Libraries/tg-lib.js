@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.19.1
+// @version      2022.05.20.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -932,9 +932,6 @@ Params.sort = function(urlFull) {
 // @author       www.tgoff.me
 // ==/UserScript==
 
-/***********************************************
- * 
- ***********************************************/
 let MyiFrame = new function () {
 	this.added = false;
 	this.init = function () {
