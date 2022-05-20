@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.17.1
+// @version      2022.05.20.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -391,17 +391,20 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	margin: 0.5rem;
 }
 
-.tg-dropdown-button, .tg-dropdown-option {
-	background: #000000;
+.tg-dropdown-button, .tg-dropdown-option, .tg-dropdown-text {
 	color: #ECF0F1;
-	border: none;
-	padding: 2px 0px;
-	margin: 0px 0px 2px 0px;
+	font-size: 15px;
 	text-transform: capitalize;
 	letter-spacing: 1px;
 	font-weight: 700;
 	font-family: Helvetica;
-	font-size: 15px;
+}
+
+.tg-dropdown-button, .tg-dropdown-option {
+	background: #000000;
+	border: none;
+	padding: 2px 0px;
+	margin: 0px 0px 2px 0px;
 	outline: none;
 	min-width: 150px;
 	max-width: 150px;
