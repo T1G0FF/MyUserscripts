@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.4
+// @version      2022.05.20.5
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -414,8 +414,8 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 }
 
 .tg-dropdown-text,
-.tg-dropdown-button, .tg-dropdown-button-half,
-.tg-dropdown-option, .tg-dropdown-option-half {
+.tg-dropdown-button, .tg-dropdown-button-half, .tg-dropdown-button-quart,
+.tg-dropdown-option, .tg-dropdown-option-half, .tg-dropdown-option-quart {
 	color: #ECF0F1;
 	font-size: 15px;
 	text-transform: capitalize;
@@ -424,8 +424,8 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	font-family: Helvetica;
 }
 
-.tg-dropdown-button, .tg-dropdown-button-half,
-.tg-dropdown-option, .tg-dropdown-option-half {
+.tg-dropdown-button, .tg-dropdown-button-half, .tg-dropdown-button-quart,
+.tg-dropdown-option, .tg-dropdown-option-half, .tg-dropdown-option-quart {
 	background: #000000;
 	border: none;
 	padding: 2px 0px;
@@ -446,14 +446,19 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	max-width: 75px;
 }
 
-.tg-dropdown-button:hover, .tg-dropdown-button-half:hover,
-.tg-dropdown-option:hover, .tg-dropdown-option-half:hover{
+.tg-dropdown-button-quart, .tg-dropdown-option-quart {
+	min-width: 35px;
+	max-width: 35px;
+}
+
+.tg-dropdown-button:hover, .tg-dropdown-button-half:hover, .tg-dropdown-button-quart:hover,
+.tg-dropdown-option:hover, .tg-dropdown-option-half:hover, .tg-dropdown-option-quart:hover{
 	background: #32127A;
 	color: #FFFFFF;
 }
 
-.tg-dropdown-button:active, .tg-dropdown-button-half:active,
-.tg-dropdown-option:active, .tg-dropdown-option-half:active {
+.tg-dropdown-button:active, .tg-dropdown-button-half:active, .tg-dropdown-button-quart:active,
+.tg-dropdown-option:active, .tg-dropdown-option-half:active, .tg-dropdown-option-quart:active {
 	background: #4B0082;
 }
 
@@ -623,7 +628,7 @@ var SORT_DIR = 0;
 const SORT_DIR_LOOKUP = [
 	{
 		'direction': 0,
-		'string': ''
+		'string': '-'
 	},
 	{
 		'direction': 1,
@@ -672,47 +677,67 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 	testItem = undefined;
 
 	let table = document.createElement('table');
-	table.id = 'sortFilterOptions';
+	table.id = 'sortOptions';
 	table.classList.add('tg-dropdown-option');
 	table.classList.add('tg-table');
 	table.innerHTML =
 `<tbody>
 	<tr class="tg-table-header">
-		<td colspan="2" class="tg-dropdown-text">Sort/Filter Options</td>
+		<td colspan="2" class="tg-dropdown-text">Sort Options</td>
+	</tr>
+	<tr class="tg-table-text">
+		<td>Dir</td>
+		<td>By</td>
 	</tr>
 	<tr>
 		<td><button id="tg-sortdir-button"></button></td>
 		<td><button id="tg-sortby-button"></button></td>
 	</tr>
-	<tr>
-		<td><button id="tg-filter-button"></button></td>
-		<td><input id="tg-filter-input"></td>
-	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
 	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
 
-	let tableElement = document.querySelector("table#sortFilterOptions");
+	let tableElement = document.querySelector("table#sortOptions");
 	hideDropdownTableElements(tableElement);
 
 	let sortDirButton = tableElement.querySelector("button#tg-sortdir-button");
 	sortDirButton.classList.add('tg-dropdown-option-half');
-	sortDirButton.innerText = 'Sort ' + SORT_DIR_LOOKUP[SORT_DIR].string;
+	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
 	sortDirButton.onclick = function () { resetWarnings(); btnAction_sortCollectionDir(sortDirButton) };
 
 	let sortByButton = tableElement.querySelector("button#tg-sortby-button");
 	sortByButton.classList.add('tg-dropdown-option-half');
-	sortByButton.innerText = 'By ' + SORT_BY_LOOKUP[SORT_BY].string;
+	sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
 	sortByButton.onclick = function () { resetWarnings(); btnAction_sortCollectionBy(sortByButton) };
 
+	table = document.createElement('table');
+	table.id = 'filterOptions';
+	table.classList.add('tg-dropdown-option');
+	table.classList.add('tg-table');
+	table.innerHTML =
+`<tbody>
+	<tr class="tg-table-header">
+		<td colspan="2" class="tg-dropdown-text">Filter Options</td>
+	</tr>
+	<tr>
+		<td><input id="tg-filter-input"></td>	
+		<td><button id="tg-filter-button"></button></td>
+	</tr>
+</tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
+	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
+
+	tableElement = document.querySelector("table#filterOptions");
+	hideDropdownTableElements(tableElement);
+
 	let filterButton = tableElement.querySelector("button#tg-filter-button");
-	filterButton.classList.add('tg-dropdown-option-half');
-	filterButton.innerText = 'Filter';
+	filterButton.classList.add('tg-dropdown-option-quart');
+	filterButton.innerText = 'X';
 	filterButton.onclick = function () { resetWarnings(); btnAction_filterCollection(filterButton) };
 
 	let filterTextbox = tableElement.querySelector("input#tg-filter-input");
 	filterTextbox.classList.add('tg-input');
 	filterTextbox.type = 'text';
 	filterTextbox.value = '';
+	filterTextbox.style.width = '100%';
 	filterTextbox.typingTimer = {};
 	filterTextbox.doneTypingInterval = 750;
 
@@ -749,7 +774,7 @@ function addSortBy(string, selectorFunc) {
 		'compare': compFunc,
 		'string': string
 	};
-	
+
 	if(string === 'Default') {
 		SORT_BY_LOOKUP[0] = obj;
 	}
@@ -795,7 +820,7 @@ async function btnAction_filterCollection(filterButton = undefined) {
 	if (filterButton) {
 		let filterElement = getFilterElement();
 		if (filterElement && filterElement.value.length > 0) {
-			filterButton.innerText = 'Filter';
+			filterButton.innerText = 'X';
 			filterElement.value = '';
 			await filterCollection();
 		}
