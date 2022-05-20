@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.3
+// @version      2022.05.20.4
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -730,29 +730,6 @@ async function addHoverPreview() {
  * Scraping iFrame
  ***********************************************/
 function addScraperOptions() {
-	let cssText = `/* Format Tables */
-.tg-table {
-	width: 100%;
-	text-align: center;
-}
-
-.tg-table-header {
-	text-decoration-line: underline;
-}
-
-.tg-table-header,
-.tg-table-text {
-	color: #ECF0F1;
-}
-
-.tg-number-input {
-	margin-left: 2px;
-	padding: 6px 2px;
-	width: 60px;
-	color: #2E2F37;
-}`;
-	MyStyles._addStyle(cssText); // 'FormatTables'
-
 	let htmlText =
 `<tbody>
 	<tr class="tg-table-header">
@@ -778,13 +755,13 @@ function addScraperOptions() {
 	let tableElement = document.querySelector("table#scraperOptions");
 
 	SCRAPER_START_OFFSET_FIELD = tableElement.querySelector("input#tg-offset-field");
-	SCRAPER_START_OFFSET_FIELD.classList.add('tg-number-input');
+	SCRAPER_START_OFFSET_FIELD.classList.add('tg-input');
 	SCRAPER_START_OFFSET_FIELD.type = 'number';
 	SCRAPER_START_OFFSET_FIELD.value = 0;
 	SCRAPER_START_OFFSET_FIELD.step = DEFAULT_SCRAPER_MAX_CALLS;
 
 	SCRAPER_MAX_CALLS_FIELD = tableElement.querySelector("input#tg-max-calls-field");
-	SCRAPER_MAX_CALLS_FIELD.classList.add('tg-number-input');
+	SCRAPER_MAX_CALLS_FIELD.classList.add('tg-input');
 	SCRAPER_MAX_CALLS_FIELD.type = 'number';
 	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
 
