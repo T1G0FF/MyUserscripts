@@ -46,13 +46,13 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
 	if (WEBADD_CONFIG.MORE_PAGER_OPTIONS) morePagerOptions();
 	if (WEBADD_CONFIG.HOVER_PREVIEW) addHoverPreview();
-	
+
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
 	if (WEBADD_CONFIG.SORT_CODES) addSortFilterInputs();
-	
+
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
 		addScraperOptions();
 	}
@@ -763,8 +763,6 @@ function addScraperOptions() {
 	SCRAPER_MAX_CALLS_FIELD.classList.add('tg-input');
 	SCRAPER_MAX_CALLS_FIELD.type = 'number';
 	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
-
-	let otherRows = tableElement.querySelectorAll("tr:not(.tg-table-header)");
 }
 
 async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
