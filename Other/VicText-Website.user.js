@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.1
+// @version      2022.05.20.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -741,7 +741,7 @@ async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
 			}
 			resolve();
 		});
-		
+
 		let src = item.querySelector('a').getAttribute('href');
 		MyiFrame.show(iFrameScraper, src);
 	});
@@ -820,67 +820,66 @@ function addScraperOptions() {
 
 .tg-table-header,
 .tg-table-text {
-	color: white;
+	color: #ECF0F1;
 }
 
 .tg-number-input {
 	margin-left: 2px;
 	padding: 6px 2px;
 	width: 60px;
+	color: #2E2F37;
 }`;
 	MyStyles._addStyle(cssText); // 'FormatTables'
 
-	SCRAPER_START_OFFSET_FIELD = document.createElement('input');
+	let htmlText =
+`<tbody>
+	<tr class="tg-table-header">
+		<td colspan="2" class="tg-dropdown-text">Scraper Options</td>
+	</tr>
+	<tr class="tg-table-text">
+		<td>Offset</td>
+		<td>Max</td>
+	</tr>
+	<tr>
+		<td><input id="tg-offset-field"></td>
+		<td><input id="tg-max-calls-field"></td>
+	</tr>
+</tbody>`;
+
+	let table = document.createElement('table');
+	table.id = 'scraperOptions';
+	table.classList.add('tg-dropdown-option');
+	table.classList.add('tg-table');
+	table.innerHTML = htmlText.replace(/\r\n|\n|\r|\t/gm, '');
+	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
+
+	let tableElement = document.querySelector("table#scraperOptions");
+
+	SCRAPER_START_OFFSET_FIELD = tableElement.querySelector("input#tg-offset-field");
+	SCRAPER_START_OFFSET_FIELD.classList.add('tg-number-input');
 	SCRAPER_START_OFFSET_FIELD.type = 'number';
 	SCRAPER_START_OFFSET_FIELD.value = 0;
 	SCRAPER_START_OFFSET_FIELD.step = DEFAULT_SCRAPER_MAX_CALLS;
-	SCRAPER_START_OFFSET_FIELD.classList.add('tg-number-input');
 
-	SCRAPER_MAX_CALLS_FIELD = document.createElement('input');
+	SCRAPER_MAX_CALLS_FIELD = tableElement.querySelector("input#tg-max-calls-field");
+	SCRAPER_MAX_CALLS_FIELD.classList.add('tg-number-input');
 	SCRAPER_MAX_CALLS_FIELD.type = 'number';
 	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
-	SCRAPER_MAX_CALLS_FIELD.classList.add('tg-number-input');
 
-	let htmlText =
-`<table id="scraperOptions" class="tg-table">
-	<tbody>
-		<tr class="tg-table-header">
-			<td colspan="2">Scraper Options</td>
-		</tr>
-		<tr class="tg-table-text">
-			<td>Offset</td>
-			<td>Max</td>
-		</tr>
-		<tr>
-			<td>${SCRAPER_START_OFFSET_FIELD.outerHTML}</td>
-			<td>${SCRAPER_MAX_CALLS_FIELD.outerHTML}</td>
-		</tr>
-	</tbody>
-</table>`;
+	let otherRows = tableElement.querySelectorAll("tr:not(.tg-table-header)");
 
-	let table = document.createElement('table');
-	table.outerHTML = htmlText.replace(/\r\n|\n|\r|\t/gm, '');
-
-	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
-
-	let headerRow = document.querySelector("table#scraperOptions tr.tg-table-header");
-	let otherRows = document.querySelectorAll("table#scraperOptions tr:not(.tg-table-header)");
-	
-	for (const row of otherRows) {
-		row.style.display = 'none';
-	}
-
-	headerRow.onmouseover = (event) => {
+	tableElement.onmouseover = (event) => {
 		for (const row of otherRows) {
 			row.style.display = '';
 		}
 	};
 
-	headerRow.onmouseout = (event) => {
+	tableElement.onmouseout = (event) => {
 		for (const row of otherRows) {
 			row.style.display = 'none';
 		}
 	};
+	tableElement.onmouseout();
 }
 
 async function btnAction_scrapeImageless() {
