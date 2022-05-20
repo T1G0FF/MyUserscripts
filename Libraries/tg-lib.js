@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.1
+// @version      2022.05.20.2
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -409,7 +409,7 @@ let MyStyles = new function() {
 		let that = this;
 		this._addStyleToggle('SelectAll', function() {
 			let checkBox = that.addedCheckboxes['SELECTALL'];
-			that._setAllAddedStyles(checkBox.checked, true);
+			that._setAllAddedStyles(!checkBox.checked, true);
 		});
 
 		document.body.appendChild(this.container);
@@ -422,22 +422,23 @@ let MyStyles = new function() {
 		let node;
 		if (!this.addedStyles.hasOwnProperty(nameKey)) {
 			// Create
-			node = this._addStyle(css);
+			node = this._addStyle(css, disabled);
 			this.addStyleToggle(name, !disabled);
 		} else {
 			// Update
 			node = this.addedStyles[nameKey];
-			node = this._updateStyle(node, css);
-			this._setStyle(nameKey, !disabled);
+			node = this._updateStyle(node, css, disabled);
+			this.addedCheckboxes[nameKey].checked = !disabled;
 		}
 		this.addedStyles[nameKey] = node;
 		node.id = nameKey;
 	};
 
-	this._addStyle = function(css) {
+	this._addStyle = function(css, disabled = false) {
 		let node = document.createElement('style');
 		node.type = 'text/css';
 		node.appendChild(document.createTextNode(css));
+		node.disabled = disabled;
 		let heads = document.getElementsByTagName('head');
 		if (heads.length > 0) {
 			heads[0].appendChild(node);
@@ -447,10 +448,10 @@ let MyStyles = new function() {
 		return node;
 	};
 
-	this._updateStyle = function(node, css) {
+	this._updateStyle = function(node, css, disabled = false) {
 		node.disabled = true;
 		node.innerText = css;
-		node.disabled = false;
+		node.disabled = disabled;
 		return node;
 	};
 
@@ -460,7 +461,7 @@ let MyStyles = new function() {
 
 		this._addStyleToggle(name, function() {
 			let checkBox = that.addedCheckboxes[nameKey];
-			that._setStyle(nameKey, checkBox.checked, false);
+			that._setStyle(nameKey, !checkBox.checked, false);
 		}, checked);
 	};
 
@@ -483,37 +484,37 @@ let MyStyles = new function() {
 		this.addedCheckboxes[nameKey] = checkbox;
 	};
 
-	this._setStyle = function(name, enabled, updateCheckBox = true) {
+	this._setStyle = function(name, disabled, updateCheckBox = true) {
 		let nameKey = name.toUpperCase();
 		if (this.addedStyles.hasOwnProperty(nameKey)) {
-			this.addedStyles[nameKey].disabled = !enabled;
+			this.addedStyles[nameKey].disabled = disabled;
 		}
 		// If this is called from the checkbox, we don't need to update the checkbox
 		if (updateCheckBox && this.addedCheckboxes.hasOwnProperty(nameKey)) {
-			this.addedCheckboxes[nameKey].checked = enabled;
+			this.addedCheckboxes[nameKey].checked = !disabled;
 		}
 	};
 
-	this._setAllAddedStyles = function(enabled, updateCheckBox = true) {
+	this._setAllAddedStyles = function(disabled, updateCheckBox = true) {
 		for (var nameKey in this.addedStyles) {
-			this._setStyle(nameKey, enabled, updateCheckBox);
+			this._setStyle(nameKey, disabled, updateCheckBox);
 		}
 	};
 
 	this.enableStyle = function(name, updateCheckBox = true) {
-		this._setStyle(name, true, updateCheckBox);
-	};
-
-	this.enableAllAddedStyles = function() {
-		this._setAllAddedStyles(true, true);
-	};
-
-	this.disableStyle = function(name, updateCheckBox = true) {
 		this._setStyle(name, false, updateCheckBox);
 	};
 
-	this.disableAllAddedStyles = function() {
+	this.enableAllAddedStyles = function() {
 		this._setAllAddedStyles(false, true);
+	};
+
+	this.disableStyle = function(name, updateCheckBox = true) {
+		this._setStyle(name, true, updateCheckBox);
+	};
+
+	this.disableAllAddedStyles = function() {
+		this._setAllAddedStyles(true, true);
 	};
 };
 
