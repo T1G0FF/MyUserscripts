@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.7
+// @version      2022.05.30.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -64,34 +64,23 @@ var cachedChildlessCollection = undefined;
 function addMiscCSS() {
 	let cssText = '';
 	cssText = `/* 4 per row */
-#productListWrapper .col-xs-4:not(.item),
-#productListWrapper .col-sm-4:not(.item),
-#productListWrapper .col-md-4:not(.item),
-#productListWrapper .col-lg-4:not(.item) {
-	width: 25%;
-	max-height: 230px !important;
-	min-height: 230px !important;
-}
-
-#productListWrapper .col-xs-4:not(.item) a div,
-#productListWrapper .col-sm-4:not(.item) a div,
-#productListWrapper .col-md-4:not(.item) a div,
-#productListWrapper .col-lg-4:not(.item) a div {
-	position: absolute;
-	width: 100%;
-	top: 0;
-	left: 50%;
-	display: block;
-	z-index: 100;
-	transform: translate(-50%, -25%);
-}
-
 #productListWrapper .col-xs-4.item,
 #productListWrapper .col-sm-4.item,
 #productListWrapper .col-md-4.item,
 #productListWrapper .col-lg-4.item {
 	width: 25%;
-	max-height: 310px !important;
+    max-height: 293px !important;
+}
+
+#productListWrapper .col-xs-4:not(.item),
+#productListWrapper .col-sm-4:not(.item),
+#productListWrapper .col-md-4:not(.item),
+#productListWrapper .col-lg-4:not(.item) {
+	width: 25%;
+	max-height: none !important;
+	min-height: auto !important;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .galleryWrapper {
