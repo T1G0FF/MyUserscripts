@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.30.1
+// @version      2022.05.31.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -64,23 +64,24 @@ var cachedChildlessCollection = undefined;
 function addMiscCSS() {
 	let cssText = '';
 	cssText = `/* 4 per row */
+/* Items */
 #productListWrapper .col-xs-4.item,
 #productListWrapper .col-sm-4.item,
 #productListWrapper .col-md-4.item,
 #productListWrapper .col-lg-4.item {
 	width: 25%;
-    max-height: 293px !important;
+	max-height: 293px !important;
 }
-
+/* Categories */
 #productListWrapper .col-xs-4:not(.item),
 #productListWrapper .col-sm-4:not(.item),
 #productListWrapper .col-md-4:not(.item),
 #productListWrapper .col-lg-4:not(.item) {
 	width: 25%;
 	max-height: none !important;
-	min-height: auto !important;
-    padding-left: 5px;
-    padding-right: 5px;
+	min-height: 230px !important;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .galleryWrapper {
@@ -101,9 +102,10 @@ function addMiscCSS() {
 	font-size: 12px;
 }
 
-.galleryImage {
-	min-height: 200px !important;
-	max-height: 200px !important;
+.galleryImage, .galleryImage img {
+	height: 200px;
+	min-height: 200px;
+	max-height: 200px;
 }`;
 	MyStyles.addStyle('4PerRow', cssText);
 
@@ -117,21 +119,12 @@ function addMiscCSS() {
 	MyStyles.addStyle('HoverShadow', cssText);
 
 	cssText = `/* Center Images */
-.galleryImage img,
-#productListWrapper img {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+.galleryImage {
+	display:flex;
+	justify-content:center;
+	align-items:center;
 }`;
 	MyStyles.addStyle('CenterImages', cssText);
-
-	cssText = `/* Category Margins */
-.col-md-4.col-sm-4:not(.item) {
-	margin-top: 10px;
-	margin-bottom: 10px;
-}`;
-	MyStyles._addStyle(cssText); // 'CategoryMargins'
 
 	cssText = `/* Remove Register */
 .login-widget > a:nth-child(6) {
@@ -141,57 +134,57 @@ function addMiscCSS() {
 
 	cssText = `/* Special Star */
 div.onSpecial, div.onSpecial > span {
-    padding: 0px;
-    background: none;
-    border: none;
+	padding: 0px;
+	background: none;
+	border: none;
 }
 
 div.onSpecial {
-    margin: 15px 0;
-    position: relative;
-    display: block;
-    color: black;
-    width: 0px;
-    height: 0px;
-    border-right: 50px solid transparent;
-    border-bottom: 45px solid yellow;
-    border-left: 50px solid transparent;
-    transform: rotate(35deg);
+	margin: 15px 0;
+	position: relative;
+	display: block;
+	color: black;
+	width: 0px;
+	height: 0px;
+	border-right: 50px solid transparent;
+	border-bottom: 45px solid yellow;
+	border-left: 50px solid transparent;
+	transform: rotate(35deg);
 }
 div.onSpecial:before {
-    border-bottom: 40px solid yellow;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    position: absolute;
-    height: 0px;
-    width: 0px;
-    top: -23px;
-    left: -33px;
-    display: block;
-    content: '';
-    transform: rotate(-35deg);
+	border-bottom: 40px solid yellow;
+	border-left: 15px solid transparent;
+	border-right: 15px solid transparent;
+	position: absolute;
+	height: 0px;
+	width: 0px;
+	top: -23px;
+	left: -33px;
+	display: block;
+	content: '';
+	transform: rotate(-35deg);
 }
 div.onSpecial:after {
-    position: absolute;
-    display: block;
-    color: black;
-    top: 0px;
-    left: -50px;
-    width: 0px;
-    height: 0px;
-    border-right: 50px solid transparent;
-    border-bottom: 45px solid yellow;
-    border-left: 50px solid transparent;
-    transform: rotate(-70deg);
-    content: '';
+	position: absolute;
+	display: block;
+	color: black;
+	top: 0px;
+	left: -50px;
+	width: 0px;
+	height: 0px;
+	border-right: 50px solid transparent;
+	border-bottom: 45px solid yellow;
+	border-left: 50px solid transparent;
+	transform: rotate(-70deg);
+	content: '';
 }
 
 div.onSpecial > span {
-    position: absolute;
-    display: inline-block;
-    z-index: 101;
-    color: black;
-    transform: rotate(-35deg) translateX(-58%) translateY(-25%);
+	position: absolute;
+	display: inline-block;
+	z-index: 101;
+	color: black;
+	transform: rotate(-35deg) translateX(-58%) translateY(-25%);
 }`;
 	MyStyles.addStyle('SpecialStar', cssText, true); // Disabled by Default
 
@@ -369,7 +362,7 @@ function addItemCodesToSwatches() {
 	color: black;
 	overflow-x: visible;
 	white-space: nowrap;
-    text-indent: -50%;
+	text-indent: -50%;
 }
 
 /* Display Thumbnail Image on  Hover */
