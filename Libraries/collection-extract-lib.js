@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.20.7
+// @version      2022.06.02.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -697,7 +697,7 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 		<td><button id="tg-sortby-button"></button></td>
 	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
-	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
+	addElementToDropdownContainer(locationElement, [table], 'beforeEnd');
 
 	let tableElement = document.querySelector("table#sortOptions");
 	hideDropdownTableElements(tableElement);
@@ -726,7 +726,7 @@ async function addSortFilterInputs(locationElement = getTitleElement()) {
 		<td><button id="tg-filter-button"></button></td>
 	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
-	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
+	addElementToDropdownContainer(locationElement, [table], 'beforeEnd');
 
 	tableElement = document.querySelector("table#filterOptions");
 	hideDropdownTableElements(tableElement);
