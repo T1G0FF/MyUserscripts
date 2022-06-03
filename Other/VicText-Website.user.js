@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.31.1
+// @version      2022.06.03.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -20,6 +20,7 @@ const WEBADD_CONFIG = {
 	'CODES_ON_SWATCHES': true,
 	'MORE_PAGER_OPTIONS': true,
 	'HOVER_PREVIEW': true,
+	'FIX_IMAGES': true,
 	'COPY_CODES': true,
 	'COPY_IMAGES': true,
 	'FIND_IMAGELESS': true,
@@ -46,6 +47,7 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.CODES_ON_SWATCHES) addItemCodesToSwatches();
 	if (WEBADD_CONFIG.MORE_PAGER_OPTIONS) morePagerOptions();
 	if (WEBADD_CONFIG.HOVER_PREVIEW) addHoverPreview();
+	if (WEBADD_CONFIG.FIX_IMAGES) fixBrokenImages();
 
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
@@ -397,6 +399,15 @@ function addItemCodesToSwatches() {
 		currentItem.insertAdjacentElement('beforeEnd', codeElement);
 
 		currentItem.addEventListener('mouseover', lazyLoadThumbImages);
+	}
+}
+
+async function fixBrokenImages() {
+	let allImages = document.querySelectorAll('img');
+	
+	for (const image of allImages) {
+		let src = decodeURIComponent(image.src);
+		image.src = encodeURIComponent(src);
 	}
 }
 
