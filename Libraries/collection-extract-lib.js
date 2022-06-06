@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.06.02.1
+// @version      2022.06.07.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -614,6 +614,7 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
 }
 
 function hideDropdownTableElements(tableElement) {
+	if (!tableElement) return;
 	let otherRows = tableElement.querySelectorAll("tr:not(.tg-table-header)");
 
 	tableElement.onclick = (event) => {
