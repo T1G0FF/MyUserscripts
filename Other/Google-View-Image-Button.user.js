@@ -1,24 +1,29 @@
 // ==UserScript==
 // @name            Google - View Image button - EDIT
 // @namespace       https://github.com/bijij/ViewImage
-// @version         3.5.0.1
+// @version         3.6.4.1
 // @description     This userscript re-implements the "View Image" and "Search by image" buttons into google images.
 // @author          Joshua B
 // @run-at          document-end
 // @include         http*://*.google.tld/search*tbm=isch*
 // @include         http*://*.google.tld/imgres*
+// @updateURL       NO-https://gist.githubusercontent.com/bijij/58cc8cfc859331e4cf80210528a7b255/raw/viewimage.user.js
 // ==/UserScript==
-'use strict';
 
 /*
+Updated to latest version of code used in Chrome Extension by Thomas G
+Updated to work with changes made by Google in June 2021
 Added image's dimensions back to thumbnails.
 Uses Translations from make-gis-great-again.user.js by Bae Junehyeon
 	https://gist.github.com/trlkly/cb4f9a349259f1df4eeef6e3f438600c/raw/make-gis-great-again.user.js
 */
 
+'use strict';
+
 const options = {
 	'open-in-new-tab': true,
 	'open-search-by-in-new-tab': true,
+	'show-globe-icon': true,
 	'hide-images-subject-to-copyright': false,
 	'manually-set-button-text': false,
 	'no-referrer': false,
@@ -76,10 +81,12 @@ const DEBUG = false;
 const VERSIONS = {
 	FEB18: 'FEB18',
 	JUL19: 'JUL19',
-	OCT19: 'OCT19'
+	OCT19: 'OCT19',
+	JUN21: 'JUN21'
 };
 
 var images = new Object();
+var imagesByTbnId = new Object();
 
 // Finds the div which contains all required elements
 function getContainer(node) {
@@ -87,7 +94,8 @@ function getContainer(node) {
 	[
 		['.irc_c[style*="visibility: visible;"][style*="transform: translate3d(0px, 0px, 0px);"]', VERSIONS.FEB18],
 		['.irc_c[data-ved]', VERSIONS.JUL19],
-		['.tvh9oe', VERSIONS.OCT19]
+		['.tvh9oe', VERSIONS.OCT19],
+		['.tvh9oe', VERSIONS.JUN21]
 	].forEach(element => {
 		if (node.closest(element[0])) {
 			[container, version] = [node.closest(element[0]), element[1]];
@@ -95,7 +103,6 @@ function getContainer(node) {
 	});
 	return [container, version];
 }
-
 
 // Finds and deletes all extension related elements.
 function clearExtElements(container) {
@@ -105,7 +112,6 @@ function clearExtElements(container) {
 		element.remove();
 	}
 }
-
 
 // Returns the image URL
 function findImageURL(container, version) {
@@ -117,8 +123,9 @@ function findImageURL(container, version) {
 			break;
 		case VERSIONS.JUL19:
 			var iframe = container.querySelector('iframe.irc_ifr');
-			if (!iframe)
+			if (!iframe) {
 				return findImageURL(container, VERSIONS.FEB18);
+			}
 			image = iframe.contentDocument.querySelector('img#irc_mi');
 			break;
 		case VERSIONS.OCT19:
@@ -126,22 +133,45 @@ function findImageURL(container, version) {
 			if (image.src in images) {
 				return images[image.src];
 			}
+			break;
+		case VERSIONS.JUN21:
+			image = container.dataset.tbnid;
+			if (image in imagesByTbnId) {
+				return imagesByTbnId[image];
+			}
+			break;
 	}
 
 	// Override url for images using base64 embeds
 	if (image === null || image.src === '' || image.src.startsWith('data')) {
-		var thumbnail = document.querySelector('img[name="' + container.dataset.itemId + '"]');
-		if (thumbnail === null) {
-			// If no thumbnail found, try getting image from URL
-			var url = new URL(window.location);
-			var imgLink = url.searchParams.get('imgurl');
-			if (imgLink) {
-				return imgLink;
-			}
-		} else {
-			var meta = thumbnail.closest('.rg_bx').querySelector('.rg_meta');
-			var metadata = JSON.parse(meta.innerHTML);
-			return metadata.ou;
+		let thumbnail = null;
+		let url = null;
+		let imgLink = null;
+		switch (version) {
+			default:
+				thumbnail = document.querySelector('img[name="' + container.dataset.itemId + '"]');
+				if (thumbnail === null) {
+					// If no thumbnail found, try getting image from URL
+					url = new URL(window.location);
+					imgLink = url.searchParams.get('imgurl');
+					if (imgLink) {
+						return imgLink;
+					}
+				} else {
+					let meta = thumbnail.closest('.rg_bx').querySelector('.rg_meta');
+					let metadata = JSON.parse(meta.innerHTML);
+					return metadata.ou;
+				}
+				break;
+			case VERSIONS.JUN21:
+				thumbnail = document.querySelector('div[data-id="' + container.dataset.tbnid + '"] > a');
+				// Get the url from the thumbnail link
+				url = new URL(thumbnail.getAttribute('href'));
+				imgLink = url.searchParams.get('imgurl');
+				if (imgLink) {
+					return imgLink;
+				}
+				break;
 		}
 	}
 
@@ -181,7 +211,8 @@ function addViewImageButton(container, imageURL, version) {
 			visitButton = container.querySelector('a.irc_hol[href]');
 			break;
 		case VERSIONS.OCT19:
-			visitButton = container.querySelector('.ZsbmCf[href], a.J2oL9c');
+		case VERSIONS.JUN21:
+			visitButton = container.querySelector('.ZsbmCf[href], a.J2oL9c, a.jAklOc');
 			break;
 	}
 
@@ -192,17 +223,24 @@ function addViewImageButton(container, imageURL, version) {
 	// Set the view image button url
 	var viewImageLink;
 	switch (version) {
+		default:
+			viewImageLink = viewImageButton;
+			break;
 		case VERSIONS.FEB18:
 			viewImageLink = viewImageButton.querySelector('a');
 			break;
-		default:
-			viewImageLink = viewImageButton;
 	}
 
 	viewImageLink.href = imageURL;
+
 	// Remove Google's link fuckery
-	if (version == VERSIONS.OCT19) {
-		viewImageLink.removeAttribute('jsaction');
+	switch (version) {
+		default:
+			break;
+		case VERSIONS.OCT19:
+		case VERSIONS.JUN21:
+			viewImageLink.removeAttribute('jsaction');
+			break;
 	}
 
 	// Set additional options
@@ -212,6 +250,7 @@ function addViewImageButton(container, imageURL, version) {
 	if (options['no-referrer']) {
 		viewImageLink.setAttribute('rel', 'noreferrer');
 	}
+
 	// Set the view image button text
 	var viewImageButtonText;
 	switch (version) {
@@ -222,7 +261,8 @@ function addViewImageButton(container, imageURL, version) {
 			viewImageButtonText = viewImageButton.querySelector('.irc_ho');
 			break;
 		case VERSIONS.OCT19:
-			viewImageButtonText = viewImageButton.querySelector('.pM4Snf, .KSvtLc');
+		case VERSIONS.JUN21:
+			viewImageButtonText = viewImageButton.querySelector('span.pM4Snf, span.KSvtLc, span.Pw5kW');
 			break;
 	}
 
@@ -230,6 +270,33 @@ function addViewImageButton(container, imageURL, version) {
 		viewImageButtonText.innerText = options['button-text-view-image'];
 	} else {
 		viewImageButtonText.innerText = localizedLanguage.ViewImage[(localizedLanguage.ViewImage[navigator.language] ? navigator.language : 'en')];
+	}
+
+	// Remove globe icon if not wanted
+	if (!options['show-globe-icon']) {
+		switch (version) {
+			case VERSIONS.FEB18:
+				viewImageButton.querySelector('.RL3J9c').remove();
+				break;
+			case VERSIONS.JUL19:
+				viewImageButton.querySelector('.aDEWOd').remove();
+				break;
+			case VERSIONS.OCT19:
+			case VERSIONS.JUN21:
+				viewImageButton.querySelector('.XeEBj.AJkoub').remove();
+				break;
+		}
+	}
+
+	// Smaller horizontal padding on the buttons
+	switch (version) {
+		default:
+			break;
+		case VERSIONS.OCT19:
+		case VERSIONS.JUN21:
+			var buttons = container.querySelector('.ZsbmCf[href], a.J2oL9c, a.jAklOc');
+			buttons.style.paddingLeft = buttons.style.paddingRight = "2px";
+			break;
 	}
 
 	// Place the view image button
@@ -248,7 +315,10 @@ function addSearchImageButton(container, imageURL, version) {
 			link = container.querySelector('.irc_ft > a.irc_help');
 			break;
 		case VERSIONS.OCT19:
-			link = container.querySelector('.PvkmDc, .qnLx5b, .zSA7pe');
+			link = container.querySelector('a.PvkmDc, a.qnLx5b, a.zSA7pe');
+			break;
+		case VERSIONS.JUN21:
+			link = container.querySelector('a.c8Bysd, a.zSA7pe, a.goedYd');
 			break;
 	}
 
@@ -266,6 +336,7 @@ function addSearchImageButton(container, imageURL, version) {
 			searchImageButtonText = searchImageButton.querySelector('span');
 			break;
 		case VERSIONS.OCT19:
+		case VERSIONS.JUN21:
 			searchImageButtonText = searchImageButton;
 			break;
 	}
@@ -277,11 +348,20 @@ function addSearchImageButton(container, imageURL, version) {
 	}
 
 	// Set the search by image button url
-	searchImageButton.href = '/searchbyimage?image_url=' + imageURL;
+	searchImageButton.href = '/searchbyimage?image_url=' + encodeURIComponent(imageURL);
 
 	// Set additional options
 	if (options['open-search-by-in-new-tab']) {
 		searchImageButton.setAttribute('target', '_blank');
+	}
+
+	switch (version) {
+		default:
+			break;
+		case VERSIONS.OCT19:
+		case VERSIONS.JUN21:
+			searchImageButton.style.paddingLeft = '2px';
+			break;
 	}
 
 	// Place the more sizes button
@@ -290,6 +370,7 @@ function addSearchImageButton(container, imageURL, version) {
 
 	switch (version) {
 		case VERSIONS.OCT19:
+		case VERSIONS.JUN21:
 			if (!searchImageButton.parentElement.querySelector('span.vi_ext_addon')) {
 				var span = document.createElement('span');
 				span.classList.add('vi_ext_addon');
@@ -298,10 +379,8 @@ function addSearchImageButton(container, imageURL, version) {
 			}
 			break;
 		default:
-			break;
 	}
 }
-
 
 // Adds links to an object
 function addLinks(node) {
@@ -335,7 +414,6 @@ function addLinks(node) {
 		if (DEBUG) {
 			console.log('ViewImage: Adding links failed, image was not found.');
 		}
-
 		return;
 	}
 
@@ -343,32 +421,66 @@ function addLinks(node) {
 	addSearchImageButton(container, imageURL, version);
 }
 
+function parseDataSource(array) {
+	var meta = array[31][0][12][2];
+	for (var i = 0; i < meta.length; i++) {
+		try {
+			// Use thumbnail link as lookup or tbid
+			images[meta[i][1][2][0]] = meta[i][1][3][0];
+			imagesByTbnId[meta[i][1][1]] = meta[i][1][3][0];
+		} catch (error) {
+			if (DEBUG) {
+				console.log('ViewImage: Skipping image');
+			}
+		}
+	}
+}
 
 function parseDataSource1() {
-	const start_search = /AF_initDataCallback\({key:\s'ds:1',\sisError:\s{2}false\s,\shash:\s'\d+',\sdata:/;
+	//const start_search = 'AF_initDataCallback({key: \'ds:1\', isError: false , hash: \'2\', data:';
+	//const start_search = /AF_initDataCallback\({key: \'ds:1\', isError: {2}false , hash: \'\d+\', data:/;
+	const start_search = /AF_initDataCallback\({key: \'ds:1\'(, isError: {2}false )?, hash: \'\d+\', data:/;
+	var match = document.documentElement.innerHTML.match(start_search);
 	const end_search = ', sideChannel: {}});</script>';
 
-	var match = document.documentElement.innerHTML.match(start_search);
-
+	//var start_index = document.documentElement.innerHTML.indexOf(start_search) + start_search.length;
 	var start_index = match.index + match[0].length;
 	var end_index = start_index + document.documentElement.innerHTML.slice(start_index).indexOf(end_search);
 
-	parseDataSource(JSON.parse(document.documentElement.innerHTML.slice(start_index, end_index)));
+	if (DEBUG) {
+		console.log(start_index, end_index);
+	}
+
+	let html = document.documentElement.innerHTML;
+	let text = html.slice(start_index, end_index);
+	let json = JSON.parse(text);
+	parseDataSource(json);
 }
 
 function parseDataSource2() {
-	const start_search = /AF_initDataCallback\({key:\s'ds:2',\sisError:\s{2}false\s,\shash:\s'\d+',\sdata:function(){return\s/;
+	//const start_search = 'AF_initDataCallback({key: \'ds:2\', isError: false , hash: \'3\', data:function(){return ';
+	//const start_search = /AF_initDataCallback\({key: \'ds:2\', isError: {2}false , hash: \'d+\', data:function(){return /;
+	const start_search = /AF_initDataCallback\({key: \'ds:2\'(, isError: {2}false ), hash: \'d+\', data:function(){return /;
+	var match = document.documentElement.innerHTML.match(start_search);
 	const end_search = '}});</script>';
 
-	var match = document.documentElement.innerHTML.match(start_search);
-
+	//var start_index = document.documentElement.innerHTML.indexOf(start_search) + start_search.length;
 	var start_index = match.index + match[0].length;
 	var end_index = start_index + document.documentElement.innerHTML.slice(start_index).indexOf(end_search);
-	parseDataSource(JSON.parse(document.documentElement.innerHTML.slice(start_index, end_index)));
+
+	if (DEBUG) {
+		console.log(start_index, end_index);
+	}
+
+	let html = document.documentElement.innerHTML;
+	let text = html.slice(start_index, end_index);
+	let json = JSON.parse(text);
+	parseDataSource(json);
 }
 
 // Check if source holds array of images
 try {
+
 	if (document.documentElement.innerHTML.indexOf('key: \'ds:1\'') != -1) {
 		if (DEBUG) {
 			console.log('ViewImage: Attempting to parse data source 1.');
@@ -386,23 +498,23 @@ try {
 	if (DEBUG) {
 		console.log('ViewImage: Successfully created source images array.');
 	}
-}
-catch (error) {
+
+} catch (error) {
 	if (DEBUG) {
 		console.log('ViewImage: Failed to create source images array.');
 		console.error(error);
 	}
 }
 
-
 // Define the mutation observers
 var observer = new MutationObserver(function (mutations) {
+
 	if (DEBUG) {
 		console.log('ViewImage: Mutations detected: ', mutations);
 	}
 
+	var node;
 	for (var mutation of mutations) {
-		var node;
 		if (mutation.addedNodes && mutation.addedNodes.length > 0) {
 			for (node of mutation.addedNodes) {
 				if (node.classList) {
@@ -441,50 +553,49 @@ if (DEBUG) {
 }
 
 var customStyle = document.createElement('style');
-customStyle.type = 'text/css'
-customStyle.innerText =
-	`.irc_dsh>.irc_hol.vi_ext_addon,
+customStyle.type = 'text/css';
+customStyle.innerText = 
+`.irc_dsh>.irc_hol.vi_ext_addon,
 .irc_ft>.irc_help.vi_ext_addon,
 .PvkmDc.vi_ext_addon,
 .qnLx5b.vi_ext_addon {
-    margin: 0 4pt !important
+	margin: 0 4pt !important
 }
 
 .zSA7pe[href^="/searchbyimage"] {
-    margin-left: 2px;
+	margin-left: 2px;
 }
 
 .ZsbmCf.vi_ext_addon {
-    flex-grow:0
+	flex-grow: 0
 }
 
 .irc_hol.vi_ext_addon {
-    flex-grow:0 !important
+	flex-grow: 0 !important
 }`;
 
 if (options['add-image-dimensions-to-thumbnails']) {
 	customStyle.innerText += options['show-image-dimensions-on-hover-only'] ? '.isv-r:hover::before' : '.isv-r::before';
-	customStyle.innerText +=
-		`{
-    content:attr(data-ow) "x" attr(data-oh);
-    display: inline-block;
-    z-index: 1;
+	customStyle.innerText += `{
+	content:attr(data-ow) "x" attr(data-oh);
+	display: inline-block;
+	z-index: 1;
 
-    background-color: rgba(0,0,0,.5);
-    border-radius: 0 2px 0 0;
-    bottom: 4.2em;
-    box-shadow: 0 0 1px 0 rgb(0 0 0 / 16%);
-    box-sizing: border-box;
-    color: #f1f3f4;
-    font-family: Roboto-Medium,Roboto,arial,sans-serif;
-    font-size: 10px;
-    left: 0;
-    line-height: 12px;
-    margin-left: 0;
-    overflow: hidden;
-    padding: 4px;
-    position: absolute;
-    white-space: nowrap;
+	background-color: rgba(0,0,0,.5);
+	border-radius: 0 2px 0 0;
+	bottom: 4.2em;
+	box-shadow: 0 0 1px 0 rgb(0 0 0 / 16%);
+	box-sizing: border-box;
+	color: #f1f3f4;
+	font-family: Roboto-Medium,Roboto,arial,sans-serif;
+	font-size: 10px;
+	left: 0;
+	line-height: 12px;
+	margin-left: 0;
+	overflow: hidden;
+	padding: 4px;
+	position: absolute;
+	white-space: nowrap;
 }`;
 };
 document.head.appendChild(customStyle);
