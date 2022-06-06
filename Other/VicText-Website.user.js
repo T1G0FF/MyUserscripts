@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.06.03.2
+// @version      2022.06.06.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -408,8 +408,10 @@ async function fixBrokenImages() {
 	for (const currentItem of collection) {
 		let code = getCodeFromItem(currentItem);
 		let image = currentItem.querySelector('div.galleryImage img');
-		let src = image.src.replaceAll(encodeURI(code), encodeURIComponent(code));
-		image.src = src;
+		if (image) {
+			let src = image.src.replaceAll(encodeURI(code), encodeURIComponent(code));
+			image.src = src;
+		}
 	}
 }
 
@@ -760,7 +762,7 @@ function addScraperOptions() {
 	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
 }
 
-async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
+async function scrapeItemWithIFrame(src, lastCall, onLoad, onReturn) {
 	if (inIframe()) return;
 	let iFrameScraper = MyiFrame.create('scraperFrame');
 
@@ -768,7 +770,7 @@ async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
 	const scraperLoadedPromise = new Promise(resolve => {
 		iFrameScraper.addEventListener("load", async function () {
 			if (iFrameScraper.src != 'about:blank') {
-				let localResult = await onLoad(iFrameScraper.contentDocument);
+				let localResult = await onLoad(iFrameScraper);
 				if (localResult) {
 					scrapedResult = await onReturn(localResult);
 				}
@@ -776,7 +778,6 @@ async function scrapeItemWithIFrame(item, lastCall, onLoad, onReturn) {
 			resolve();
 		});
 
-		let src = item.querySelector('a').getAttribute('href');
 		MyiFrame.show(iFrameScraper, src);
 	});
 	await scraperLoadedPromise;
@@ -800,7 +801,8 @@ async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, o
 			if (count <= callOffset) continue;
 			if (count > lastCall) break;
 
-			let scrapedResult = await scrapeItemWithIFrame(currentItem, count === lastCall, onFrameLoad, onFrameReturn);
+			let href = currentItem.querySelector('a').getAttribute('href');
+			let scrapedResult = await scrapeItemWithIFrame(href, count === lastCall, onFrameLoad, onFrameReturn);
 
 			result = await aggregateItem(result, scrapedResult);
 		}
@@ -815,7 +817,8 @@ async function btnAction_scrapeFirstImage() {
 		() => { // initResult
 			return '<html>\n<body>\n';
 		},
-		(iFrameDocument) => { // onFrameLoad
+		(iFrameScraper) => { // onFrameLoad
+			let iFrameDocument = iFrameScraper.contentDocument;
 			return iFrameDocument.querySelectorAll('div.col-md-4.col-sm-4 img')[0];
 		},
 		(scrapedResult) => { // onFrameReturn
@@ -847,10 +850,11 @@ async function btnAction_scrapeImageless() {
 		async () => { // initResult
 			return await getImagelessCollection();
 		},
-		(iFrameDocument) => { // itemOnLoad
+		(iFrameScraper) => { // onFrameLoad
+			let iFrameDocument = iFrameScraper.contentDocument;
 			return getImagelessCollection(iFrameDocument);
 		},
-		(scrapedResult) => { // itemOnReturn
+		(scrapedResult) => { // onFrameReturn
 			return scrapedResult.Collection;
 		},
 		(result, scrapedResult) => { // aggregateItem
@@ -879,19 +883,99 @@ async function btnAction_scrapeImageless() {
 	);
 }
 
-async function btnAction_countCollection() {
+async function btnAction_countCollection(fast = false) {
+	// Faster but returns a range of values where a collection has multiple pages. 
+	if (fast) {
+		await scrapeCollectionWithIFrame(
+			await getCollection(),
+			() => { // initResult
+				return '';
+			},
+			async (iFrameDocument) => { // onFrameLoad
+				let pageCount = -1;
+				let perPage = -1;
+
+				let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
+
+				let collectionName = listWrapper.querySelector('h1')?.innerText || 'Collection';
+				let dropdown = iFrameDocument.querySelector('.tg-dropdown-container');
+				if (dropdown) {
+					collectionName = collectionName.replace(dropdown.innerText, '');
+				}
+
+				let pagerForm = iFrameDocument.getElementsByName('itemsPerPage');
+				if (pagerForm && pagerForm.length > 0) {
+					let pageCountText = pagerForm[0].lastElementChild?.innerText;
+					pageCount = pageCountText ? parseInt(pageCountText, 10) : 1;
+				}
+
+				let selectElement = iFrameDocument.getElementsByName('perPageSelect');
+				if (selectElement && selectElement.length > 0) {
+					let selected = selectElement[0].querySelector('option[selected="selected"]');
+					perPage = selected ? parseInt(selected.value, 10) : 100;
+				}
+
+				if (pageCount === 1) {
+					let itemsOnPage = listWrapper.querySelectorAll('div.item');
+					perPage = itemsOnPage.length;
+				}
+
+				return {
+					CollectionName: collectionName,
+					PageCount: pageCount,
+					PerPage: perPage
+				};
+			},
+			(scrapedResult) => { // onFrameReturn
+				let count = -1;
+				if (scrapedResult.PageCount === 1) {
+					count = scrapedResult.PerPage;
+				}
+				else {
+					let minCount = ((scrapedResult.PageCount - 1) * scrapedResult.PerPage) + 1;
+					let maxCount = scrapedResult.PageCount * scrapedResult.PerPage;
+					count = `${minCount}-${maxCount}`;
+				}
+
+				return {
+					CollectionName: scrapedResult.CollectionName,
+					Count: count
+				};
+			},
+			(result, scrapedResult) => { // aggregateItem
+				return result + `${scrapedResult.CollectionName}\t${scrapedResult.Count}\n`;
+			},
+			async (count, result) => { // onEnd
+				let msg = 'None found!';
+				if (count > 0) {
+					GM_setClipboard(result);
+					msg = count + ' found and copied!';
+				}
+				if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
+			}
+			, -1);
+		return;
+	}
+
+	// Slower and requires 2x the calls (first page, last page), but returns the exact number of items.
+	let collection = await getCollection();
+	
+	let collectionPageCounts = [];
 	await scrapeCollectionWithIFrame(
-		await getCollection(),
+		collection,
 		() => { // initResult
-			return '';
+			return [];
 		},
-		async (iFrameDocument) => { // onFrameLoad
-			let pageCount = -1;
-			let perPage = -1;
+		async (iFrameScraper) => { // onFrameLoad
+			let iFrameDocument = iFrameScraper.contentDocument;
+			let numberOfPages = -1;
+			let itemsOnFirstPage = -1;
+			let lastPageCount = -1;
+			let lastPageHref = '';
 
 			let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
 
-			let collectionName = listWrapper.querySelector('h1')?.innerText || 'Collection';
+			let collectionName = listWrapper?.querySelector('h1')?.innerText || 'Collection';
 			let dropdown = iFrameDocument.querySelector('.tg-dropdown-container');
 			if (dropdown) {
 				collectionName = collectionName.replace(dropdown.innerText, '');
@@ -900,54 +984,100 @@ async function btnAction_countCollection() {
 			let pagerForm = iFrameDocument.getElementsByName('itemsPerPage');
 			if (pagerForm && pagerForm.length > 0) {
 				let pageCountText = pagerForm[0].lastElementChild?.innerText;
-				pageCount = pageCountText ? parseInt(pageCountText, 10) : 1;
+				numberOfPages = pageCountText ? parseInt(pageCountText, 10) : 1;
 			}
 
 			let selectElement = iFrameDocument.getElementsByName('perPageSelect');
 			if (selectElement && selectElement.length > 0) {
 				let selected = selectElement[0].querySelector('option[selected="selected"]');
-				perPage = selected ? parseInt(selected.value, 10) : 100;
+				itemsOnFirstPage = selected ? parseInt(selected.value, 10) : 100;
 			}
 
-			if (pageCount === 1) {
+			if (numberOfPages === 1) {
 				let itemsOnPage = listWrapper.querySelectorAll('div.item');
-				perPage = itemsOnPage.length;
+				itemsOnFirstPage = itemsOnPage.length;
+			}
+
+			let nextButtonElement = iFrameDocument.querySelector('ul.pagination li:last-of-type');
+			let link = nextButtonElement?.querySelector('a');
+			if (link) {
+				lastPageHref = link.href.replace(/pager=[0-9]+/i, 'pager=' + numberOfPages);
 			}
 
 			return {
 				CollectionName: collectionName,
-				PageCount: pageCount,
-				PerPage: perPage
+				NumberOfPages: numberOfPages,
+				ItemsOnFirstPage: itemsOnFirstPage,
+				LastPageHref: lastPageHref
 			};
 		},
-		(scrapedResult) => { // onFrameReturn
-			let count = -1;
-			if (scrapedResult.PageCount === 1) {
-				count = scrapedResult.PerPage;
-			}
-			else {
-				let minCount = ((scrapedResult.PageCount - 1) * scrapedResult.PerPage) + 1;
-				let maxCount = scrapedResult.PageCount * scrapedResult.PerPage;
-				count = `${minCount}-${maxCount}`;
-			}
-
-			return {
-				CollectionName: scrapedResult.CollectionName,
-				Count: count
-			};
+		async (scrapedResult) => { // onFrameReturn
+			return scrapedResult;
 		},
-		(result, scrapedResult) => { // aggregateItem
-			return result + `${scrapedResult.CollectionName}\t${scrapedResult.Count}\n`;
+		async (result, scrapedResult) => { // aggregateItem
+			result.push(scrapedResult)
+			return result;
 		},
 		async (count, result) => { // onEnd
-			let msg = 'None found!';
-			if (count > 0) {
-				GM_setClipboard(result);
-				msg = count + ' found and copied!';
-			}
-			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
+			collectionPageCounts = result;
 		}
-	, -1);
+		, -1);
+	
+	let count = 0;
+	let outputString = '';
+	let lastCall = collectionPageCounts.length;
+	for (const cpc of collectionPageCounts) {
+		count++;
+
+		let href = cpc.LastPageHref;
+		let scrapedResult = await scrapeItemWithIFrame(href, count === lastCall, 
+			async (iFrameScraper) => { // onFrameLoad
+				let iFrameDocument = iFrameScraper.contentDocument;
+				let itemsOnLastPage = -1;
+
+				let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
+				let itemsOnPage = listWrapper.querySelectorAll('div.item');
+				itemsOnLastPage = itemsOnPage.length;
+
+				return {
+					CollectionName: cpc.CollectionName,
+					NumberOfPages: cpc.NumberOfPages,
+					ItemsOnFirstPage: cpc.ItemsOnFirstPage,
+					ItemsOnLastPage: itemsOnLastPage,
+				};
+			},
+			async (scrapedResult) => { // onFrameReturn
+				let count = -1;
+				if (scrapedResult.PageCount === 1) {
+					count = scrapedResult.ItemsOnFirstPage;
+				}
+				else {
+					if (scrapedResult.ItemsOnLastPage > 0) {
+						count = ((scrapedResult.NumberOfPages - 1) * scrapedResult.ItemsOnFirstPage) + scrapedResult.ItemsOnLastPage;
+					}
+					else {
+						let minCount = ((scrapedResult.NumberOfPages - 1) * scrapedResult.ItemsOnFirstPage) + 1;
+						let maxCount = scrapedResult.NumberOfPages * scrapedResult.ItemsOnFirstPage;
+						count = `${minCount}-${maxCount}`;
+					}
+				}
+
+				return {
+					CollectionName: scrapedResult.CollectionName,
+					Count: count
+				};
+			}
+		);
+
+		outputString += `${scrapedResult.CollectionName}\t${scrapedResult.Count}\n`;
+	}
+
+	let msg = 'None found!';
+	if (count > 0) {
+		GM_setClipboard(outputString);
+		msg = count + ' found and copied!';
+	}
+	if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
 }
 
 /***********************************************
