@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.06.07.4
+// @version      2022.06.07.5
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -615,7 +615,7 @@ function createButton(text, func, element, location = 'beforeEnd', showIf = true
 
 function hideDropdownTableElements(tableElement) {
 	if (!tableElement) return;
-	let headerRow = tableElement.querySelectorAll("tr.tg-table-header");
+	let headerRow = tableElement.querySelector("tr.tg-table-header");
 	let otherRows = tableElement.querySelectorAll("tr:not(.tg-table-header)");
 
 	headerRow.onclick = (event) => {
@@ -725,7 +725,7 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 		<td colspan="2" class="tg-dropdown-text">Filter Options</td>
 	</tr>
 	<tr class="tg-table-row">
-		<td><input id="tg-filter-input"></td>	
+		<td><input id="tg-filter-input"></td>
 		<td><button id="tg-filter-button"></button></td>
 	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
@@ -854,7 +854,7 @@ async function refreshCollection(itemContainer = getItemContainer(), itemList = 
 		}
 		itemList = await sortCollection();
 	}
-	itemList = isSorted() ? itemList : collectionOriginalSort;	
+	itemList = isSorted() ? itemList : collectionOriginalSort;
 	itemList = (Array.isArray(itemList)) ? itemList : Array.from(itemList);
 	let children = Array.from(itemContainer.children);
 	let foundChildren = [];
