@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.06.06.1
+// @version      2022.06.07.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -53,7 +53,7 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
-	if (WEBADD_CONFIG.SORT_CODES) await addSortFilterInputs();
+	if (WEBADD_CONFIG.SORT_CODES) await addSortFilterInputs(null, doc.querySelectorAll('div.col-md-4.col-sm-4.item'));
 
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
 		addScraperOptions();
@@ -197,6 +197,28 @@ div.onSpecial > span {
 	font-size: 12px;
 }`;
 	MyStyles.addStyle('StockIndicatorsSmall', cssText);
+
+	if (!isIE() && supportsSVG()) {
+		cssText = `/* SVG Logo */
+div#headerlogo-standard img,
+div#mobile-headerimage img {
+	width: 217px;
+}`;
+		MyStyles.addStyle('SVGLogo', cssText);
+
+		let logo = document.querySelector('div#headerlogo-standard img');
+		if (logo) {
+			let png = logo.src;
+			let svg = logo.src.replace('Logo.png', 'Logo.svg');
+			addSvgFallback(logo, svg, png);
+		}
+		logo = document.querySelector('div#mobile-headerimage img');
+		if (logo) {
+			let png = logo.src;
+			let svg = logo.src.replace('Logo.png', 'Logo.svg');
+			addSvgFallback(logo, svg, png);
+		}
+	}
 }
 
 function replaceStockIndicatorsWithIcons() {
