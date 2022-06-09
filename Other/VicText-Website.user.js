@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.06.09.1
+// @version      2022.06.09.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -749,6 +749,9 @@ async function addHoverPreview() {
  * Scraping iFrame
  ***********************************************/
 function addScraperOptions() {
+	let titleElement = getTitleElement();
+	if (!titleElement) return;
+
 	let table = document.createElement('table');
 	table.id = 'scraperOptions';
 	table.classList.add('tg-dropdown-option');
@@ -767,7 +770,7 @@ function addScraperOptions() {
 		<td><input id="tg-max-calls-field"></td>
 	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
-	addElementToDropdownContainer(getTitleElement(), [table], 'beforeEnd');
+	addElementToDropdownContainer(titleElement, [table], 'beforeEnd');
 
 	let tableElement = document.querySelector("table#scraperOptions");
 	hideDropdownTableElements(tableElement);
