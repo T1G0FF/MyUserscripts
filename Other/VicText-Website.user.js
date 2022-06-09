@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.06.07.3
+// @version      2022.06.09.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -1051,45 +1051,52 @@ async function btnAction_countCollection(fast = false) {
 	for (const cpc of collectionPageCounts) {
 		count++;
 
-		let href = cpc.LastPageHref;
-		let scrapedResult = await scrapeItemWithIFrame(href, count === lastCall, 
-			async (iFrameScraper) => { // onFrameLoad
-				let iFrameDocument = iFrameScraper.contentDocument;
-				let itemsOnLastPage = -1;
+		let scrapedResult = {};
+		if (cpc.NumberOfPages === 1) {
+			scrapedResult.CollectionName = cpc.CollectionName;
+			scrapedResult.Count = cpc.ItemsOnFirstPage;
+		}
+		else {
+			let href = cpc.LastPageHref;
+			scrapedResult = await scrapeItemWithIFrame(href, count === lastCall,
+				async (iFrameScraper) => { // onFrameLoad
+					let iFrameDocument = iFrameScraper.contentDocument;
+					let itemsOnLastPage = -1;
 
-				let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
-				let itemsOnPage = listWrapper.querySelectorAll('div.item');
-				itemsOnLastPage = itemsOnPage.length;
+					let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
+					let itemsOnPage = listWrapper.querySelectorAll('div.item');
+					itemsOnLastPage = itemsOnPage.length;
 
-				return {
-					CollectionName: cpc.CollectionName,
-					NumberOfPages: cpc.NumberOfPages,
-					ItemsOnFirstPage: cpc.ItemsOnFirstPage,
-					ItemsOnLastPage: itemsOnLastPage,
-				};
-			},
-			async (scrapedResult) => { // onFrameReturn
-				let count = -1;
-				if (scrapedResult.PageCount === 1) {
-					count = scrapedResult.ItemsOnFirstPage;
-				}
-				else {
-					if (scrapedResult.ItemsOnLastPage > 0) {
-						count = ((scrapedResult.NumberOfPages - 1) * scrapedResult.ItemsOnFirstPage) + scrapedResult.ItemsOnLastPage;
+					return {
+						CollectionName: cpc.CollectionName,
+						NumberOfPages: cpc.NumberOfPages,
+						ItemsOnFirstPage: cpc.ItemsOnFirstPage,
+						ItemsOnLastPage: itemsOnLastPage,
+					};
+				},
+				async (scrapedResult) => { // onFrameReturn
+					let count = -1;
+					if (scrapedResult.PageCount === 1) {
+						count = scrapedResult.ItemsOnFirstPage;
 					}
 					else {
-						let minCount = ((scrapedResult.NumberOfPages - 1) * scrapedResult.ItemsOnFirstPage) + 1;
-						let maxCount = scrapedResult.NumberOfPages * scrapedResult.ItemsOnFirstPage;
-						count = `${minCount}-${maxCount}`;
+						if (scrapedResult.ItemsOnLastPage > 0) {
+							count = ((scrapedResult.NumberOfPages - 1) * scrapedResult.ItemsOnFirstPage) + scrapedResult.ItemsOnLastPage;
+						}
+						else {
+							let minCount = ((scrapedResult.NumberOfPages - 1) * scrapedResult.ItemsOnFirstPage) + 1;
+							let maxCount = scrapedResult.NumberOfPages * scrapedResult.ItemsOnFirstPage;
+							count = `${minCount}-${maxCount}`;
+						}
 					}
-				}
 
-				return {
-					CollectionName: scrapedResult.CollectionName,
-					Count: count
-				};
-			}
-		);
+					return {
+						CollectionName: scrapedResult.CollectionName,
+						Count: count
+					};
+				}
+			);
+		}
 
 		outputString += `${scrapedResult.CollectionName}\t${scrapedResult.Count}\n`;
 	}
