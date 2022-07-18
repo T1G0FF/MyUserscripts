@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StraightSell CMS Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2020.03.05.1
+// @version      2022.07.18.1
 // @description  Allows you to toggle the visibility of all the far too easy to click Delete/Remove/Revoke links.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/*
@@ -11,10 +11,10 @@
 
 const DEBUG = false;
 
-function callbackDelay(callback, delay) {
+function callbackDelay(callback, delay = 150) {
 	setTimeout(function () {
-		updateElements();
-	}, 150);
+		callback();
+	}, delay);
 }
 
 var hideDeleteOptions;
@@ -35,7 +35,8 @@ var selectorsList = ['.ListtableRow1 a.action[href^="javascript:confirmDelete"]'
 	hideDeleteOptions = sessionStorage.getItem('hideDeleteOptions');
 	if (hideDeleteOptions === null || hideDeleteOptions === undefined) hideDeleteOptions = true;
 	createButton();
-	delayUpdateElements();
+	callbackDelay(updateElements, 250);
+	enableItemEditing();
 })();
 
 function createButton() {
@@ -66,15 +67,9 @@ function clickUpdateElements() {
 		if (document.querySelectorAll('tr').length > 0) {
 			if (DEBUG) console.log('Table Rows exist');
 			clearInterval(checkExist);
-			delayUpdateElements();
+			callbackDelay(updateElements, 250);
 		}
-	}, 100)
-}
-
-function delayUpdateElements() {
-	setTimeout(function () {
-		updateElements();
-	}, 250);
+	}, 100);
 }
 
 function updateElements() {
@@ -113,4 +108,18 @@ function addUpdateEvents() {
 		}
 		if (DEBUG) console.log('Pagination updated!');
 	}
+}
+
+function enableItemEditing() {
+	var enableEditing = setInterval(function () {
+		var disabledElements = document.querySelectorAll('form[name="user"] *[disabled]');
+		if (DEBUG) console.log('Enabling Item Editing Form');
+
+		for (const key in disabledElements) {
+			if (Object.hasOwnProperty.call(disabledElements, key)) {
+				const element = disabledElements[key];
+				element.removeAttribute('disabled')
+			}
+		}
+	}, 100);
 }
