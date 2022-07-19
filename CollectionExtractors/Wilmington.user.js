@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Wilmington
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.6
+// @version      2022.07.19.7
 // @description  Gets the names and codes from a Wilmington Collection
 // @author       www.tgoff.me
 // @match        *://wilmingtonprints.com/*
@@ -216,8 +216,8 @@ function getItemObject(itemElement) {
 
 			let index = givenDesc.indexOf(color)
 			if (index >= 0) {
-				patternName = givenDesc.substring(0, index);
-				colourName = givenDesc.substring(index + 1);
+				patternName = givenDesc.substring(0, index - 1);
+				colourName = givenDesc.substring(index);
 				break;
 			}
 		}
