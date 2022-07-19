@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Wilmington
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.11
+// @version      2022.07.19.10
 // @description  Gets the names and codes from a Wilmington Collection
 // @author       www.tgoff.me
 // @match        *://wilmingtonprints.com/*
@@ -287,9 +287,10 @@ var knownColours = [
 (function () {
 	'use strict';
 	setInterval(function () {
-		let locationElement = document.querySelector('p#toolbar-amount');
-		createButtons(locationElement, 'beforeBegin');
-		//addSortFilterInputs();
+		if (!document.querySelector('tg-dropdown-container')) {
+			createButtons(document.querySelector('p#toolbar-amount'), 'beforeBegin');
+			//addSortFilterInputs();
+		}
 	}, 250); // Check every 250ms
 })();
 
