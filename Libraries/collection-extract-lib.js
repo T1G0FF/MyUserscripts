@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.2
+// @version      2022.07.19.3
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -568,6 +568,7 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownMenu);
 		locationElement.insertAdjacentElement(location, dropdownContainer);
 
+		DROPDOWN_CONTAINERS[locationElement] = {};
 		DROPDOWN_CONTAINERS[locationElement]['dropContainer'] = dropdownContainer;
 		DROPDOWN_CONTAINERS[locationElement]['dropMenu'] = dropdownMenu;
 	}
