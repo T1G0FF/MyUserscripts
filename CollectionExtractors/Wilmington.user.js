@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Wilmington
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.16
+// @version      2022.07.19.17
 // @description  Gets the names and codes from a Wilmington Collection
 // @author       www.tgoff.me
 // @match        *://wilmingtonprints.com/*
@@ -349,6 +349,7 @@ function getItemObject(itemElement) {
 	givenDesc = givenDesc.toTitleCase().replace(' - New', '');
 
 	if (givenDesc.toUpperCase().indexOf('KARAT') >= 0) return; // Ignore Precuts
+	if (/^For [0-9]+ Kits/g.test(givenDesc)) return; // Ignore Kits
 
 	let descElements = [];
 	let patternName = givenDesc.toTitleCase();
