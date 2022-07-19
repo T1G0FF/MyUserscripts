@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Wilmington
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.1
+// @version      2022.07.19.2
 // @description  Gets the names and codes from a Wilmington Collection
 // @author       www.tgoff.me
-// @match        *://https://wilmingtonprints.com/*
+// @match        *://wilmingtonprints.com/*
+// @match        *://www.wilmingtonprints.com/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
