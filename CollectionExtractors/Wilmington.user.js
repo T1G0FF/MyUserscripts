@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Wilmington
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.3
+// @version      2022.07.19.4
 // @description  Gets the names and codes from a Wilmington Collection
 // @author       www.tgoff.me
 // @match        *://wilmingtonprints.com/*
@@ -53,7 +53,7 @@ function getCollection() {
 }
 
 function getItemObject(itemElement) {
-	let codeElement = itemElement.querySelector('div.product.details strong[itemprop="name"]');
+	let codeElement = itemElement.querySelector('div.product.details *[itemprop="name"]');
 	if (!codeElement) {
 		Notify.log('Code element not found!', itemElement);
 		return;
@@ -70,9 +70,9 @@ function getItemObject(itemElement) {
 
 	let purchaseCode = padWithZeros(collectionCode, 6) + padWithZeros(patternCode, 6) + ' ' + colourCode;
 
-	let descElement = itemElement.querySelector('div.product.details strong[itemprop="description"]');
+	let descElement = itemElement.querySelector('div.product.details *[itemprop="description"]');
 	if (!descElement) {
-		Notify.log('Description element not found!', item);
+		Notify.log('Description element not found!', itemElement);
 		return;
 	}
 	let givenDesc = descElement.innerText.trim();
