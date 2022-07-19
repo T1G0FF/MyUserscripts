@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.4
+// @version      2022.07.19.5
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -540,7 +540,7 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 
 	// Reset dropdown container if it has been removed from the DOM
 	if (DROPDOWN_CONTAINERS[locationElement] && !document.querySelector('span.tg-dropdown-container')) {
-		DROPDOWN_CONTAINERS[locationElement] = {};
+		DROPDOWN_CONTAINERS[locationElement] = undefined;
 	}
 
 	if (!DROPDOWN_CONTAINERS[locationElement]) {
