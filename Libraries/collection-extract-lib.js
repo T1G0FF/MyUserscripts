@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.1
+// @version      2022.07.19.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -568,16 +568,16 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 		dropdownContainer.insertAdjacentElement('beforeEnd', dropdownMenu);
 		locationElement.insertAdjacentElement(location, dropdownContainer);
 
-		DROPDOWN_CONTAINERS[locationElement].Container = dropdownContainer;
-		DROPDOWN_CONTAINERS[locationElement].Menu = dropdownMenu;
+		DROPDOWN_CONTAINERS[locationElement]['dropContainer'] = dropdownContainer;
+		DROPDOWN_CONTAINERS[locationElement]['dropMenu'] = dropdownMenu;
 	}
 	else {
 		// Re-add dropdown container if it has been removed from the DOM
 		if (!document.querySelector('span.tg-dropdown-container')) {
-			locationElement.insertAdjacentElement(location, DROPDOWN_CONTAINERS[locationElement].Container);
+			locationElement.insertAdjacentElement(location, DROPDOWN_CONTAINERS[locationElement]['dropContainer']);
 		}
 	}
-	return DROPDOWN_CONTAINERS[locationElement].Menu;
+	return DROPDOWN_CONTAINERS[locationElement]['dropMenu'];
 }
 
 function addElementToDropdownContainer(locationElement, elementsToAdd, location = 'beforeEnd', showIf = true) {
