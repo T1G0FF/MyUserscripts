@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Wilmington
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.4
+// @version      2022.07.19.5
 // @description  Gets the names and codes from a Wilmington Collection
 // @author       www.tgoff.me
 // @match        *://wilmingtonprints.com/*
@@ -18,7 +18,136 @@ var collections = {
 };
 
 var knownColours = [
-	'',
+	'White On White',
+	'White',
+	'Whipped Cream',
+	'Violet',
+	'Very Dk. Green',
+	'Turquoise',
+	'Tungsten',
+	'True Navy',
+	'Teal',
+	'Sunshine',
+	'Suede',
+	'Stone',
+	'Soft Yellow',
+	'Slate',
+	'Sky Blue',
+	'Silver',
+	'Shell',
+	'Seafoam',
+	'Schale',
+	'Sand',
+	'Ruby',
+	'Royal Blue',
+	'Red/Orange',
+	'Red',
+	'Raisin',
+	'Purple/Red',
+	'Purple',
+	'Pewter',
+	'Persimmon',
+	'Paradise Blue',
+	'Pale Violet',
+	'Pale Purple',
+	'Pale Pink',
+	'Pale Blue',
+	'Pale Aqua',
+	'Orchard',
+	'Orange/Yellow',
+	'Orange Peel',
+	'Orange',
+	'New Leaf',
+	'Navy',
+	'Multi',
+	'Medium Denim',
+	'Medium Brown',
+	'Medallions Black',
+	'Med. Warm Gold',
+	'Med. Brown',
+	'Matcha',
+	'Magenta',
+	'Lt. Tan',
+	'Lt. Raspberry',
+	'Lt. Gray',
+	'Lt. Blue',
+	'Lime Green',
+	'Lime',
+	'Lightest Taupe',
+	'Light Coral',
+	'Light Blush',
+	'Light Blue',
+	'Lavender',
+	'Ivory',
+	'Hot Pink',
+	'Holly Green',
+	'Hazelnut',
+	'Green',
+	'Gray/Purple',
+	'Gray/Pink',
+	'Gray',
+	'Grape',
+	'Goldenrod',
+	'Golden Yellow',
+	'Forest Green',
+	'Forest',
+	'Dk. Teal',
+	'Dk. Purple',
+	'Dk. Pink',
+	'Dk. Ivory',
+	'Dk. Green',
+	'Dk. Gray',
+	'Dk. Eggplant',
+	'Dk. Denim',
+	'Dk. Chocolate',
+	'Dk. Brown',
+	'Dk. Brick',
+	'Dk. Blue',
+	'Dk. Asphalt',
+	'Denim',
+	'Dark Rust',
+	'Dark Royal Blue',
+	'Dark Red',
+	'Dark Gray',
+	'Dark Chocolate',
+	'Dark Brown',
+	'Daffodil',
+	'Cream',
+	'Cornflower',
+	'Coral',
+	'Cookie',
+	'Cobalt',
+	'Citrus Med. Orange',
+	'Citrus Lt. Cherry',
+	'Citrus Bright Yellow',
+	'Citrus Bright Green',
+	'Cider',
+	'Chocolate',
+	'Cherry Red',
+	'Cherry',
+	'Cheddar',
+	'Charcoal',
+	'Cerulean',
+	'Cement',
+	'Butter Yellow',
+	'Burgundy',
+	'Buff',
+	'Bubble Gum Pink',
+	'Brown',
+	'Bright Red',
+	'Bright Blue',
+	'Blue/Purple',
+	'Blue/Green',
+	'Blue/Black',
+	'Blue',
+	'Black/Lt. Gray',
+	'Black/Gray',
+	'Black',
+	'Bark',
+	'Baby Blue',
+	'Aqua',
+	'Amethyst',
+
 ];
 
 (function () {
@@ -58,7 +187,7 @@ function getItemObject(itemElement) {
 		Notify.log('Code element not found!', itemElement);
 		return;
 	}
-	
+
 	let givenCode = codeElement.innerText.trim().toUpperCase();
 
 	let codeElements = givenCode.split(' ');
@@ -76,10 +205,25 @@ function getItemObject(itemElement) {
 		return;
 	}
 	let givenDesc = descElement.innerText.trim();
+	givenDesc = givenDesc.toTitleCase().replace(' - New', '');
 
+	let descElements = [];
 	let patternName = givenDesc.toTitleCase();
-
 	let colourName = givenDesc.toTitleCase();
+
+	for (const key in knownColours) {
+		if (Object.hasOwnProperty.call(knownColours, key)) {
+			const color = knownColours[key];
+
+			let index = givenDesc.indexOf(color)
+			if (index >= 0) {
+				patternName = givenDesc.substring(0, index);
+				colourName = givenDesc.substring(index + 1);
+				break;
+			}
+		}
+	}
+
 	if (colourName && colourName.length > 0) {
 		colourName = fixColourName(colourName);
 		colourName = colourName.trim().toTitleCase();
@@ -117,9 +261,10 @@ function formatInformation(itemElement) {
 	let item = getItemObject(itemElement);
 	if (!item) return;
 
-	let itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + item.PatternCode + ' ' + item.ColourCode);
+	let tempItemCode = item.CollectionCode + ' ' + item.PatternCode + ' ' + item.ColourCode;
+	let itemCode = formatItemCode(item.Prefix, tempItemCode);
 
-	let barCode = formatBarCode(itemCode);
+	let barCode = formatBarCode(tempItemCode);
 
 	let company = getCompany();
 	let widthString = item.Width.Measurement + item.Width.Unit;
