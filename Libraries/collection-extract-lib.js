@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.16.5
+// @version      2022.09.16.6
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -861,7 +861,7 @@ function isSorted() {
 
 async function btnAction_sortCollectionDir(sortDirButton = undefined, direction = +1) {
 	let next = (SORT_DIR + direction);
-	SORT_DIR = next > 0 ? next % SORT_DIR_LOOKUP.length : SORT_DIR_LOOKUP.length-1;
+	SORT_DIR = next < 0 ? SORT_DIR_LOOKUP.length-1 : next % SORT_DIR_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortDirButton) {
 		sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
@@ -870,7 +870,7 @@ async function btnAction_sortCollectionDir(sortDirButton = undefined, direction 
 
 async function btnAction_sortCollectionBy(sortByButton = undefined, direction = +1) {
 	let next = (SORT_BY + direction);
-	SORT_BY = next > 0 ? next % SORT_BY_LOOKUP.length : SORT_BY_LOOKUP.length-1;
+	SORT_BY = next < 0 ? SORT_BY_LOOKUP.length-1 : next % SORT_BY_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortByButton) {
 		sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
