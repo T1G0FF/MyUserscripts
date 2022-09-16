@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.16.1
+// @version      2022.09.16.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -20,7 +20,7 @@ function createButtons(element = getTitleElement(), location = 'beforeEnd', fore
 	if (LIB_CONFIG.ADD_SAVEIMGS) createButton('Save Images', function () { resetWarnings(); saveImages(); }, element, location);
 }
 
-// Resets the Show Warning toggle so that they only show once per button click. 
+// Resets the Show Warning toggle so that they only show once per button click.
 function resetWarnings() {
 	WARN_INFO_ITEMOBJECT = true;
 	WARN_INFO_FORMATINFO = true;
@@ -610,22 +610,22 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 }
 
 function createButton(text, func, element, location = 'beforeEnd', showIf = true) {
-	let btnFunc = (event) => { func(); };
+	let btnFunc = (event) => { func(event); };
 	_createButton(text, btnFunc, element, location, showIf);
 }
 
 function createButtonWithAlts(text, func, modifierFuncs, element, location = 'beforeEnd', showIf = true) {
 	let btnFunc = (event) => {
-		for (const key of modifierFuncs) {
+		for (const key in modifierFuncs) {
 			if (_modifierTriggerSuccess(key, event)) {
-				modifierFuncs[key]();
+				modifierFuncs[key](event);
 				return;
 			}
 		}
-		
-		func();
+
+		func(event);
 	};
-	
+
 	_createButton(text, btnFunc, element, location, showIf);
 }
 
@@ -644,9 +644,9 @@ function _createButton(text, btnFunc, element, location = 'beforeEnd', showIf = 
 function _normaliseModifierKey(key) {
 	let upperKey = key.toUpperCase();
 	let result = "";
-	result += upperKey.contains("ALT") ? "ALT" : "";
-	result += upperKey.contains("CTRL") ? "CTRL" : "";
-	result += upperKey.contains("SHIFT") ? "SHIFT" : "";
+	result += upperKey.indexOf("ALT") >= 0 ? "ALT" : "";
+	result += upperKey.indexOf("CTRL") >= 0 ? "CTRL" : "";
+	result += upperKey.indexOf("SHIFT") >= 0 ? "SHIFT" : "";
 	return result;
 }
 
