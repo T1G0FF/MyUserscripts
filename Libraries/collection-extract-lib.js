@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.16.2
+// @version      2022.09.16.3
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -773,12 +773,12 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 	let sortDirButton = tableElement.querySelector("button#tg-sortdir-button");
 	sortDirButton.classList.add('tg-dropdown-option-half');
 	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
-	sortDirButton.onclick = function () { resetWarnings(); btnAction_sortCollectionDir(sortDirButton) };
+	sortDirButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionDir(sortDirButton, event.ctrlKey ? -1 : +1) };
 
 	let sortByButton = tableElement.querySelector("button#tg-sortby-button");
 	sortByButton.classList.add('tg-dropdown-option-half');
 	sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
-	sortByButton.onclick = function () { resetWarnings(); btnAction_sortCollectionBy(sortByButton) };
+	sortByButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionBy(sortByButton, event.ctrlKey ? -1 : +1) };
 
 	table = document.createElement('table');
 	table.id = 'filterOptions';
@@ -803,7 +803,7 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 	filterButton.classList.add('tg-dropdown-option-half');
 	filterButton.style.width = '50px';
 	filterButton.innerText = 'X';
-	filterButton.onclick = function () { resetWarnings(); btnAction_filterCollection(filterButton) };
+	filterButton.onclick = (event) => { resetWarnings(); btnAction_filterCollection(filterButton) };
 
 	let filterTextbox = tableElement.querySelector("input#tg-filter-input");
 	filterTextbox.classList.add('tg-input');
@@ -813,11 +813,11 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 	filterTextbox.typingTimer = {};
 	filterTextbox.doneTypingInterval = 750;
 
-	filterTextbox.addEventListener('keyup', function () {
+	filterTextbox.addEventListener('keyup', () => {
 		clearTimeout(filterTextbox.typingTimer);
-		filterTextbox.typingTimer = setTimeout(function () { typeAction_filterCollection(filterButton) }, filterTextbox.doneTypingInterval);
+		filterTextbox.typingTimer = setTimeout(() => { typeAction_filterCollection(filterButton) }, filterTextbox.doneTypingInterval);
 	});
-	filterTextbox.addEventListener('keydown', function () {
+	filterTextbox.addEventListener('keydown', () => {
 		clearTimeout(filterTextbox.typingTimer);
 	});
 
@@ -859,16 +859,18 @@ function isSorted() {
 	return !(SORT_DIR % SORT_DIR_LOOKUP.length === 0);
 }
 
-async function btnAction_sortCollectionDir(sortDirButton = undefined) {
-	SORT_DIR = (SORT_DIR + 1) % SORT_DIR_LOOKUP.length;
+async function btnAction_sortCollectionDir(sortDirButton = undefined, direction = +1) {
+	let next = (SORT_DIR + direction);
+	SORT_DIR = next > 0 ? next % SORT_DIR_LOOKUP.length : SORT_DIR_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortDirButton) {
 		sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
 	}
 }
 
-async function btnAction_sortCollectionBy(sortByButton = undefined) {
-	SORT_BY = (SORT_BY + 1) % SORT_BY_LOOKUP.length;
+async function btnAction_sortCollectionBy(sortByButton = undefined, direction = +1) {
+	let next = (SORT_BY + direction);
+	SORT_BY = next > 0 ? next % SORT_BY_LOOKUP.length : SORT_BY_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortByButton) {
 		sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
@@ -902,7 +904,7 @@ async function btnAction_filterCollection(filterButton = undefined) {
 async function typeAction_filterCollection(filterButton = undefined) {
 	let result = await filterCollection();
 	if (filterButton) {
-		filterButton.innerText = (!result.filtered ? '' : `(${result.found}/${result.total})`);
+		filterButton.innerText = (!result.filtered ? 'X' : `(${result.found}/${result.total})`);
 	}
 }
 
