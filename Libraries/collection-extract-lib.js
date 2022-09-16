@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.07.19.5
+// @version      2022.09.16.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -610,15 +610,72 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 }
 
 function createButton(text, func, element, location = 'beforeEnd', showIf = true) {
+	let btnFunc = (event) => { func(); };
+	_createButton(text, btnFunc, element, location, showIf);
+}
+
+function createButtonWithAlts(text, func, modifierFuncs, element, location = 'beforeEnd', showIf = true) {
+	let btnFunc = (event) => {
+		for (const key of modifierFuncs) {
+			if (_modifierTriggerSuccess(key, event)) {
+				modifierFuncs[key]();
+				return;
+			}
+		}
+		
+		func();
+	};
+	
+	_createButton(text, btnFunc, element, location, showIf);
+}
+
+function _createButton(text, btnFunc, element, location = 'beforeEnd', showIf = true) {
 	if (!element) return;
 	if (showIf) {
 		let newButton = document.createElement('button');
 		newButton.innerText = text;
 		newButton.classList.add('tg-dropdown-option');
-		newButton.onclick = function () { func(); };
+		newButton.onclick = btnFunc;
 
 		addElementToDropdownContainer(element, newButton, location, showIf);
 	}
+}
+
+function _normaliseModifierKey(key) {
+	let upperKey = key.toUpperCase();
+	let result = "";
+	result += upperKey.contains("ALT") ? "ALT" : "";
+	result += upperKey.contains("CTRL") ? "CTRL" : "";
+	result += upperKey.contains("SHIFT") ? "SHIFT" : "";
+	return result;
+}
+
+function _modifierTriggerSuccess(key, event) {
+	let result = false;
+	switch (_normaliseModifierKey(key)) {
+		case "ALTCTRLSHIFT":
+			result = event.altKey && event.ctrlKey && event.shiftKey;
+			break;
+		case "ALTCTRL":
+			result = event.altKey && event.ctrlKey;
+			break;
+		case "ALTSHIFT":
+			result = event.altKey && event.shiftKey;
+			break;
+		case "CTRLSHIFT":
+			result = event.ctrlKey && event.shiftKey;
+			break;
+		case "ALT":
+			result = event.altKey;
+			break;
+		case "CTRL":
+			result = event.ctrlKey;
+			break;
+		case "SHIFT":
+			result = event.shiftKey;
+			break;
+	}
+	return result;
 }
 
 function hideDropdownTableElements(tableElement) {
