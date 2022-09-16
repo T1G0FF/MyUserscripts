@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.16.2
+// @version      2022.09.16.3
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -59,7 +59,7 @@ var cachedChildlessCollection = undefined;
 		addScraperOptions();
 	}
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { "CTRL": (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'beforeEnd');
 })();
 
@@ -772,16 +772,16 @@ function addScraperOptions() {
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
 	addElementToDropdownContainer(titleElement, [table], 'beforeEnd');
 
-	let tableElement = document.querySelector("table#scraperOptions");
+	let tableElement = document.querySelector('table#scraperOptions');
 	hideDropdownTableElements(tableElement);
 
-	SCRAPER_START_OFFSET_FIELD = tableElement.querySelector("input#tg-offset-field");
+	SCRAPER_START_OFFSET_FIELD = tableElement.querySelector('input#tg-offset-field');
 	SCRAPER_START_OFFSET_FIELD.classList.add('tg-input');
 	SCRAPER_START_OFFSET_FIELD.type = 'number';
 	SCRAPER_START_OFFSET_FIELD.value = 0;
 	SCRAPER_START_OFFSET_FIELD.step = DEFAULT_SCRAPER_MAX_CALLS;
 
-	SCRAPER_MAX_CALLS_FIELD = tableElement.querySelector("input#tg-max-calls-field");
+	SCRAPER_MAX_CALLS_FIELD = tableElement.querySelector('input#tg-max-calls-field');
 	SCRAPER_MAX_CALLS_FIELD.classList.add('tg-input');
 	SCRAPER_MAX_CALLS_FIELD.type = 'number';
 	SCRAPER_MAX_CALLS_FIELD.value = DEFAULT_SCRAPER_MAX_CALLS;
@@ -793,7 +793,7 @@ async function scrapeItemWithIFrame(src, lastCall, onLoad, onReturn) {
 
 	let scrapedResult;
 	const scraperLoadedPromise = new Promise(resolve => {
-		iFrameScraper.addEventListener("load", async function () {
+		iFrameScraper.addEventListener('load', async function () {
 			if (iFrameScraper.src != 'about:blank') {
 				let localResult = await onLoad(iFrameScraper);
 				if (localResult) {
@@ -821,7 +821,7 @@ async function scrapeCollectionWithIFrame(collection, initResult, onFrameLoad, o
 	let result = await initResult();
 	for (const currentItem of collection) {
 		let productCode = getCodeFromItem(currentItem);
-		if (productCode === "Collection") {
+		if (productCode === 'Collection') {
 			count++;
 			if (count <= callOffset) continue;
 			if (count > lastCall) break;
@@ -1128,7 +1128,7 @@ function getCodeFromItem(currentItem) {
 		if (matches) {
 			productCode = matches[1];
 		} else {
-			productCode = "Collection";
+			productCode = 'Collection';
 		}
 	}
 	productCode = decodeURIComponent(productCode);

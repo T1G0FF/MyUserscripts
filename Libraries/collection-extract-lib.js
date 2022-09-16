@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.16.4
+// @version      2022.09.16.5
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
@@ -206,7 +206,7 @@ let specialCaseStrings = {
 // Combines as many of the following into the form used by SAP's ItemName
 var SapDescriptionOrder = ['Colour', 'Pattern', 'Collection', 'Special', 'Material', 'Width', 'Repeat'];
 function formatSapDescription(dictionary) {
-	let result = "";
+	let result = '';
 	SapDescriptionOrder.forEach(key => {
 		result += (dictionary.hasOwnProperty(key) && dictionary[key] && dictionary[key].length > 0 ? dictionary[key] + ' - ' : '');
 	});
@@ -216,7 +216,7 @@ function formatSapDescription(dictionary) {
 // Combines as many of the following into the form used by the website html description
 var WebDescriptionOrder = ['Collection', 'Bolts', 'Notes', 'Fibre', 'Width', 'Release', 'Delivery From'];
 function formatWebDescription(dictionary) {
-	let result = "";
+	let result = '';
 	WebDescriptionOrder.forEach(key => {
 		result += (dictionary.hasOwnProperty(key) && dictionary[key] && dictionary[key].length > 0 ? toWebDescriptionItem(key, dictionary[key]) : '');
 	});
@@ -643,35 +643,35 @@ function _createButton(text, btnFunc, element, location = 'beforeEnd', showIf = 
 
 function _normaliseModifierKey(key) {
 	let upperKey = key.toUpperCase();
-	let result = "";
-	result += upperKey.indexOf("ALT") >= 0 ? "ALT" : "";
-	result += upperKey.indexOf("CTRL") >= 0 ? "CTRL" : "";
-	result += upperKey.indexOf("SHIFT") >= 0 ? "SHIFT" : "";
+	let result = '';
+	result += upperKey.indexOf('ALT') >= 0 ? 'ALT' : '';
+	result += upperKey.indexOf('CTRL') >= 0 ? 'CTRL' : '';
+	result += upperKey.indexOf('SHIFT') >= 0 ? 'SHIFT' : '';
 	return result;
 }
 
 function _modifierTriggerSuccess(key, event) {
 	let result = false;
 	switch (_normaliseModifierKey(key)) {
-		case "ALTCTRLSHIFT":
+		case 'ALTCTRLSHIFT':
 			result = event.altKey && event.ctrlKey && event.shiftKey;
 			break;
-		case "ALTCTRL":
+		case 'ALTCTRL':
 			result = event.altKey && event.ctrlKey;
 			break;
-		case "ALTSHIFT":
+		case 'ALTSHIFT':
 			result = event.altKey && event.shiftKey;
 			break;
-		case "CTRLSHIFT":
+		case 'CTRLSHIFT':
 			result = event.ctrlKey && event.shiftKey;
 			break;
-		case "ALT":
+		case 'ALT':
 			result = event.altKey;
 			break;
-		case "CTRL":
+		case 'CTRL':
 			result = event.ctrlKey;
 			break;
-		case "SHIFT":
+		case 'SHIFT':
 			result = event.shiftKey;
 			break;
 	}
@@ -680,8 +680,8 @@ function _modifierTriggerSuccess(key, event) {
 
 function hideDropdownTableElements(tableElement) {
 	if (!tableElement) return;
-	let headerRow = tableElement.querySelector("tr.tg-table-header");
-	let otherRows = tableElement.querySelectorAll("tr:not(.tg-table-header)");
+	let headerRow = tableElement.querySelector('tr.tg-table-header');
+	let otherRows = tableElement.querySelectorAll('tr:not(.tg-table-header)');
 
 	headerRow.onclick = (event) => {
 		for (const row of otherRows) {
@@ -767,15 +767,15 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
 	addElementToDropdownContainer(locationElement, [table], 'beforeEnd');
 
-	let tableElement = document.querySelector("table#sortOptions");
+	let tableElement = document.querySelector('table#sortOptions');
 	hideDropdownTableElements(tableElement);
 
-	let sortDirButton = tableElement.querySelector("button#tg-sortdir-button");
+	let sortDirButton = tableElement.querySelector('button#tg-sortdir-button');
 	sortDirButton.classList.add('tg-dropdown-option-half');
 	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
 	sortDirButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionDir(sortDirButton, event.ctrlKey ? -1 : +1) };
 
-	let sortByButton = tableElement.querySelector("button#tg-sortby-button");
+	let sortByButton = tableElement.querySelector('button#tg-sortby-button');
 	sortByButton.classList.add('tg-dropdown-option-half');
 	sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
 	sortByButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionBy(sortByButton, event.ctrlKey ? -1 : +1) };
@@ -796,16 +796,16 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
 	addElementToDropdownContainer(locationElement, [table], 'beforeEnd');
 
-	tableElement = document.querySelector("table#filterOptions");
+	tableElement = document.querySelector('table#filterOptions');
 	hideDropdownTableElements(tableElement);
 
-	let filterButton = tableElement.querySelector("button#tg-filter-button");
+	let filterButton = tableElement.querySelector('button#tg-filter-button');
 	filterButton.classList.add('tg-dropdown-option-half');
 	filterButton.style.width = '50px';
 	filterButton.innerText = 'X';
 	filterButton.onclick = (event) => { resetWarnings(); btnAction_filterCollection(filterButton) };
 
-	let filterTextbox = tableElement.querySelector("input#tg-filter-input");
+	let filterTextbox = tableElement.querySelector('input#tg-filter-input');
 	filterTextbox.classList.add('tg-input');
 	filterTextbox.type = 'text';
 	filterTextbox.value = '';
@@ -977,7 +977,7 @@ function testFilter(filter, str) {
 	if (!str || !str.length > 0) return false;
 	if (!filter || !filter.length > 0) return false;
 	try {
-		let filterRegex = new RegExp(filter, "i");
+		let filterRegex = new RegExp(filter, 'i');
 		if (filterRegex) {
 			return filterRegex.test(str);
 		}
