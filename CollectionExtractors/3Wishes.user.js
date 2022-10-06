@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.13.4
+// @version      2022.10.06.1
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -44,6 +44,7 @@ let ColourLookup = {
 	'BLK': 'Black',
 	'BLU': 'Blue',
 	'BRN': 'Brown',
+	'BRK': 'Brick',
 	'CHC': 'Charcoal',
 	'CHR': 'Charcoal',
 	'COR': 'Coral',
