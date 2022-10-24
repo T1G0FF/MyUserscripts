@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.16.3
+// @version      2022.10.25.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -204,7 +204,7 @@ div#headerlogo-standard img,
 div#mobile-headerimage img {
 	width: 217px;
 }`;
-		MyStyles.addStyle('SVGLogo', cssText);
+		MyStyles._addStyle(cssText); // 'SVGLogo'
 
 		let logo = document.querySelector('div#headerlogo-standard img');
 		if (logo) {
