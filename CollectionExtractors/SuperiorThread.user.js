@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.1
+// @version      2021.03.09.2
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -61,14 +61,14 @@ let threadLookup = {
 		'fibre': 'Cotton',
 		'length': { 'Cone': '2286m (2500yd)', 'Spool': '550m (600yd)' }
 	},
-	// MP124-02-152
+	// MF124-02-2002
 	'Magnifico': {
 		'prefix': 'MF124-',
 		'weight': '40W/2Ply',
 		'fibre': 'Polyester',
 		'length': { 'Cone': '2745m (3000yd)', 'Spool': '458m (500yd)' }
 	},
-	// MP124-02-152
+	// F117-02-5004
 	'Fantastico': {
 		'prefix': 'F117-',
 		'weight': '40W/2Ply',
