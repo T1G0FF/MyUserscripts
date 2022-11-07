@@ -61,6 +61,20 @@ let threadLookup = {
 		'fibre': 'Cotton',
 		'length': { 'Cone': '2286m (2500yd)', 'Spool': '550m (600yd)' }
 	},
+	// MP124-02-152
+	'Magnifico': {
+		'prefix': 'MF124-',
+		'weight': '40W/2Ply',
+		'fibre': 'Polyester',
+		'length': { 'Cone': '2745m (3000yd)', 'Spool': '458m (500yd)' }
+	},
+	// MP124-02-152
+	'Fantastico': {
+		'prefix': 'F117-',
+		'weight': '40W/2Ply',
+		'fibre': 'Polyester',
+		'length': { 'Cone': '2745m (3000yd)', 'Spool': '458m (500yd)' }
+	},
 };
 
 (function () {
