@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2022.11.08.5
+// @version      2022.11.08.6
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -18,14 +18,6 @@ let RegexEnum = {
 	'ColourCode': 2,
 	'Description': 3,
 	'Type': 4,
-};
-
-let sizeLookup = {
-	'Null': '??',
-	'Spool': '01',
-	'Cone': '02',
-	'Mini Cone': '02',
-	'Jumbo Cone': '03',
 };
 
 let threadLookup = {
@@ -83,7 +75,7 @@ let threadLookup = {
 		'prefix': 'ME101-',
 		'weight': '40W',
 		'fibre': 'Metallic',
-		'length': { 'Cone': '3000m (3280yd)', 'Spool': '500m (550yd)' }
+		'length': { 'Cone': '3000m (3280yd)', 'Mini Cone': '1000m (1090yd)', 'Spool': '500m (550yd)' }
 	},
 	// MQ146-02-7001
 	'MicroQuilter': {
@@ -189,17 +181,18 @@ function formatInformation(item) {
 
 	let thisThread = threadLookup[matches[RegexEnum.Thread]];
 	let sizeType = (matches[RegexEnum.Type] ?? 'Null').toTitleCase();
-	if (thisThread && sizeLookup.hasOwnProperty(sizeType)) {
+	if (thisThread && thisThread.length.hasOwnProperty(sizeType)) {
 		let title = matches[RegexEnum.Thread].replace('The ', '').trim().toTitleCase(true);
 
+		let purchaseCode = link.substring(link.lastIndexOf('/') + 1);
+
 		let prefix = thisThread.prefix;
-		let sizeCode = sizeLookup[sizeType];
+		let sizeCode = purchaseCode.split('-')[1];;
 
 		let delim = prefix.endsWith('-') ? '-' : ' ';
 		let itemCode = prefix + sizeCode + delim + matches[RegexEnum.ColourCode];
 		let barCode = formatBarCode(itemCode);
 		let link = descElement.querySelector('a').getAttribute('href');
-		let purchaseCode = link.substring(link.lastIndexOf('/') + 1);
 
 		let length = (sizeType ? thisThread.length[sizeType] : '');
 		let weight = thisThread.weight;
