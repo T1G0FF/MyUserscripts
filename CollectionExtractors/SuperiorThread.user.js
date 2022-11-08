@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2022.11.08.4
+// @version      2022.11.08.5
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -12,7 +12,7 @@
 // @runat        document-idle
 // ==/UserScript==
 
-let ThreadRegex = /(.+?)(?: | - )?#([0-9]+) (.*(?: ((?<!Jumbo )(?:3,000 yd\. )?Cone|(?:500 yd )?Spool|Jumbo Cone(?:-8,500 yd)?|\(Size #[0-9]+\)|\(M-style, Dozen\)))|.*)/i;
+let ThreadRegex = /(.+?)(?: | - )?#([0-9]+) (.*(?: ((?<!Jumbo |Mini )(?:3,000 yd\. |1650 yd )?Cone|(?:500 yd )?Spool|Mini Cone|Jumbo Cone(?:-8,500 yd)?|\(Size #[0-9]+\)|\(M-style, Dozen\)))|.*)/i;
 let RegexEnum = {
 	'Thread': 1,
 	'ColourCode': 2,
@@ -21,8 +21,11 @@ let RegexEnum = {
 };
 
 let sizeLookup = {
+	'Null': '??',
 	'Spool': '01',
 	'Cone': '02',
+	'Mini Cone': '02',
+	'Jumbo Cone': '03',
 };
 
 let threadLookup = {
@@ -33,6 +36,27 @@ let threadLookup = {
 		'fibre': 'Polyester',
 		'length': { 'Cone': '2745m (3000yd)', 'Spool': '1300m (1420yd)' }
 	},
+	// F117 02 5004
+	'Fantastico': {
+		'prefix': 'F117 ',
+		'weight': '40W/2Ply',
+		'fibre': 'Polyester',
+		'length': { 'Cone': '2745m (3000yd)', 'Spool': '458m (500yd)' }
+	},
+	// GL102-01-101
+	'Glitter': {
+		'prefix': 'GL102-',
+		'weight': '40W',
+		'fibre': 'Metallic',
+		'length': { 'Null': '366m (400yd)' }
+	},
+	// KS133-02-301
+	'Kimono Silk': {
+		'prefix': 'KS133-',
+		'weight': '100W/2Ply',
+		'fibre': 'Silk',
+		'length': { 'Cone': '1000m (1090yd)', 'Spool': '200m (220yd)' }
+	},
 	// KTT01-1002
 	'King Tut': {
 		'prefix': 'KTT',
@@ -40,11 +64,25 @@ let threadLookup = {
 		'fibre': 'Cotton',
 		'length': { 'Cone': '1830m (2000yd)', 'Spool': '458m (500yd)' }
 	},
-	// SF116-01-503
-	'So Fine!': {
-		'prefix': 'SF116-',
-		'weight': '50W/3Ply',
+	// MF124 02 2002
+	'Magnifico': {
+		'prefix': 'MF124 ',
+		'weight': '40W/2Ply',
 		'fibre': 'Polyester',
+		'length': { 'Cone': '2745m (3000yd)', 'Spool': '458m (500yd)' }
+	},
+	// MP124-02-152
+	'MasterPiece': {
+		'prefix': 'MP124-',
+		'weight': '50W/3Ply',
+		'fibre': 'Cotton',
+		'length': { 'Cone': '2286m (2500yd)', 'Spool': '550m (600yd)' }
+	},
+	// ME101-03-000
+	'Metallics': {
+		'prefix': 'ME101-',
+		'weight': '40W',
+		'fibre': 'Metallic',
 		'length': { 'Cone': '3000m (3280yd)', 'Spool': '500m (550yd)' }
 	},
 	// MQ146-02-7001
@@ -54,26 +92,61 @@ let threadLookup = {
 		'fibre': 'Polyester',
 		'length': { 'Cone': '2745m (3000yd)', 'Spool': '732m (800yd)' }
 	},
-	// MP124-02-152
-	'MasterPiece': {
-		'prefix': 'MP124-',
+	// OMNI02-3022
+	'OMNI': {
+		'prefix': 'OMNI', //OM134-
+		'weight': '40W',
+		'fibre': 'Polyester, Corespun',
+		'length': { 'Null': '5490m (6000yd)' }
+	},
+	// OV145-02-9002
+	'OMNI-V': {
+		'prefix': 'OV145-',
+		'weight': '40W/2Ply',
+		'fibre': 'Polyester, Corespun',
+		'length': { 'Null': '1830m (2000yd)' }
+	},
+	// QS141-01-004
+	'Quilter\'s Silk': {
+		'prefix': 'QS141-',
+		'weight': '16W/3Ply',
+		'fibre': 'Silk',
+		'length': { 'Null': '20m (22yd)' }
+	},
+	// SS107-01-3301
+	'Sew Sassy': {
+		'prefix': 'SS107-',
+		'weight': '12W/3Ply',
+		'fibre': 'Polyester',
+		'length': { 'Null': '92m (100yd)' }
+	},
+	// SF116-01-503
+	'So Fine!': {
+		'prefix': 'SF116-',
 		'weight': '50W/3Ply',
+		'fibre': 'Polyester',
+		'length': { 'Cone': '3000m (3280yd)', 'Spool': '500m (550yd)' }
+	},
+	// SP242-02-801
+	'Superior Spirit': {
+		'prefix': 'SP242-',
+		'weight': '40W/3Ply',
+		'fibre': 'Polyester',
+		'length': { 'Cone': '1500m (1650yd)' }
+	},
+	// TS137-01-501
+	'Tiara Silk': {
+		'prefix': 'TS137-',
+		'weight': '50W/2Ply',
+		'fibre': 'Silk',
+		'length': { 'Null': '250m (273yd)' }
+	},
+	// TR131-01-551
+	'Treasure': {
+		'prefix': 'TR131-',
+		'weight': '30W/3Ply',
 		'fibre': 'Cotton',
-		'length': { 'Cone': '2286m (2500yd)', 'Spool': '550m (600yd)' }
-	},
-	// MF124-02-2002
-	'Magnifico': {
-		'prefix': 'MF124-',
-		'weight': '40W/2Ply',
-		'fibre': 'Polyester',
-		'length': { 'Cone': '2745m (3000yd)', 'Spool': '458m (500yd)' }
-	},
-	// F117-02-5004
-	'Fantastico': {
-		'prefix': 'F117-',
-		'weight': '40W/2Ply',
-		'fibre': 'Polyester',
-		'length': { 'Cone': '2745m (3000yd)', 'Spool': '458m (500yd)' }
+		'length': { 'Null': '275m (300yd)' }
 	},
 };
 
@@ -115,14 +188,15 @@ function formatInformation(item) {
 	}
 
 	let thisThread = threadLookup[matches[RegexEnum.Thread]];
-	let sizeType = matches[RegexEnum.Type]?.toTitleCase();
+	let sizeType = (matches[RegexEnum.Type] ?? 'Null').toTitleCase();
 	if (thisThread && sizeLookup.hasOwnProperty(sizeType)) {
 		let title = matches[RegexEnum.Thread].replace('The ', '').trim().toTitleCase(true);
 
 		let prefix = thisThread.prefix;
-		let sizeCode = sizeType ? sizeLookup[sizeType] : '';
+		let sizeCode = sizeLookup[sizeType];
 
-		let itemCode = prefix + sizeCode + '-' + matches[RegexEnum.ColourCode];
+		let delim = prefix.endsWith('-') ? '-' : ' ';
+		let itemCode = prefix + sizeCode + delim + matches[RegexEnum.ColourCode];
 		let barCode = formatBarCode(itemCode);
 		let link = descElement.querySelector('a').getAttribute('href');
 		let purchaseCode = link.substring(link.lastIndexOf('/') + 1);
