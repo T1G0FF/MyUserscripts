@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2022.11.08.6
+// @version      2022.11.08.7
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -184,6 +184,7 @@ function formatInformation(item) {
 	if (thisThread && thisThread.length.hasOwnProperty(sizeType)) {
 		let title = matches[RegexEnum.Thread].replace('The ', '').trim().toTitleCase(true);
 
+		let link = descElement.querySelector('a').getAttribute('href');
 		let purchaseCode = link.substring(link.lastIndexOf('/') + 1);
 
 		let prefix = thisThread.prefix;
@@ -192,7 +193,6 @@ function formatInformation(item) {
 		let delim = prefix.endsWith('-') ? '-' : ' ';
 		let itemCode = prefix + sizeCode + delim + matches[RegexEnum.ColourCode];
 		let barCode = formatBarCode(itemCode);
-		let link = descElement.querySelector('a').getAttribute('href');
 
 		let length = (sizeType ? thisThread.length[sizeType] : '');
 		let weight = thisThread.weight;
