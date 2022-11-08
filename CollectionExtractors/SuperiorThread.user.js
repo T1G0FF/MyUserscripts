@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2022.11.08.3
+// @version      2022.11.08.4
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -115,7 +115,7 @@ function formatInformation(item) {
 	}
 
 	let thisThread = threadLookup[matches[RegexEnum.Thread]];
-	let sizeType = matches[RegexEnum.Type].toTitleCase();
+	let sizeType = matches[RegexEnum.Type]?.toTitleCase();
 	if (thisThread && sizeLookup.hasOwnProperty(sizeType)) {
 		let title = matches[RegexEnum.Thread].replace('The ', '').trim().toTitleCase(true);
 
