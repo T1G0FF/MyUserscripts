@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2022.11.08.7
+// @version      2022.11.08.8
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -188,7 +188,7 @@ function formatInformation(item) {
 		let purchaseCode = link.substring(link.lastIndexOf('/') + 1);
 
 		let prefix = thisThread.prefix;
-		let sizeCode = purchaseCode.split('-')[1];;
+		let sizeCode = purchaseCode.split('-')[1];
 
 		let delim = prefix.endsWith('-') ? '-' : ' ';
 		let itemCode = prefix + sizeCode + delim + matches[RegexEnum.ColourCode];
@@ -198,11 +198,13 @@ function formatInformation(item) {
 		let weight = thisThread.weight;
 		let fibre = thisThread.fibre;
 
-		// Yellow - Bottom Line 1300m (1420yd) 60W Polyester | Minimum 5 Spools
 		let colourName = matches[RegexEnum.Type] ? matches[RegexEnum.Description].replace(matches[RegexEnum.Type], '').trim() : matches[RegexEnum.Description];
-		let webName = colourName.trim().toTitleCase(true) + ' - ' + title + ' ' + length;
-		let webDesc = weight + ' ' + fibre;
-		let description = webName + ' - ' + webDesc;
+		colourName = colourName.trim().toTitleCase(true);
+		// MicroQuilter 2745m - 7011 Baby Yellow
+		let webName = title + ' ' + length.split(' ')[0] + ' - ' + matches[RegexEnum.ColourCode] + ' ' + colourName;
+		let webDesc = '\\';
+		// Baby Yellow - MicroQuilter - 2745m (3000yd) - P100% - 100W/2P
+		let description = colourName + ' - ' + title + ' - ' + length + ' - ' + fibre + ' - ' + weight;
 
 		let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'purchaseCode': purchaseCode };
 		return result;
