@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.09.2
+// @version      2022.11.08.2
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -12,7 +12,7 @@
 // @runat        document-idle
 // ==/UserScript==
 
-let ThreadRegex = /(.+?) ?#([0-9]+) (.*(?: ((?<!Jumbo )Cone|Spool|Jumbo Cone(?:-8,500 yd)?|\(Size #[0-9]+\)|\(M-style, Dozen\)))|.*)/;
+let ThreadRegex = /(.+?)(?: | - )?#([0-9]+) (.*(?: ((?<!Jumbo )Cone|Spool|Jumbo Cone(?:-8,500 yd)?|\(Size #[0-9]+\)|\(M-style, Dozen\)))|.*)/;
 let RegexEnum = {
 	'Thread': 1,
 	'ColourCode': 2,
