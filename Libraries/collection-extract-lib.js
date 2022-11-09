@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.16.6
+// @version      2022.11.10.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
-// @require      http://tgoff.me/tamper-monkey/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // ==/UserScript==
 
 const LIB_CONFIG = {
