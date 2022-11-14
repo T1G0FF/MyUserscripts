@@ -2,11 +2,11 @@
 // @name         VicText Collection Extractor - Famore
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=famorecutlery.com
 // @namespace    http://tgoff.me/
-// @version      2022.11.14.1
+// @version      2022.11.14.2
 // @description  Gets the names and codes from a Famore Collection
 // @author       www.tgoff.me
-// @match        *://famorecutlery.com/famore/*
-// @match        *://*.famorecutlery.com/famore/*
+// @match        *://famorecutlery.com/*
+// @match        *://*.famorecutlery.com/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
