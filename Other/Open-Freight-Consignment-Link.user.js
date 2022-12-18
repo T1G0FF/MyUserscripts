@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenFreight - Consignment Link
 // @namespace    http://www.tgoff.me/
-// @version      2022.04.28.1
+// @version      2022.12.19.1
 // @description  Adds a links to the Consignment page from the tracking window and visa versa
 // @author       www.tgoff.me
 // @match        *://app.openfreight.com.au/track
@@ -19,50 +19,57 @@
 		// 'observer' is the MutationObserver instance
 		mutations.forEach((record) => {
 			record.addedNodes.forEach((element) => {
-				if (!(element instanceof Element)) {
-					return;
-				} else {
-					// Tracking modal
+				if (!(element instanceof Element)) return;
+				
+				// Tracking modal
+				let modalParent = element.closest('div#trackTraceMainResultsModal');
+				tryAddFunctionLinkToModalHeader(
+					modalParent, 'connLink', 'Find Consignment',
+					function () {
+						let localHeader = document.querySelector('div#trackTraceMainResultsModal h3.panel-title');
+						let connNumber = localHeader?.innerText.replace(localHeader.querySelector('span')?.innerText, '');
+						$(".modal").modal("hide");
+						searchConsignments(false, connNumber);
+						return false;
+					});
+
+
+				// Enquiry modal
+				modalParent = element.closest('div#trackTraceEnquiryModal');
+				let connNumElem = document.querySelector('div#trackTraceEnquiryModal span.trackTraceEnquiryModalEnquiryDetailsConsignment');
+				let postCodeElem = document.querySelector('div#trackTraceEnquiryModal span.trackTraceEnquiryModalReceiverDetailsPostcode');
+				tryAddFunctionLinkToModalHeader(
+					modalParent, 'enquiryTrackLink', 'Tracking',
+					function () {
+						let connNumber = connNumElem?.innerText;
+						$(".modal").modal("hide");
+						trackTraceBuildTrackingResultsModal([connNumber], undefined, undefined, false);
+						return false;
+					});
+				tryAddFunctionLinkToModalHeader(
+					modalParent, 'enquiryConnLink', 'Find Consignment',
+					function () {
+						let connNumber = connNumElem?.innerText;
+						$(".modal").modal("hide");
+						searchConsignments(false, connNumber);
+						return false;
+					});
+				if (connNumElem.innerText.startsWith('VICNAT')) {
 					tryAddLinkToModalHeader(
-						element.closest('div#trackTraceMainResultsModal'), 'connLink', 'Find Consignment',
-						function () {
-							let localHeader = document.querySelector('div#trackTraceMainResultsModal h3.panel-title');
-							let connNumber = localHeader?.innerText.replace(localHeader.querySelector('span')?.innerText, '');
-							$(".modal").modal("hide");
-							searchConsignments(false, connNumber);
-							return false;
-						});
+						modalParent, 'enquiryTFMTrackLink', 'TFM Tracking',
+						'https://www.ezyfms.com/tfm/Tracker.asp?CN=' + connNumElem.innerText + '&PC=' + postCodeElem.innerText);
+				}
 
 
-					// Enquiry modal
-					tryAddLinkToModalHeader(
-						element.closest('div#trackTraceEnquiryModal'), 'enquiryTrackLink', 'Tracking',
-						function () {
-							let connNumber = document.querySelector('div#trackTraceEnquiryModal span.trackTraceEnquiryModalEnquiryDetailsConsignment')?.innerText;
-							$(".modal").modal("hide");
-							trackTraceBuildTrackingResultsModal([connNumber], undefined, undefined, false);
-							return false;
-						});
-					tryAddLinkToModalHeader(
-						element.closest('div#trackTraceEnquiryModal'), 'enquiryConnLink', 'Find Consignment',
-						function () {
-							let connNumber = document.querySelector('div#trackTraceEnquiryModal span.trackTraceEnquiryModalEnquiryDetailsConsignment')?.innerText;
-							$(".modal").modal("hide");
-							searchConsignments(false, connNumber);
-							return false;
-						});
+				// Consignment modal
+				let selector = 'span#existingConsignmentNotificationConsignmentNumber';
+				let alertParent = (element.matches(selector) ? element : null)?.closest('.alert');
+				if (alertParent) {
+					if (document.querySelector('ul.nav.navbar-nav #trackLink')) return;
 
-
-					// Consignment modal
-					let selector = 'span#existingConsignmentNotificationConsignmentNumber';
-					let alertParent = (element.matches(selector) ? element : null)?.closest('.alert');
-					if (alertParent) {
-						if (document.querySelector('ul.nav.navbar-nav #trackLink')) return;
-
-						let href = window.location.href;
-						href = href.replace('/consign/', '/track/');
-						createNewNavBarItem('trackLink', 'Go to Tracking', href, 'Open Tracking for current Consignment');
-					}
+					let href = window.location.href;
+					href = href.replace('/consign/', '/track/');
+					createNewNavBarItem('trackLink', 'Go to Tracking', href, 'Open Tracking for current Consignment');
 				}
 			});
 		});
@@ -95,7 +102,7 @@ function createNewNavBarItem(id, text, href, description) {
 	}
 }
 
-function tryAddLinkToModalHeader(modalParent, linkId, linkText = 'Search', onClick) {
+function tryAddFunctionLinkToModalHeader(modalParent, linkId, linkText = 'Search', onClick) {
 	if (!modalParent) return;
 	let header = modalParent.querySelector('h3.panel-title');
 	if (!header || header?.querySelector('#' + linkId)) return;
@@ -107,6 +114,24 @@ function tryAddLinkToModalHeader(modalParent, linkId, linkText = 'Search', onCli
 	link.innerText = linkText;
 	link.href = '#';
 	link.onclick = onClick;
+	span.appendChild(link);
+
+	header.insertAdjacentElement('beforeEnd', span);
+}
+
+function tryAddLinkToModalHeader(modalParent, linkId, linkText = 'Search', href) {
+	if (!modalParent) return;
+	let header = modalParent.querySelector('h3.panel-title');
+	if (!header || header?.querySelector('#' + linkId)) return;
+
+	let span = document.createElement('span');
+	span.innerText = ' | ';
+	let link = document.createElement('a');
+	link.id = linkId;
+	link.innerText = linkText;
+	link.href = href;
+	link.target = '_blank';
+	link.rel = 'noopener noreferrer';
 	span.appendChild(link);
 
 	header.insertAdjacentElement('beforeEnd', span);
