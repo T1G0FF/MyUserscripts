@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Save Superior Threads Zoom Images
 // @namespace    http://www.tgoff.me/
-// @version      2022.11.10.1
+// @version      2023.01.27.1
 // @description  Adds buttons to Superior Threads product pages allowing for copying/opening of the high res zoom image.
 // @author       www.tgoff.me
 // @include      *://*.superiorthreads.*
@@ -29,14 +29,12 @@ function addButtons() {
 		let givenURL = imgElement.getAttribute('src');
 		window.open(givenURL, '_blank');
 	};
-	document.querySelector('div.productImageGallerySelectedImage').insertAdjacentElement('beforeBegin', newButton);
+	document.querySelector('div.productImageGallerySelectedImage')?.insertAdjacentElement('beforeBegin', newButton);
 
 	newButton = document.createElement('button');
 	newButton.innerText = 'Copy All';
 	newButton.classList.add('tgButton');
 	newButton.onclick = function () {
-
-
 		let imgElements = document.querySelectorAll('div.swiper-wrapper div.swiper-slide img');
 		let skuElement = document.querySelector('div.product-sku');
 		let sku = skuElement.innerText.split('SKU:')[1].trim();
@@ -57,5 +55,5 @@ function addButtons() {
 		}
 		Notify.log(msg);
 	};
-	document.querySelector('div.productImageGallerySelectedImage').insertAdjacentElement('beforeBegin', newButton);
+	document.querySelector('div.productImageGallerySelectedImage')?.insertAdjacentElement('beforeBegin', newButton);
 }
