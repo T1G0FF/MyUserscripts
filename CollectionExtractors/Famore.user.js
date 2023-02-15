@@ -2,7 +2,7 @@
 // @name         VicText Collection Extractor - Famore
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=famorecutlery.com
 // @namespace    http://tgoff.me/
-// @version      2022.11.14.2
+// @version      2023.02.16.1
 // @description  Gets the names and codes from a Famore Collection
 // @author       www.tgoff.me
 // @match        *://famorecutlery.com/*
@@ -34,6 +34,8 @@ function getCollection() {
 }
 
 function formatInformation(itemElement) {
+	let prefix = 'MN-FM';
+
 	let nameElement = itemElement.querySelector('h4.card-title');
 	if (!nameElement) {
 		Notify.log('Name element not found!', itemElement);
@@ -60,7 +62,7 @@ function formatInformation(itemElement) {
 	if (givenDesc.indexOf(' - ') === 0) givenDesc = givenDesc.substring(3);
 	givenDesc = givenDesc.replace(' - PREORDER', '').trim();
 
-	let itemCode = formatItemCode('FC', givenCode.replace('-', ' '));
+	let itemCode = formatItemCode(prefix, givenCode.replace('-', ' '));
 	let barCode = formatBarCode(itemCode);
 
 	let description = givenDesc.trim();
