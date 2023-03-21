@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.2
+// @version      2023.03.21.3
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -131,7 +131,7 @@ function getItemObject(itemElement) {
 				if (countingElements.hasOwnProperty(countingElement)) {
 					const element = countingElements[countingElement];
 					let testCode = getCodeFromItemHtml(element.innerHTML);
-					
+
 					let ignore = false;
 					for (const ignoreType of ignoreTypes) {
 						ignore = ignore || testCode.indexOf(ignoreType) >= 0;
@@ -191,6 +191,21 @@ function getItemObject(itemElement) {
 		if (innerText.toUpperCase().indexOf('GLITTER') >= 0) {
 			special = 'Glitter';
 			continue;
+		}
+	}
+
+	if (!designer) {
+		infoElements = parent.querySelectorAll('table[style*="margin-left: auto; margin-right: auto;"] tr')
+
+		for (const infoElem of infoElements) {
+			let innerText = infoElem.innerText;
+			if (innerText.toUpperCase().indexOf('LICENSED BY') >= 0) {
+				designer = innerText.substring('LICENSED BY'.length).trim();
+				if (!designer) {
+					designer = infoElem.querySelector('img')?.getAttribute('alt') ?? '';
+				}
+				continue;
+			}
 		}
 	}
 
