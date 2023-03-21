@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.7
+// @version      2023.03.21.8
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -163,6 +163,7 @@ function getItemObject(itemElement) {
 		colourName = ColourLookup[colourCode];
 	} else {
 		console.log('Unlisted Colour: ' + givenCode + " | " + colourCode);
+		colourCode = colourCode.replace(' ', '');
 		if (colourCode.startsWith('LT')) {
 			colourName = colourCode.replace('LT', 'Light ').toLowerCase().toTitleCase();
 		}
