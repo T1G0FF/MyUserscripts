@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.03.21.2
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -130,7 +130,7 @@ function getItemObject(itemElement) {
 			for (const countingElement in countingElements) {
 				if (countingElements.hasOwnProperty(countingElement)) {
 					const element = countingElements[countingElement];
-					let testCode = element.innerHTML.indexOf('<br>') >= 0 ? element.innerHTML.split('<br>')[1] : element.innerHTML.substring(element.innerHTML.lastIndexOf(' '));
+					let testCode = getCodeFromItemHtml(element.innerHTML);
 					
 					let ignore = false;
 					for (const ignoreType of ignoreTypes) {
@@ -272,7 +272,11 @@ function getItemContainer() {
 
 function getCodeFromItem(item) {
 	let innerHTML = item.querySelector('p.cItemTitle').innerHTML;
-	return innerHTML.indexOf('<br>') >= 0 ? innerHTML.split('<br>')[1] : innerHTML.substring(innerHTML.lastIndexOf(' '));
+	return getCodeFromItemHtml(innerHTML);
+}
+
+function getCodeFromItemHtml(innerHTML) {
+	return innerHTML.indexOf('<br>') >= 0 ? innerHTML.split('<br>')[1] : innerHTML.substring(innerHTML.lastIndexOf(' ')+1);
 }
 
 function compareCodes(aCode, bCode) {
