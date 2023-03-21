@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Superior Threads
 // @namespace    http://www.tgoff.me/
-// @version      2022.11.08.8
+// @version      2023.03.21.1
 // @description  Gets the names and codes from a Superior Threads Collection
 // @author       www.tgoff.me
 // @match        *://*.superiorthreads.com/thread/*
@@ -9,7 +9,7 @@
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @runat        document-idle
+// @run-at        document-idle
 // ==/UserScript==
 
 let ThreadRegex = /(.+?)(?: | - )?#([0-9]+) (.*(?: ((?<!Jumbo |Mini )(?:3,000 yd\. |1650 yd )?Cone|(?:500 yd )?Spool|Mini Cone|Jumbo Cone(?:-8,500 yd)?|\(Size #[0-9]+\)|\(M-style, Dozen\)))|.*)/i;

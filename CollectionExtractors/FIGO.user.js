@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - FIGO
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.16.2
+// @version      2023.03.21.1
 // @description  Gets the names and codes from a FIGO Collection
 // @author       www.tgoff.me
 // @match        *://figofabrics.com/product-detail.aspx?*
@@ -10,7 +10,7 @@
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @runat        document-idle
+// @run-at        document-idle
 // ==/UserScript==
 
 (function () {

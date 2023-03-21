@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Save Amazon Zoom Image
 // @namespace    http://www.tgoff.me/
-// @version      2020.10.20.1
+// @version      2023.03.21.1
 // @description  Adds buttons to Amazon product pages allowing for copying/opening of the high res zoom image.
 // @author       www.tgoff.me
 // @include      *://*.amazon.*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
 // @grant        GM_setClipboard
-// @runat        document-idle
+// @run-at        document-idle
 // ==/UserScript==
 
 (function () {

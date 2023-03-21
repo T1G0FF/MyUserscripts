@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Mettler
 // @namespace    http://www.tgoff.me/
-// @version      2021.10.25.2
+// @version      2023.03.21.1
 // @description  Gets the names and codes from a Mettler Range
 // @author       www.tgoff.me
 // @match        *://www.amann-mettler.com/en/products/detail/*
@@ -10,7 +10,7 @@
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @runat        document-idle
+// @run-at        document-idle
 // ==/UserScript==
 
 (function () {

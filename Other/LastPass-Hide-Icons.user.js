@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LastPass Hide Icons
 // @namespace    http://www.tgoff.me/
-// @version      2019.04.02.1
+// @version      2023.03.21.1
 // @description  Hides LastPass icons in fields.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -9,7 +9,7 @@
 // @match        *://openfreight.com.au/*
 // @match        *://cp.straightsell.com.au/*
 // @grant        none
-// @runat        document-idle
+// @run-at        document-idle
 // ==/UserScript==
 
 var LPBG;

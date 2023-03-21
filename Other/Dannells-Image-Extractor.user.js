@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Image Extractor - Dannells
 // @namespace    http://www.tgoff.me/
-// @version      2021.08.24.1
+// @version      2023.03.21.1
 // @description  Gets the images from a Dannells Item
 // @author       www.tgoff.me
 // @match        *://*.dannells.com/*
@@ -9,7 +9,7 @@
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @runat        document-idle
+// @run-at        document-idle
 // ==/UserScript==
 
 (async function () {

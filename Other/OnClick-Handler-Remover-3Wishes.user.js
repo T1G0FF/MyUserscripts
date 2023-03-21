@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         OnClick Handler Remover - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.03.21.2
 // @description  Replaces the onclick handler with a regular link on 3 Wishes Collections
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=fabriceditions.com
-// @runat        document-idle
+// @run-at        document-idle
 // ==/UserScript==
 
 /*
