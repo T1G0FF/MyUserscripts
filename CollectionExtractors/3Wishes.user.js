@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.4
+// @version      2023.03.21.5
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -242,6 +242,10 @@ function formatInformation(itemElement) {
 
 	let relDateString = toReleaseString(item.ReleaseDates);
 	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
+
+	if (item.Designer && item.Designer.length > 0) {
+		item.CollectionName = item.CollectionName.replace('By ' + item.Designer, '');
+	}
 
 	if (item.isFullCollection) {
 		itemCode = formatItemCode(item.Prefix, item.CollectionCode);
