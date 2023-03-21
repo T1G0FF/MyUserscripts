@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2022.10.06.1
+// @version      2023.03.21.1
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -30,7 +30,7 @@ function getCollection() {
 	return document.querySelectorAll('div.cItemDivContainer');
 }
 
-let ThreeWishesRegEx = /([0-9]{5}|[\w]+)(?:-([\w]+))?-([\w]+)-([\w]+)/;
+let ThreeWishesRegEx = /^([0-9]{5}|[\w]+)(?:-([\w]+))?(?:-([\w]+)-([\w]+))?$/;
 let RegexEnum = {
 	'Purchase': 0,
 	'Code': 1,
@@ -95,7 +95,7 @@ function getItemObject(itemElement) {
 
 	ThreeWishesRegEx.lastIndex = 0;
 	let matches = ThreeWishesRegEx.exec(givenCode);
-	if (!matches || matches.length <= 1) {
+	if (!matches || (matches.filter(i => i !== undefined).length - 1) <= 1) {
 		//Notify.log('No matches found for Item!', item);
 		return;
 	}
@@ -107,7 +107,7 @@ function getItemObject(itemElement) {
 	let dates = getReleaseDates();
 	let special = '';
 
-	let givenType = matches[RegexEnum.Type].toUpperCase();
+	let givenType = matches[RegexEnum.Type]?.toUpperCase() ?? '';
 	let typeName = TypeLookup.hasOwnProperty(givenType) ? TypeLookup[givenType] : '';
 	switch (givenType) {
 		default:
@@ -116,6 +116,9 @@ function getItemObject(itemElement) {
 		case 'FLN':
 			special = special.length > 0 ? special + ', ' + typeName : typeName;
 			break;
+		case 'FQBX':
+			// Fat Quarter Box
+			return;
 		case 'AST':
 			// Full Collection Item
 			prefix = '3W';
@@ -123,11 +126,19 @@ function getItemObject(itemElement) {
 
 			let countingElements = document.querySelectorAll('div.cItemDivContainer div.cItemTitleDiv p.cItemTitle');
 			let collectionCount = 0
+			let ignoreTypes = [ 'AST', 'FQBX' ]
 			for (const countingElement in countingElements) {
 				if (countingElements.hasOwnProperty(countingElement)) {
 					const element = countingElements[countingElement];
+					let testCode = element.innerHTML.indexOf('<br>') >= 0 ? element.innerHTML.split('<br>')[1] : element.innerHTML.substring(element.innerHTML.lastIndexOf(' '));
+					
+					let ignore = false;
+					for (const ignoreType of ignoreTypes) {
+						ignore = ignore || testCode.indexOf(ignoreType) >= 0;
+					}
+
 					ThreeWishesRegEx.lastIndex = 0;
-					if (ThreeWishesRegEx.test(element.innerText)) {
+					if (!ignore && ThreeWishesRegEx.test(testCode)) {
 						collectionCount++;
 					}
 				}
