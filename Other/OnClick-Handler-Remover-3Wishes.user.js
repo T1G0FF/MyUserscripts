@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OnClick Handler Remover - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2021.04.22.1
+// @version      2023.03.21.1
 // @description  Replaces the onclick handler with a regular link on 3 Wishes Collections
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/*
@@ -18,7 +18,7 @@ Which means you can't open them in a new tab or window with middle click or ctrl
 I encase the item in a link element using the url specified in said handler, then remove the handler.
 */
 
-let linkRegex = /(?:handleCItemClick\()(.*)(?:\);)/g;
+let linkRegex = /(?:handleCItemClick\()['"]?(.*)['"]?(?:\);)/g;
 (function() {
     'use strict';
 	setTimeout(function() {
