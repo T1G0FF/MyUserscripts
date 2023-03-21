@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.6
+// @version      2023.03.21.7
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -30,7 +30,7 @@ function getCollection() {
 	return document.querySelectorAll('div.cItemDivContainer');
 }
 
-let ThreeWishesRegEx = /^([0-9]{5}|[\w]+)(?:-([\w]+))?(?:-([\w]+)-([\w]+))?$/;
+let ThreeWishesRegEx = /^([0-9]{5}|[\w]+)(?:-([\w ]+))?(?:-([\w]+)-([\w]+))?$/;
 let RegexEnum = {
 	'Purchase': 0,
 	'Code': 1,
@@ -165,6 +165,9 @@ function getItemObject(itemElement) {
 		console.log('Unlisted Colour: ' + givenCode + " | " + colourCode);
 		if (colourCode.startsWith('LT')) {
 			colourName = colourCode.replace('LT', 'Light ').toLowerCase().toTitleCase();
+		}
+		else if (colourCode.startsWith('DK')) {
+			colourName = colourCode.replace('DK', 'Dark ').toLowerCase().toTitleCase();
 		} else {
 			colourName = colourCode.toLowerCase().toTitleCase();
 		}
@@ -176,10 +179,6 @@ function getItemObject(itemElement) {
 	let designer = '';
 	for (const infoElem of infoElements) {
 		let innerText = infoElem.innerText;
-		if (innerText.toUpperCase().indexOf('LICENSED BY') >= 0) {
-			designer = innerText.substring('LICENSED BY'.length).trim();
-			continue;
-		}
 		if (innerText.toUpperCase().indexOf('DIGITALLY PRINTED') >= 0) {
 			special = 'Digital';
 			continue;
@@ -190,6 +189,10 @@ function getItemObject(itemElement) {
 		}
 		if (innerText.toUpperCase().indexOf('GLITTER') >= 0) {
 			special = 'Glitter';
+			continue;
+		}
+		if (innerText.toUpperCase().indexOf('LICENSED BY') >= 0) {
+			designer = innerText.substring('LICENSED BY'.length).trim();
 			continue;
 		}
 	}
