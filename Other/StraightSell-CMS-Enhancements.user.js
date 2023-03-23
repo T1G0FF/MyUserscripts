@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StraightSell CMS Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.03.23.1
 // @description  Allows you to toggle the visibility of all the far too easy to click Delete/Remove/Revoke links.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/*
@@ -37,6 +37,7 @@ var selectorsList = ['.ListtableRow1 a.action[href^="javascript:confirmDelete"]'
 	createButton();
 	callbackDelay(updateElements, 250);
 	enableItemEditing();
+	enableCheckboxCellClick();
 })();
 
 function createButton() {
@@ -119,6 +120,26 @@ function enableItemEditing() {
 			if (Object.hasOwnProperty.call(disabledElements, key)) {
 				const element = disabledElements[key];
 				element.removeAttribute('disabled')
+			}
+		}
+	}, 100);
+}
+
+function enableCheckboxCellClick() {
+	var enableClicking = setInterval(function () {
+		var checkboxElements = document.querySelectorAll('table#fileResults input[type="checkbox"][name^="file"]');
+		if (DEBUG) console.log('Enabling Checkbox Cell Clicking');
+
+		for (const cb of checkboxElements) {
+			if (!cb.cellClick) {
+				let that = cb;
+				cb.parentElement.addEventListener('click', (event) => {
+					// Only handle the click if the target is the cell itself
+					if (event.target.nodeName === 'TD') {
+						that.click();
+					}
+				}, false);
+				cb.cellClick = true;
 			}
 		}
 	}, 100);
