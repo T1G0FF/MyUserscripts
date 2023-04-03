@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.02.1
+// @version      2023.04.03.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -27,7 +27,7 @@ const WEBADD_CONFIG = {
 	'FIND_IMAGELESS': true,
 	'FIND_CHILDLESS': true,
 	'SORT_CODES': true,
-	'SCRAPE_TEMP_PARENTS': !true,
+	'SCRAPE_TEMP_PARENTS': true,
 	'SCRAPE_COLLECTION_COUNT': true,
 	'SCRAPE_IMAGELESS': true,
 };
@@ -59,7 +59,7 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
 		addScraperOptions();
 	}
-	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd');
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'beforeEnd');
 })();
@@ -901,7 +901,9 @@ async function btnAction_scrapeImageless() {
 
 			let msg = 'None found!';
 			if (formatResult.Count > 0) {
-				GM_setClipboard(formatResult.Output);
+				if (formatResult.Output.NoImage != '') formatResult.Output.NoImage = '# Have No Images: \n' + formatResult.Output.NoImage;
+				if (formatResult.Output.OddSize != '') formatResult.Output.OddSize = '# Have Small Images: \n' + formatResult.Output.OddSize;
+				GM_setClipboard(formatResult.Output.NoImage + '\n' + formatResult.Output.OddSize);
 				msg = formatResult.Count + ' found and copied!';
 			}
 			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
