@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.04.18.3
+// @version      2023.04.18.4
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -149,7 +149,7 @@ function formatInformation(itemElement) {
 
 // https://www.cosmo-tex.co.jp/quilt_gate/products_photo/RU2450_11A.jpg
 function formatImage(item) {
-	var imgLink = item.querySelector('a');
-	let result = getAbsolutePath(imgLink.getAttribute('href'));
+	let imgLink = item.getAttribute('href');
+	let result = getAbsolutePath(imgLink);
 	return result;
 }
