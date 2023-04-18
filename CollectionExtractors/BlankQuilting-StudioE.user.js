@@ -95,10 +95,7 @@ function getTitleElement() {
 function getTitle() {
 	let titleElement = isSearch ? document.querySelector('div.snize-search-results-header > a.snize-no-products-found-link') : getTitleElement();
 	let title = titleElement?.innerText.trim();
-	let dropdownElement = titleElement.querySelector('span.tg-dropdown-container');
-	if (dropdownElement) {
-		title = title.replace(dropdownElement.innerText, '');
-	}
+	title = title.replace(titleElement.querySelector('span.tg-dropdown-container')?.innerText, '').trim();
 	if (title[0] === '*') title = title.substr(1);
 	return title;
 }
