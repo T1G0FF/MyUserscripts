@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.06.09.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -17,7 +17,7 @@
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 let CONFIG_IGNORE_BASICS = !true;
@@ -172,36 +172,53 @@ function getItemObject(itemElement) {
 			}
 		}
 
-		if (givenCode[0]?.toUpperCase() == 'W') {
-			// Wide | WSTELLA
-			prefix += 'W';
-			width = { 'Measurement': '60', 'Unit': 'in' };
-		}
-		else if (givenCode[0]?.toUpperCase() == 'P') {
-			// Panel | PSTELLA
-			prefix += 'P';
+		let fuzzPrefix = givenCode[0]?.toUpperCase();
+		switch (fuzzPrefix) {
+			case 'P':
+				// Panel | PSTELLA
+				prefix += 'P';
+				break;
+			case 'W':
+				// Wide | WSTELLA
+				prefix += 'W';
+				width = { 'Measurement': '60', 'Unit': 'in' };
+				break;
+			case 'X"':
+				// eXtra Wide | XSTELLA
+				prefix += 'X';
+				width = { 'Measurement': '108', 'Unit': 'in' };
+				break;
+		
+			default:
+				break;
 		}
 
-		if (collectionCode[0]?.toUpperCase() == 'D') {
-			special = 'Digital';
-		}
-		else if (collectionCode[0]?.toUpperCase() == 'F') {
-			special = 'Flannel';
-		}
-		else if (collectionCode[0]?.toUpperCase() == 'K') {
-			material = 'C95% S5%';
-			special = 'Knit';
-		}
-		else if (collectionCode[0]?.toUpperCase() == 'P') {
-			// Monochrome is cotton, but has a 'P' prefix?
-			if (title.toUpperCase().indexOf('MONOCHROME') < 0) {
-				material = 'P100%';
+		let codePrefix = collectionCode[0]?.toUpperCase();
+		switch (codePrefix) {
+			case 'D':
 				special = 'Digital';
-			}
-		}
-		else if (collectionCode[0]?.toUpperCase() == 'S') {
-			// Not sure about this one, doesn't seem consistent.
-			//special = 'Shirting';
+				break;
+			case 'F':
+				special = 'Flannel';
+				break;
+			case 'K':
+				special = 'Knit';
+				material = 'C95% S5%';
+				break;
+			case 'P':
+				// Monochrome is cotton, but has a 'P' prefix?
+				if (title.toUpperCase().indexOf('MONOCHROME') < 0) {
+					material = 'P100%';
+					special = 'Digital';
+				}
+				break;
+			case 'S':
+				// Not sure about this one, doesn't seem consistent.
+				//special = 'Shirting';
+				break;
+		
+			default:
+				break;
 		}
 	} else {
 		if (collectionFuzz === 'HUE') {
@@ -219,30 +236,52 @@ function getItemObject(itemElement) {
 			collectionFuzz = 'SOFTIE';
 			width = { 'Measurement': '60', 'Unit': 'in' };
 		}
-		if (givenCode[0]?.toUpperCase() == 'X' && givenCode[1]?.toUpperCase() != 'X') {
-			// eXtra Wide
-			prefix += 'X';
-			width = { 'Measurement': '106', 'Unit': 'in' };
+
+		let fuzzPrefix = givenCode[0]?.toUpperCase();
+		switch (fuzzPrefix) {
+			case 'X':
+				// eXtra Wide
+				prefix += 'X';
+				width = { 'Measurement': '106', 'Unit': 'in' };
+				break;
+		
+			default:
+				break;
 		}
 
-		if (collectionCode[0]?.toUpperCase() == 'C') {
-			material = 'C100%';
-		}
-		else if (collectionCode[0]?.toUpperCase() == 'B') {
-			material = 'C100%';
-		}
-		else if (collectionCode[0]?.toUpperCase() == 'P') {
-			material = 'P100%';
+		let codePrefix = collectionCode[0]?.toUpperCase();
+		switch (codePrefix) {
+			case 'C':
+				// Cotton
+				material = 'C100%';
+				break;
+			case 'B':
+				// Batik
+				material = 'C100%';
+				break;
+			case 'P':
+				// Polyester
+				material = 'P100%';
+				break;
+		
+			default:
+				break;
 		}
 
-		if (collectionCode[1]?.toUpperCase() == 'D') {
-			special = 'Digital';
-		}
-		else if (collectionCode[1]?.toUpperCase() == 'M') {
-			special = 'Metallic';
-		}
-		else if (collectionCode[1]?.toUpperCase() == 'G') {
-			special = 'Glow';
+		let codePrefix2 = collectionCode[1]?.toUpperCase();
+		switch (codePrefix2) {
+			case 'D':
+				special = 'Digital';
+				break;
+			case 'M':
+				special = 'Metallic';
+				break;
+			case 'G':
+				special = 'Glow';
+				break;
+		
+			default:
+				break;
 		}
 	}
 
