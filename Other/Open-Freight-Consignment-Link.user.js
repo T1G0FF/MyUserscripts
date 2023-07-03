@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenFreight - Consignment Link
 // @namespace    http://www.tgoff.me/
-// @version      2022.12.19.1
+// @version      2023.07.03.1
 // @description  Adds a links to the Consignment page from the tracking window and visa versa
 // @author       www.tgoff.me
 // @match        *://app.openfreight.com.au/track
@@ -20,17 +20,33 @@
 		mutations.forEach((record) => {
 			record.addedNodes.forEach((element) => {
 				if (!(element instanceof Element)) return;
-				
+
 				// Tracking modal
 				let modalParent = element.closest('div#trackTraceMainResultsModal');
 				tryAddFunctionLinkToModalHeader(
 					modalParent, 'connLink', 'Find Consignment',
 					function () {
 						let localHeader = document.querySelector('div#trackTraceMainResultsModal h3.panel-title');
-						let connNumber = localHeader?.innerText.replace(localHeader.querySelector('span')?.innerText, '');
+						let headerFuzz = Array.from(localHeader?.querySelectorAll('span'))?.reduce((acc, value) => acc + value?.innerText ?? '', '');
+						let connNumber = localHeader?.innerText.replace(headerFuzz, '');
+
 						$(".modal").modal("hide");
 						searchConsignments(false, connNumber);
 						return false;
+					});
+				tryAddLinkToModalHeader(
+					modalParent, 'enquiryTFMTrackLink', 'TFM Tracking',
+					function () {
+						let localHeader = document.querySelector('div#trackTraceMainResultsModal h3.panel-title');
+						let headerFuzz = Array.from(localHeader?.querySelectorAll('span'))?.reduce((acc, value) => acc + value?.innerText ?? '', '');
+						let connNumber = localHeader?.innerText.replace(headerFuzz, '');
+
+						if (!connNumber?.startsWith('VICNAT')) return undefined;
+
+						let localDest = document.querySelector('div#trackTraceMainResultsModal td.trackTraceTrackingDestination');
+						let dest = localDest?.innerText;
+						let postCodeNumber = dest?.substring(dest?.indexOf(",") + 1)?.replace(/(?:NSW|NS|NT|QLD|QL|SA|TAS|TS|VIC|VI|WA)/i, '')?.trim();
+						return 'https://www.ezyfms.com/tfm/Tracker.asp?CN=' + connNumber + '&PC=' + postCodeNumber;
 					});
 
 
@@ -54,10 +70,10 @@
 						searchConsignments(false, connNumber);
 						return false;
 					});
-				if (connNumElem.innerText.startsWith('VICNAT')) {
+				if (connNumElem?.innerText.startsWith('VICNAT')) {
 					tryAddLinkToModalHeader(
 						modalParent, 'enquiryTFMTrackLink', 'TFM Tracking',
-						'https://www.ezyfms.com/tfm/Tracker.asp?CN=' + connNumElem.innerText + '&PC=' + postCodeElem.innerText);
+						() => 'https://www.ezyfms.com/tfm/Tracker.asp?CN=' + connNumElem?.innerText + '&PC=' + postCodeElem?.innerText);
 				}
 
 
@@ -119,10 +135,12 @@ function tryAddFunctionLinkToModalHeader(modalParent, linkId, linkText = 'Search
 	header.insertAdjacentElement('beforeEnd', span);
 }
 
-function tryAddLinkToModalHeader(modalParent, linkId, linkText = 'Search', href) {
+function tryAddLinkToModalHeader(modalParent, linkId, linkText = 'Search', getHref) {
 	if (!modalParent) return;
 	let header = modalParent.querySelector('h3.panel-title');
 	if (!header || header?.querySelector('#' + linkId)) return;
+	let href = getHref();
+	if (!href) return;
 
 	let span = document.createElement('span');
 	span.innerText = ' | ';
