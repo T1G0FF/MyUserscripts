@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2023.06.09.2
+// @version      2023.07.04.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -12,6 +12,10 @@
 // @match        *://www.dearstelladesign.com/category/*
 // @match        *://dearstelladesign.com/advanced_search_result.php?*
 // @match        *://www.dearstelladesign.com/advanced_search_result.php?*
+// @match        *://marcusfabrics.com/category/*
+// @match        *://www.marcusfabrics.com/category/*
+// @match        *://marcusfabrics.com/advanced_search_result.php?*
+// @match        *://www.marcusfabrics.com/advanced_search_result.php?*
 // @noframes
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
@@ -20,14 +24,26 @@
 // @run-at       document-idle
 // ==/UserScript==
 
+const Company = {
+	Timeless: 0,
+	DearStella: 1,
+	Marcus: 2
+}
+
 let CONFIG_IGNORE_BASICS = !true;
 
 let isSearch = false;
-let isStella = false;
+let companyEnum = Company.Timeless;
 (function () {
 	'use strict';
 	isSearch = hasParam(window.location.search, "search-key");
-	isStella = window.location.hostname.includes('dearstelladesign');
+
+	if (window.location.hostname.includes('dearstelladesign')) {
+		companyEnum = Company.DearStella;
+	}
+	else if (window.location.hostname.includes('marcusfabrics')) {
+		companyEnum = Company.Marcus;
+	}
 
 	waitForElements('div.P-Items-Listing-Class').then((elems) => {
 		createButtons();
@@ -36,7 +52,13 @@ let isStella = false;
 })();
 
 function getCompany() {
-	let company = isStella ? 'Dear Stella' : 'Timeless Treasures';
+	let company = (() => {
+		switch(companyEnum) {
+			case Company.Timeless: return 'Timeless Treasures';
+			case Company.DearStella: return 'Dear Stella';
+			case Company.Marcus: return 'Marcus Fabrics';
+		}
+	});
 	return company;
 }
 
@@ -130,7 +152,13 @@ function getItemObject(itemElement) {
 
 	let isTonga = (collectionFuzz.indexOf('TONGA') >= 0);
 
-	let prefix = isStella ? 'DS ' : isTonga ? 'JN ' : 'TT';
+	let prefix = (() => {
+		switch(companyEnum) {
+			case Company.Timeless: return isTonga ? 'JN ' : 'TT';
+			case Company.DearStella: return 'DS ';
+			case Company.Marcus: return 'MF';
+		}
+	});
 
 	let colourCode = '';
 
@@ -164,125 +192,132 @@ function getItemObject(itemElement) {
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
 
-	if (isStella) {
-		for (const signature of Object.keys(designers)) {
-			if (collectionCode.toUpperCase().indexOf(signature) >= 0) {
-				designer = designers[signature];
-				break;
-			}
-		}
-
-		let fuzzPrefix = givenCode[0]?.toUpperCase();
-		switch (fuzzPrefix) {
-			case 'P':
-				// Panel | PSTELLA
-				prefix += 'P';
-				break;
-			case 'W':
-				// Wide | WSTELLA
-				prefix += 'W';
-				width = { 'Measurement': '60', 'Unit': 'in' };
-				break;
-			case 'X':
-				// eXtra Wide | XSTELLA
-				prefix += 'X';
-				width = { 'Measurement': '108', 'Unit': 'in' };
-				break;
-		
-			default:
-				break;
-		}
-
-		let codePrefix = collectionCode[0]?.toUpperCase();
-		switch (codePrefix) {
-			case 'D':
-				special = 'Digital';
-				break;
-			case 'F':
-				special = 'Flannel';
-				break;
-			case 'K':
-				special = 'Knit';
-				material = 'C95% S5%';
-				break;
-			case 'P':
-				// Monochrome is cotton, but has a 'P' prefix?
-				if (title.toUpperCase().indexOf('MONOCHROME') < 0) {
-					material = 'P100%';
-					special = 'Digital';
+	let fuzzPrefix;
+	let codePrefix;
+	switch (companyEnum) {
+		case Company.Timeless:
+			if (collectionFuzz === 'HUE') {
+				if (colourName.toUpperCase() === 'BLACK' || colourName.toUpperCase() === 'WHITE') {
+					title = colourName + 'out';
 				}
-				break;
-			case 'S':
-				// Not sure about this one, doesn't seem consistent.
-				//special = 'Shirting';
-				break;
-		
-			default:
-				break;
-		}
-	} else {
-		if (collectionFuzz === 'HUE') {
-			if (colourName.toUpperCase() === 'BLACK' || colourName.toUpperCase() === 'WHITE') {
-				title = colourName + 'out';
 			}
-		}
-		else if (collectionFuzz === 'XTONGA') {
-			title = 'Extra Wide Tongas';
-		}
-		else if (collectionFuzz.indexOf('PANEL') >= 0) {
-			collectionFuzz = 'PANEL';
-		}
-		else if (collectionFuzz.indexOf('SOFTIE') >= 0) {
-			collectionFuzz = 'SOFTIE';
-			width = { 'Measurement': '60', 'Unit': 'in' };
-		}
+			else if (collectionFuzz === 'XTONGA') {
+				title = 'Extra Wide Tongas';
+			}
+			else if (collectionFuzz.indexOf('PANEL') >= 0) {
+				collectionFuzz = 'PANEL';
+			}
+			else if (collectionFuzz.indexOf('SOFTIE') >= 0) {
+				collectionFuzz = 'SOFTIE';
+				width = { 'Measurement': '60', 'Unit': 'in' };
+			}
 
-		let fuzzPrefix = givenCode[0]?.toUpperCase();
-		switch (fuzzPrefix) {
-			case 'X':
-				// eXtra Wide
-				prefix += 'X';
-				width = { 'Measurement': '106', 'Unit': 'in' };
-				break;
-		
-			default:
-				break;
-		}
+			fuzzPrefix = givenCode[0]?.toUpperCase();
+			switch (fuzzPrefix) {
+				case 'X':
+					// eXtra Wide
+					prefix += 'X';
+					width = { 'Measurement': '106', 'Unit': 'in' };
+					break;
 
-		let codePrefix = collectionCode[0]?.toUpperCase();
-		switch (codePrefix) {
-			case 'C':
-				// Cotton
-				material = 'C100%';
-				break;
-			case 'B':
-				// Batik
-				material = 'C100%';
-				break;
-			case 'P':
-				// Polyester
-				material = 'P100%';
-				break;
-		
-			default:
-				break;
-		}
+				default:
+					break;
+			}
 
-		let codePrefix2 = collectionCode[1]?.toUpperCase();
-		switch (codePrefix2) {
-			case 'D':
-				special = 'Digital';
-				break;
-			case 'M':
-				special = 'Metallic';
-				break;
-			case 'G':
-				special = 'Glow';
-				break;
-		
-			default:
-				break;
-		}
+			codePrefix = collectionCode[0]?.toUpperCase();
+			switch (codePrefix) {
+				case 'C':
+					// Cotton
+					material = 'C100%';
+					break;
+				case 'B':
+					// Batik
+					material = 'C100%';
+					break;
+				case 'P':
+					// Polyester
+					material = 'P100%';
+					break;
+
+				default:
+					break;
+			}
+
+			let codePrefix2 = collectionCode[1]?.toUpperCase();
+			switch (codePrefix2) {
+				case 'D':
+					special = 'Digital';
+					break;
+				case 'M':
+					special = 'Metallic';
+					break;
+				case 'G':
+					special = 'Glow';
+					break;
+
+				default:
+					break;
+			}
+			break;
+		case Company.DearStella:
+			for (const signature of Object.keys(designers)) {
+				if (collectionCode.toUpperCase().indexOf(signature) >= 0) {
+					designer = designers[signature];
+					break;
+				}
+			}
+
+			fuzzPrefix = givenCode[0]?.toUpperCase();
+			switch (fuzzPrefix) {
+				case 'P':
+					// Panel | PSTELLA
+					prefix += 'P';
+					break;
+				case 'W':
+					// Wide | WSTELLA
+					prefix += 'W';
+					width = { 'Measurement': '60', 'Unit': 'in' };
+					break;
+				case 'X':
+					// eXtra Wide | XSTELLA
+					prefix += 'X';
+					width = { 'Measurement': '108', 'Unit': 'in' };
+					break;
+
+				default:
+					break;
+			}
+
+			codePrefix = collectionCode[0]?.toUpperCase();
+			switch (codePrefix) {
+				case 'D':
+					special = 'Digital';
+					break;
+				case 'F':
+					special = 'Flannel';
+					break;
+				case 'K':
+					special = 'Knit';
+					material = 'C95% S5%';
+					break;
+				case 'P':
+					// Monochrome is cotton, but has a 'P' prefix?
+					if (title.toUpperCase().indexOf('MONOCHROME') < 0) {
+						material = 'P100%';
+						special = 'Digital';
+					}
+					break;
+				case 'S':
+					// Not sure about this one, doesn't seem consistent.
+					//special = 'Shirting';
+					break;
+
+				default:
+					break;
+			}
+			break;
+		case Company.Marcus:
+			break;
 	}
 
 	let dates = getReleaseDates();
@@ -327,7 +362,13 @@ function formatInformation(itemElement) {
 	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes + designer, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
 	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
 
-	let webCategory = isStella || item.IsTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
+	let webCategory = (() => {
+		switch(companyEnum) {
+			case Company.Timeless: return isTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
+			case Company.DearStella: return item.CollectionName;
+			case Company.Marcus: return item.CollectionName;
+		}
+	});
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': webCategory };
 	return result;
