@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OpenFreight - Consignment Link
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.03.1
+// @version      2023.07.07.1
 // @description  Adds a links to the Consignment page from the tracking window and visa versa
 // @author       www.tgoff.me
 // @match        *://app.openfreight.com.au/track
@@ -45,7 +45,7 @@
 
 						let localDest = document.querySelector('div#trackTraceMainResultsModal td.trackTraceTrackingDestination');
 						let dest = localDest?.innerText;
-						let postCodeNumber = dest?.substring(dest?.indexOf(",") + 1)?.replace(/(?:NSW|NS|NT|QLD|QL|SA|TAS|TS|VIC|VI|WA)/i, '')?.trim();
+						let postCodeNumber = dest?.substring(dest?.indexOf(",") + 1)?.replace(/(?:ACV|NSW|NS|NT|QLD|QL|SA|TAS|TS|VIC|VI|WA)/i, '')?.trim();
 						return 'https://www.ezyfms.com/tfm/Tracker.asp?CN=' + connNumber + '&PC=' + postCodeNumber;
 					});
 
