@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.04.1
+// @version      2023.07.11.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -58,7 +58,7 @@ function getCompany() {
 			case Company.DearStella: return 'Dear Stella';
 			case Company.Marcus: return 'Marcus Fabrics';
 		}
-	});
+	})();
 	return company;
 }
 
@@ -158,7 +158,7 @@ function getItemObject(itemElement) {
 			case Company.DearStella: return 'DS ';
 			case Company.Marcus: return 'MF';
 		}
-	});
+	})();
 
 	let colourCode = '';
 
@@ -368,7 +368,7 @@ function formatInformation(itemElement) {
 			case Company.DearStella: return item.CollectionName;
 			case Company.Marcus: return item.CollectionName;
 		}
-	});
+	})();
 
 	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': webCategory };
 	return result;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.5
+// @version      2023.07.11.6
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -126,7 +126,7 @@ function getItemObject(item) {
 				case 55: return '18';
 				default: return flt;
 			}
-		});
+		})();
 		special = (special.length > 0 ? ' - ' : '') + 'L' + length + measureMatches[4].toLowerCase();
 	}
 
