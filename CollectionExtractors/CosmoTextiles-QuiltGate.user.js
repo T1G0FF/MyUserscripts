@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.2
+// @version      2023.07.11.3
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -107,7 +107,7 @@ function getItemObject(item) {
 
 	let title = getFormattedTitle();
 
-	let makeupElem = document.querySelector('div.row3 div.column02');
+	let makeupElem = document.querySelector('div.row03 div.column02');
 	let makeup = makeupElem?.innerText ?? '';
 	makeup = makeup.replace(/100%[\s]*COTTON/, '');
 	makeup = makeup.replace(/C\/L[\s]*85\/15%/, '');
@@ -115,10 +115,10 @@ function getItemObject(item) {
 	makeup = makeup.replace('PRINTED', '');
 	let special = makeup.trim();
 
-	let materialElem = document.querySelector('div.row5 div.column02');
+	let materialElem = document.querySelector('div.row05 div.column02');
 	let material = materialElem?.innerText ?? 'C100%';
 
-	let measureElem = document.querySelector('div.row4 div.column02');
+	let measureElem = document.querySelector('div.row04 div.column02');
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let measureStr = measureElem?.innerText ?? '45in×7m';
 	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/gi.exec(measureStr);
