@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.8
+// @version      2023.07.11.9
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -75,7 +75,7 @@ function getAvailabilityDate() {
 	return undefined;
 }
 
-let CosmoRegEx = /([A-z]+[0-9]+[A-z]?)(?:_([0-9]+))?([A-z]+)?/;
+let CosmoRegEx = /([A-Z]+[0-9]+[A-Z]?)_?([0-9]+)?([A-Z]+)?/i;
 let CosmoRegExEnum = {
 	'Collection': 1,
 	'Pattern': 2,
@@ -87,7 +87,7 @@ function getItemObject(item) {
 
 	let imgLink = item.getAttribute('href');
 	if (imgLink) {
-		let codeMatches = isCosmo ? /shohin_images\/hcd_big\/[A-z0-9]+\/(.*?)\.jpg/.exec(imgLink) : /products_photo\/(.*?)\.jpg/.exec(imgLink);
+		let codeMatches = isCosmo ? /shohin_images\/hcd_big\/[A-Z0-9]+\/(.*?)\.jpg/i.exec(imgLink) : /products_photo\/(.*?)\.jpg/i.exec(imgLink);
 		if (!codeMatches || codeMatches.length <= 1) {
 			Notify.log('No matches found in link for Item!', item);
 			return;
@@ -118,8 +118,8 @@ function getItemObject(item) {
 
 	let materialElem = document.querySelector('div.row03 div.column02');
 	let material = materialElem?.innerText ?? '';
-	material = material.replace(/100%[\s]*COTTON/, '');
-	material = material.replace(/C\/L[\s]*85\/15%/, '');
+	material = material.replace(/100%[\s]*COTTON/i, '');
+	material = material.replace(/C\/L[\s]*85\/15%/i, '');
 	material = material.replace('C100%', '');
 	material = material.replace('PRINTED', '');
 	let special = material.trim().toTitleCase();
@@ -130,7 +130,7 @@ function getItemObject(item) {
 	let measureElem = document.querySelector('div.row04 div.column02');
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let measureStr = measureElem?.innerText ?? '45in×7m';
-	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/gi.exec(measureStr);
+	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/i.exec(measureStr);
 	if (measureMatches && measureMatches.length > 1) {
 		width = { 'Measurement': parseFloat(measureMatches[1]), 'Unit': measureMatches[2].toLowerCase() };
 		let flt = parseFloat(measureMatches[3]);
