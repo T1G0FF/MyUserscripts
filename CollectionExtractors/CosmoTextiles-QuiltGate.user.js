@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.4
+// @version      2023.07.11.5
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -118,8 +118,8 @@ function getItemObject(item) {
 	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/gi.exec(measureStr);
 	if (measureMatches && measureMatches.length > 1) {
 		width = { 'Measurement': parseFloat(measureMatches[1]), 'Unit': measureMatches[2].toLowerCase() };
+		let flt = parseFloat(measureMatches[3]);
 		let length = (() => {
-			let flt = parseFloat(measureMatches[3]);
 			switch (flt) {
 				case 36: return '12';
 				case 40: return '10';
