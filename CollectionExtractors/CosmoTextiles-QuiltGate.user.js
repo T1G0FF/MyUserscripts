@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.1
+// @version      2023.07.11.2
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -108,7 +108,7 @@ function getItemObject(item) {
 	let title = getFormattedTitle();
 
 	let makeupElem = document.querySelector('div.row3 div.column02');
-	let makeup = materialElem?.innerText ?? '';
+	let makeup = makeupElem?.innerText ?? '';
 	makeup = makeup.replace(/100%[\s]*COTTON/, '');
 	makeup = makeup.replace(/C\/L[\s]*85\/15%/, '');
 	makeup = makeup.replace('C100%', '');
