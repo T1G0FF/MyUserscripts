@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.3
+// @version      2023.07.11.4
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -12,12 +12,6 @@
 // @grant        GM_download
 // @run-at       document-idle
 // ==/UserScript==
-
-var LengthLookup = {
-	'36': '12',
-	'40': '10',
-	'55': '18',
-}
 
 let isCosmo = false;
 (function () {
@@ -123,8 +117,17 @@ function getItemObject(item) {
 	let measureStr = measureElem?.innerText ?? '45in×7m';
 	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/gi.exec(measureStr);
 	if (measureMatches && measureMatches.length > 1) {
-		width = { 'Measurement': measureMatches[1], 'Unit': measureMatches[2].toLowerCase() };
-		special = (special.length > 0 ? ' - ' : '') + 'L' + measureMatches[3] + measureMatches[4].toLowerCase();
+		width = { 'Measurement': parseFloat(measureMatches[1]), 'Unit': measureMatches[2].toLowerCase() };
+		let length = (() => {
+			let flt = parseFloat(measureMatches[3]);
+			switch (flt) {
+				case 36: return '12';
+				case 40: return '10';
+				case 55: return '18';
+				default: return flt;
+			}
+		});
+		special = (special.length > 0 ? ' - ' : '') + 'L' + length + measureMatches[4].toLowerCase();
 	}
 
 	let repeat = '';
