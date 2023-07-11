@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.7
+// @version      2023.07.11.8
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -30,15 +30,19 @@ function getTitleElement() {
 	return titleElement;
 }
 
+function getTempTitle() {
+	var tempTitle = document.querySelector('div#main_content_box h2 span strong')?.innerText;
+	if (tempTitle.indexOf('【品番】') >= 0) tempTitle = tempTitle.split('【品番】')[1];
+	return tempTitle.trim();
+}
+
 function getTitle() {
 	let titleElement = getTitleElement();
 	let title = titleElement?.innerText.trim();
 	title = title.replace(titleElement.querySelector('span.tg-dropdown-container')?.innerText, '').trim();
 
 	if (isCosmo) {
-		var tempTitle = document.querySelector('div#main_content_box h2 span strong')?.innerText;
-		if (tempTitle.indexOf('【品番】') >= 0) tempTitle = tempTitle.split('【品番】')[1];
-		tempTitle = tempTitle.trim();
+		let tempTitle = getTempTitle();
 
 		if (title.indexOf('（') >= 0) title = title.split('（')[1];
 		if (title.indexOf('）') >= 0) title = title.split('）')[0];
@@ -53,7 +57,16 @@ function getTitle() {
 }
 
 function getCollection() {
-	let collection = isCosmo ? document.querySelectorAll('div#main_content_box table a[data-lightbox="color_img"]') : document.querySelectorAll('div#mainContent table div.product_box_subimage a');
+	let collection;
+	if (isCosmo) {
+		collection = document.querySelectorAll('div#main_content_box table a[data-lightbox="color_img"]');
+		if (!collection || collection.length < 1) {
+			collection = document.querySelectorAll('div#main_content_box table[bordercolor="#CCCCCC"] tr td:first-of-type[align="center"]:not([bgcolor^="#"])');
+		}
+	}
+	else {
+		collection = document.querySelectorAll('div#mainContent table div.product_box_subimage a');
+	}
 	return collection;
 }
 
@@ -62,7 +75,7 @@ function getAvailabilityDate() {
 	return undefined;
 }
 
-let CosmoRegEx = /([A-z]+[0-9]+)(?:_([0-9]+))?([A-z]+)/;
+let CosmoRegEx = /([A-z]+[0-9]+[A-z]?)(?:_([0-9]+))?([A-z]+)?/;
 let CosmoRegExEnum = {
 	'Collection': 1,
 	'Pattern': 2,
@@ -70,19 +83,21 @@ let CosmoRegExEnum = {
 };
 
 function getItemObject(item) {
+	let givenCode = '';
+
 	let imgLink = item.getAttribute('href');
-	if (!imgLink) {
-		Notify.log('No image link found for Item!', item);
-		return;
+	if (imgLink) {
+		let codeMatches = isCosmo ? /shohin_images\/hcd_big\/[A-z0-9]+\/(.*?)\.jpg/.exec(imgLink) : /products_photo\/(.*?)\.jpg/.exec(imgLink);
+		if (!codeMatches || codeMatches.length <= 1) {
+			Notify.log('No matches found in link for Item!', item);
+			return;
+		}
+		givenCode = codeMatches[1];
 	}
-
-	let codeMatches = isCosmo ? /shohin_images\/hcd_big\/[A-z0-9]+\/(.*?)\.jpg/.exec(imgLink) : /products_photo\/(.*?)\.jpg/.exec(imgLink);
-	if (!codeMatches || codeMatches.length <= 1) {
-		Notify.log('No matches found in link for Item!', item);
-		return;
+	else {
+		//'AN3701S_1A';
+		givenCode = getTempTitle() + '_' + item.getTextNodeValue(0, true).trim();
 	}
-
-	let givenCode = codeMatches[1];
 
 	let prefix = 'QG';
 
@@ -95,7 +110,7 @@ function getItemObject(item) {
 
 	let collectionCode = matches[CosmoRegExEnum.Collection];
 	let patternCode = matches[CosmoRegExEnum.Pattern] ? padWithZeros(matches[CosmoRegExEnum.Pattern], 3) : '';
-	let colourCode = matches[CosmoRegExEnum.Colour].toUpperCase();
+	let colourCode = matches[CosmoRegExEnum.Colour] ? matches[CosmoRegExEnum.Colour].toUpperCase() : '';
 
 	let purchaseCode = formatPurchaseCode(matches[CosmoRegExEnum.Collection] + '-' + (matches[CosmoRegExEnum.Pattern] ?? '') + matches[CosmoRegExEnum.Colour]);
 
@@ -107,7 +122,7 @@ function getItemObject(item) {
 	material = material.replace(/C\/L[\s]*85\/15%/, '');
 	material = material.replace('C100%', '');
 	material = material.replace('PRINTED', '');
-	let special = material.toTitleCase().trim();
+	let special = material.trim().toTitleCase();
 
 	let fibreElem = document.querySelector('div.row05 div.column02');
 	let fibre = fibreElem?.innerText ?? 'C100%';
