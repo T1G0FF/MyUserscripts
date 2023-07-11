@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.04.18.4
+// @version      2023.07.11.1
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -12,6 +12,12 @@
 // @grant        GM_download
 // @run-at       document-idle
 // ==/UserScript==
+
+var LengthLookup = {
+	'36': '12',
+	'40': '10',
+	'55': '18',
+}
 
 let isCosmo = false;
 (function () {
@@ -48,7 +54,7 @@ function getTitle() {
 	else {
 		if (title.indexOf(' - ') >= 0) title = title.split(' - ')[0];
 	}
-	
+
 	return title.trim();
 }
 
@@ -63,7 +69,7 @@ function getAvailabilityDate() {
 }
 
 let CosmoRegEx = /([A-z]+[0-9]+)(?:_([0-9]+))?([A-z]+)/;
-let RegexEnum = {
+let CosmoRegExEnum = {
 	'Collection': 1,
 	'Pattern': 2,
 	'Colour': 3,
@@ -93,17 +99,34 @@ function getItemObject(item) {
 		return;
 	}
 
-	let collectionCode = matches[RegexEnum.Collection];
-	let patternCode = matches[RegexEnum.Pattern] ? padWithZeros(matches[RegexEnum.Pattern], 3) : '';
-	let colourCode = matches[RegexEnum.Colour].toUpperCase();
+	let collectionCode = matches[CosmoRegExEnum.Collection];
+	let patternCode = matches[CosmoRegExEnum.Pattern] ? padWithZeros(matches[CosmoRegExEnum.Pattern], 3) : '';
+	let colourCode = matches[CosmoRegExEnum.Colour].toUpperCase();
 
-	let purchaseCode = formatPurchaseCode(matches[RegexEnum.Collection] + '-' + (matches[RegexEnum.Pattern] ?? '') + matches[RegexEnum.Colour]);
+	let purchaseCode = formatPurchaseCode(matches[CosmoRegExEnum.Collection] + '-' + (matches[CosmoRegExEnum.Pattern] ?? '') + matches[CosmoRegExEnum.Colour]);
 
 	let title = getFormattedTitle();
-	let special = '';
 
-	let material = 'C100%';
+	let makeupElem = document.querySelector('div.row3 div.column02');
+	let makeup = materialElem?.innerText ?? '';
+	makeup = makeup.replace(/100%[\s]*COTTON/, '');
+	makeup = makeup.replace(/C\/L[\s]*85\/15%/, '');
+	makeup = makeup.replace('C100%', '');
+	makeup = makeup.replace('PRINTED', '');
+	let special = makeup.trim();
+
+	let materialElem = document.querySelector('div.row5 div.column02');
+	let material = materialElem?.innerText ?? 'C100%';
+
+	let measureElem = document.querySelector('div.row4 div.column02');
 	let width = { 'Measurement': '45', 'Unit': 'in' };
+	let measureStr = measureElem?.innerText ?? '45in×7m';
+	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/gi.exec(measureStr);
+	if (measureMatches && measureMatches.length > 1) {
+		width = { 'Measurement': measureMatches[1], 'Unit': measureMatches[2].toLowerCase() };
+		special = (special.length > 0 ? ' - ' : '') + 'L' + measureMatches[3] + measureMatches[4].toLowerCase();
+	}
+
 	let repeat = '';
 
 	let dates = getReleaseDates();
