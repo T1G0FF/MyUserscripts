@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.9
+// @version      2023.07.13.1
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -112,7 +112,7 @@ function getItemObject(item) {
 	let patternCode = matches[CosmoRegExEnum.Pattern] ? padWithZeros(matches[CosmoRegExEnum.Pattern], 3) : '';
 	let colourCode = matches[CosmoRegExEnum.Colour] ? matches[CosmoRegExEnum.Colour].toUpperCase() : '';
 
-	let purchaseCode = formatPurchaseCode(matches[CosmoRegExEnum.Collection] + '-' + (matches[CosmoRegExEnum.Pattern] ?? '') + matches[CosmoRegExEnum.Colour]);
+	let purchaseCode = formatPurchaseCode(matches[CosmoRegExEnum.Collection] + '-' + (matches[CosmoRegExEnum.Pattern] ?? '') + (matches[CosmoRegExEnum.Colour] ?? ''));
 
 	let title = getFormattedTitle();
 
