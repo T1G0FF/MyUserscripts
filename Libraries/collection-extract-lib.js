@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.04.1
+// @version      2023.07.14.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -94,7 +94,7 @@ function formatTitle(title) {
 		title = title.replaceAll(DearStellaSearchExtractRegEx, '$1');
 	}
 	if (window.location.hostname.includes('lewisandirene')) {
-		let LewisIreneCodeCleanRegEx = /(?:[ \t]+[A-z]{2}[0-9]{2})/;
+		let LewisIreneCodeCleanRegEx = /(?:[ \t]+[a-zA-Z]{2}[0-9]{2})/;
 		title = title.replaceAll(LewisIreneCodeCleanRegEx, '');
 	}
 	title = title.trim().toTitleCase();

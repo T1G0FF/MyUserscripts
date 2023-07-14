@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Northcott
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.07.14.1
 // @description  Gets the names and codes from a Northcott or Banyan Batiks Collection
 // @author       www.tgoff.me
 // @match        *://www.northcott.net/product-detail.aspx?*
@@ -60,7 +60,7 @@ function getAvailabilityDate() {
 	return undefined;
 }
 
-let NorthcottRegEx = /([A-z]*)([0-9]+)([A-z]*)-([0-9]+)/;
+let NorthcottRegEx = /([a-zA-Z]*)([0-9]+)([a-zA-Z]*)-([0-9]+)/;
 let RegexEnum = {
 	'Prefix': 1, // Widebacks, Digital Prints
 	'Collection': 2,

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella - OLD WEBSITE < SEP 2020
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.07.14.1
 // @description  Gets the names and codes from a Dear Stella Collection
 // @author       www.tgoff.me
 // @match        OUTDATED - *://dearstelladesign.com/store/index.php?route=product/category&path=*
@@ -51,7 +51,7 @@ function getCollection() {
 	return collection;
 }
 
-let dearStellaRegEx = /([A-z])?(STELLA-)([A-z]+)?([0-9]+)/i;
+let dearStellaRegEx = /([a-zA-Z])?(STELLA-)([a-zA-Z]+)?([0-9]+)/i;
 let RegexEnum = {
 	'PreStella': 1,
 	'Stella': 2,

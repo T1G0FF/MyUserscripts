@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.07.14.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -72,7 +72,7 @@ async function CollectionsToClipBoard(collection) {
 	await Notify.log(msg);
 }
 
-let blankRegEx = /([A-z]+)?([0-9]+)([A-z]+)?(?:-[ ]*(?:([0-9]+)([A-z]+)?)?)(?:[ ]*([\w\ \-\.\/]+))?/;
+let blankRegEx = /([a-zA-Z]+)?([0-9]+)([a-zA-Z]+)?(?:-[ ]*(?:([0-9]+)([a-zA-Z]+)?)?)(?:[ ]*([\w\ \-\.\/]+))?/;
 let RegexEnum = {
 	'Prefix': 1,
 	'Collection': 2,

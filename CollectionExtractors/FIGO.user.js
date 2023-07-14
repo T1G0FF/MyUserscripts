@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - FIGO
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.07.14.1
 // @description  Gets the names and codes from a FIGO Collection
 // @author       www.tgoff.me
 // @match        *://figofabrics.com/product-detail.aspx?*
@@ -64,7 +64,7 @@ function getCollection() {
 	return collection;
 }
 
-let FIGORegEx = /([A-z]*)?([0-9]+[A-Z]?)-([0-9]+)/;
+let FIGORegEx = /([a-zA-Z]*)?([0-9]+[A-Z]?)-([0-9]+)/;
 let RegexEnum = {
 	'Prefix': 1,
 	'Collection': 2,

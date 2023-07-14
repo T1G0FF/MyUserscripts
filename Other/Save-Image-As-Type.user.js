@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         General - Save Image as Type
 // @namespace    http://www.tgoff.me/
-// @version      2022.05.16.1
+// @version      2023.07.14.1
 // @description  Based on 'Save image as Type' Chrome extension by 'html5gamer' (https://chrome.google.com/webstore/detail/save-image-as-type/gabfmnliflodkdafenbcpjdlppllnemd)
 // @author       www.tgoff.me
 // @match        *://*/*
@@ -67,7 +67,7 @@ function downloadUrl(url, fileName) {
 
 function getSuggestedFilename(src, type) {
 	// Special for chrome web store apps
-	if (src.match(/googleusercontent\.com\/[0-9A-z]{30,}/)) {
+	if (src.match(/googleusercontent\.com\/[0-9a-zA-Z]{30,}/)) {
 		return 'screenshot.' + type;
 	}
 	var fileName = src.replace(/[?#].*/, '').replace(/.*[\/]/, '').replace(/\+/g, ' ');
@@ -75,15 +75,15 @@ function getSuggestedFilename(src, type) {
 	fileName = fileName.replace(/[\x00-\x7f]+/g, function (s) { // Remove Unicode characters?
 		return s.replace(/[^\w\-\.\,@ ]+/g, '');
 	});
-	while (fileName.match(/\.[^0-9A-z]*\./)) {
-		fileName = fileName.replace(/\.[^0-9A-z]*\./g, '.'); // Remove words between dots?
+	while (fileName.match(/\.[^0-9a-zA-Z]*\./)) {
+		fileName = fileName.replace(/\.[^0-9a-zA-Z]*\./g, '.'); // Remove words between dots?
 	}
 	fileName = fileName.replace(/\s{2,}/g, ' ').trim(); // Remove multiple whitespace
 	fileName = fileName.replace(/\.(jpe?g|png|gif|webp|svg)$/gi, '').trim(); // Remove extension
 	if (fileName.length > 32) {
 		fileName = fileName.substr(0, 32);
 	}
-	fileName = fileName.replace(/[^0-9A-z]+$/, '').trim(); //Trailing non-word code
+	fileName = fileName.replace(/[^0-9a-zA-Z]+$/, '').trim(); //Trailing non-word code
 	if (!fileName) {
 		fileName = 'image';
 	}

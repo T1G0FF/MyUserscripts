@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2023.06.20.1
+// @version      2023.07.14.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -586,7 +586,7 @@ async function getCodesOnPage() {
 	let count = 0;
 	if (window.location.href.indexOf('WEB_dash_') > 0) {
 		let url = window.location.href;
-		let parentRegex = /((?:WEB_dash_)[A-z0-9\_]+)\/(.*)\//;
+		let parentRegex = /((?:WEB_dash_)[a-zA-Z0-9\_]+)\/(.*)\//;
 		let matches = parentRegex.exec(url);
 		if (matches && matches.length > 1) {
 			result += ss_decode(matches[1]) + '\t' + ss_decode(matches[2]) + '\n';

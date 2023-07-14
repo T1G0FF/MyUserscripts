@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitch Heroes Inventory Management
 // @namespace    http://www.tgoff.me/
-// @version      2019.02.07.1
+// @version      2023.07.14.1
 // @description  Adds some helpful buttons for Sorting and Filtering your inventory.
 // @author       www.tgoff.me
 // @match        *://twitch-heroes.com/equipped
@@ -406,7 +406,7 @@ function itemToObject(item) {
 	itemObject.buttons = item.getElementsByClassName('buttons')[0].innerHTML.replace(/(\s){2,}/g, ' ');;
 	var statContainer = item.getElementsByClassName('stats')[0];
 	var statHTML = statContainer.innerHTML.replace(/(\s){2,}/g, ' ');
-	var statRegExp = /((?:[0-9]+ - )?[0-9]+(?: %)?) ([A-z]+)(?: <br>)/g, statMatches;
+	var statRegExp = /((?:[0-9]+ - )?[0-9]+(?: %)?) ([a-zA-Z]+)(?: <br>)/g, statMatches;
 	while (statMatches = statRegExp.exec(statHTML)) {
 		var match = statMatches[0];
 		var value = statMatches[1];

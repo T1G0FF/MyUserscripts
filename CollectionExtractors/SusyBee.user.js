@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Susybee
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.07.14.1
 // @description  Gets the names and codes from a Susybee Collection
 // @author       www.tgoff.me
 // @match        *://www.worldofsusybee.com/textiles/*/*
@@ -42,7 +42,7 @@ function getCollection() {
 	return collection;
 }
 
-let susyBeeRegEx = /(?:SB([0-9]+)([A-z]+)?-([0-9]+))/;
+let susyBeeRegEx = /(?:SB([0-9]+)([a-zA-Z]+)?-([0-9]+))/;
 let RegexEnum = {
 	'Collection': 1,
 	'LetterAfter': 2,

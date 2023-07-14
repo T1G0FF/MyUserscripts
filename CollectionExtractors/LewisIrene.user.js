@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Lewis & Irene
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.1
+// @version      2023.07.14.1
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.
 // @author       www.tgoff.me
 // @match        *://www.lewisandirene.com/our-fabrics/*
@@ -13,7 +13,7 @@
 // @run-at        document-idle
 // ==/UserScript==
 
-let LewisIreneRegEx = /([A-z]+)([0-9]+)(?:\.([0-9]+)|(?:\s+[A-z]{2}[0-9]{2}))?(?:[-\s]+)([\/\w -()&]+)/;
+let LewisIreneRegEx = /([a-zA-Z]+)([0-9]+)(?:\.([0-9]+)|(?:\s+[a-zA-Z]{2}[0-9]{2}))?(?:[-\s]+)([\/\w -()&]+)/;
 let RegexEnum = {
 	'CollectionLetters': 1,
 	'CollectionNumbers': 2,
