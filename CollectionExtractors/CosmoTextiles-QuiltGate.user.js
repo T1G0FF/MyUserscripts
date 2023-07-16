@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.17.1
+// @version      2023.07.17.2
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -192,10 +192,10 @@ function formatInformation(itemElement) {
 // https://cosmo-tex.co.jp/ascot_link_files/in/shohin_images/hcd/AN3701/AN3701_1A.jpg
 function formatImage(item) {
 	let imgLink = item.getAttribute('href');
-	let  result;
+	let result;
 	if (!imgLink) {
 		let tempTitle = getTempTitle();
-		tempTitle = RegExp.replace(tempTitle, /[a-zA-Z]+$/, '');
+		tempTitle = tempTitle.replace(/[a-zA-Z]+$/, '');
 		let host = isCosmo ? 'https://cosmo-tex.co.jp/ascot_link_files/in/shohin_images/hcd/' + tempTitle : 'https://www.cosmo-tex.co.jp/quilt_gate/products_photo/';
 		let code = tempTitle + '_' + item.getTextNodeValue(0, true).trim();
 		result = host + '/' + code + '.jpg';
