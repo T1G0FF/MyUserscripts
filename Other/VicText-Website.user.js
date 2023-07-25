@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.14.1
+// @version      2023.07.25.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -21,7 +21,7 @@ const WEBADD_CONFIG = {
 	'CODES_ON_SWATCHES': true,
 	'MORE_PAGER_OPTIONS': true,
 	'HOVER_PREVIEW': true,
-	'FIX_IMAGES': true,
+	'FIX_IMAGES': false,
 	'COPY_CODES': true,
 	'COPY_IMAGES': true,
 	'FIND_IMAGELESS': true,
@@ -430,6 +430,7 @@ async function fixBrokenImages() {
 
 	for (const currentItem of collection) {
 		let code = getCodeFromItem(currentItem);
+		code = code.replaceAll(/[^A-Za-z0-9\ \._\-]/, '');
 		let image = currentItem.querySelector('div.galleryImage img');
 		if (image) {
 			let src = image.src.replaceAll(encodeURI(code), encodeURIComponent(code));
