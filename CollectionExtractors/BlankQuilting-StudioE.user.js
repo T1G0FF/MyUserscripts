@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.31.1
+// @version      2023.07.31.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -15,14 +15,28 @@
 // @run-at        document-idle
 // ==/UserScript==
 
+const Company = {
+	BlankQuilting: 0,
+	StudioE: 1,
+	Stof: 2
+}
+
 let isSearch = false;
 let isCollectionPage = false;
-let isStudioE = false;
+let companyEnum = Company.BlankQuilting;
 (function () {
 	'use strict';
 	isSearch = window.location.pathname.includes('search-results-page');
 	isCollectionPage = document.querySelectorAll('div.parent-category-area li').length > 0;
-	isStudioE = window.location.hostname.includes('studioefabrics');
+	
+	let breadcrumbs = document.querySelector('ul.breadcrumbs');
+	if (breadcrumbs?.innerText.indexOf('Stof Fabrics') >= 0) {
+		companyEnum = Company.Stof;
+	}
+	else if (window.location.hostname.includes('studioefabrics')) {
+		companyEnum = Company.StudioE;
+	}
+
 	let elem = document.querySelector('div.ship-in span.shipin-title');
 	if (!elem) elem = getTitleElement();
 	if (isCollectionPage) {
@@ -83,11 +97,13 @@ let RegexEnum = {
 };
 
 function getCompany() {
-	let company = isStudioE ? 'Studio E' : 'Blank Quilting';
-	let breadcrumbs = document.querySelector('ul.breadcrumbs');
-	if (breadcrumbs?.innerText.indexOf('Stof Fabrics') >= 0) {
-		company = 'Stof';
-	}
+	let company = (() => {
+		switch (companyEnum) {
+			case Company.BlankQuilting: return 'Blank Quilting';
+			case Company.StudioE: return 'Studio E';
+			case Company.Stof: return 'Stof';
+		}
+	})();
 	return company;
 }
 
@@ -152,7 +168,13 @@ function getItemObject(item) {
 		givenCode = givenCode.split('||')[0].trim();
 	}
 
-	let prefix = 'BQ';
+	let prefix = (() => {
+		switch (companyEnum) {
+			case Company.BlankQuilting: return 'BQ';
+			case Company.StudioE: return 'BQ';
+			case Company.Stof: return '';
+		}
+	})();
 	let title = getFormattedTitle();
 	let dates = getReleaseDates();
 
@@ -162,7 +184,7 @@ function getItemObject(item) {
 		let itemName = imgElement.getAttribute('alt');
 		let classList = Array.from(item.classList);
 		classList.remove('product', 'item', 'first', 'last');
-		if(!isStudioE) {
+		if (companyEnum == Company.BlankQuilting) {
 			classList.remove('Full');
 		}
 		let purchaseCode = Array.prototype.join.call(classList, ' ');
@@ -291,7 +313,13 @@ function formatInformation(itemElement) {
 		itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
 
 		let widthString = item.Width.Measurement + item.Width.Unit;
-		description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company !== 'Blank Quilting') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+		let tempCollection = (() => {
+			switch (companyEnum) {
+				case Company.BlankQuilting: return item.CollectionName;
+				default: return company + ' ' + item.CollectionName;
+			}
+		})();
+		description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': tempCollection, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
 
 		webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
 
