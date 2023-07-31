@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.31.3
+// @version      2023.07.31.4
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -28,7 +28,7 @@ let companyEnum = Company.BlankQuilting;
 	'use strict';
 	isSearch = window.location.pathname.includes('search-results-page');
 	isCollectionPage = document.querySelectorAll('div.parent-category-area li').length > 0;
-	
+
 	let breadcrumbs = document.querySelector('ul.breadcrumbs');
 	if (breadcrumbs?.innerText.indexOf('Stof Fabrics') >= 0) {
 		companyEnum = Company.Stof;
@@ -279,7 +279,7 @@ function formatInformation(itemElement) {
 	if (!item) return;
 
 	if (isCollectionPage) {
-		return { 
+		return {
 			'itemCode': 'Collection',
 			'description': item.CollectionName
 		};
@@ -309,13 +309,14 @@ function formatInformation(itemElement) {
 
 		webDesc = formatWebDescription({ 'Collection': item.CollectionCount + ' Bolts', 'Bolts': boltString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });;
 	} else {
-		let tempCodeColour = (() => {
+		let tempCodeColour = ((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '');
+		tempCodeColour += (() => {
 			switch (companyEnum) {
 				case Company.Stof: return '';
-				default: return (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
+				default: return shortenColourName(item.ColourName);
 			}
 		})();
-		itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
+		itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour.toUpperCase());
 
 		let widthString = item.Width.Measurement + item.Width.Unit;
 		let tempCollection = (() => {
