@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.31.2
+// @version      2023.07.31.3
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -309,7 +309,12 @@ function formatInformation(itemElement) {
 
 		webDesc = formatWebDescription({ 'Collection': item.CollectionCount + ' Bolts', 'Bolts': boltString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });;
 	} else {
-		let tempCodeColour = (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
+		let tempCodeColour = (() => {
+			switch (companyEnum) {
+				case Company.Stof: return '';
+				default: return (((item.ColourCode.length > 0) ? item.ColourCode + ' ' : '') + shortenColourName(item.ColourName)).toUpperCase();
+			}
+		})();
 		itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
 
 		let widthString = item.Width.Measurement + item.Width.Unit;
