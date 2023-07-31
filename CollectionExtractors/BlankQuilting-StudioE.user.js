@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.14.1
+// @version      2023.07.31.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -84,6 +84,10 @@ let RegexEnum = {
 
 function getCompany() {
 	let company = isStudioE ? 'Studio E' : 'Blank Quilting';
+	let breadcrumbs = document.querySelector('ul.breadcrumbs');
+	if (breadcrumbs?.innerText.indexOf('Stof Fabrics') >= 0) {
+		company = 'Stof';
+	}
 	return company;
 }
 
@@ -223,6 +227,10 @@ function getItemObject(item) {
 		special = title.substr(dash + 3);
 		title = title.substr(0, dash)
 	}
+	else if (title.endsWith('Digital')) {
+		special = 'Digital';
+		title = title.replace('Digital', '').trim();
+	}
 
 	let material = 'C100%';
 	let width = title.includes('108') ? { 'Measurement': '108', 'Unit': 'in' } : { 'Measurement': '45', 'Unit': 'in' };
@@ -283,7 +291,7 @@ function formatInformation(itemElement) {
 		itemCode = formatItemCode(item.Prefix, item.CollectionCode + ' ' + tempCodeColour);
 
 		let widthString = item.Width.Measurement + item.Width.Unit;
-		description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company === 'Studio E') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
+		description = formatSapDescription({ 'Colour': item.ColourName, 'Pattern': item.PatternName, 'Collection': (company !== 'Blank Quilting') ? company + ' ' + item.CollectionName : item.CollectionName, 'Special': item.SpecialNotes, 'Material': item.Material, 'Width': 'W' + widthString, 'Repeat': item.Repeat })
 
 		webName = (((item.ColourName.length > 0) ? item.ColourName + ' - ' : '') + item.PatternName);
 
