@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2023.08.15.1
+// @version      2023.09.26.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -134,6 +134,12 @@ function addMiscCSS() {
 	display:none;
 }`;
 	MyStyles._addStyle(cssText); // 'RemoveRegister'
+
+	cssText = `/* Shorten Horizontal Drop Menu */
+div.home-dropmenu.dropdown:has(> a#dropMenu8) {
+	display:none;
+}`; // Removes 'Stabilisers'
+	MyStyles.addStyle('ShortenDropMenu', cssText);
 
 	cssText = `/* Special Star */
 div.onSpecial, div.onSpecial > span {
