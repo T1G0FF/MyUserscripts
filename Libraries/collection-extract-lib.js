@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.14.1
+// @version      2023.10.05.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -116,6 +116,7 @@ async function getItemObject(item) {
 			+ '\n\t\t' + '\'SpecialNotes\': SPECIALNOTES' + '\t\t' + '// Where SPECIALNOTES is anything special about the item. (eg "Digital", "Flannel", "Glow", "Metallic")'
 			+ '\n\t\t' + '\'Material\': MATERIAL' + '\t\t\t\t' + '// Where MATERIAL is the fibre composition. (eg "C80% L20%")'
 			+ '\n\t\t' + '\'Width\': WIDTH' + '\t\t\t\t\t\t' + '// Where WIDTH is the width of fabric expressed as an object like this: { "Measurement": "108", "Unit": "in" }'
+			+ '\n\t\t' + '\'BoltLength\': LENGTH' + '\t\t\t\t\t\t' + '// Where LENGTH is the length of fabric expressed as an object like this: { "Measurement": "13.7", "Unit": "m" }'
 			+ '\n\t\t' + '\'Repeat\': REPEAT' + '\t\t\t\t\t' + '// Where REPEAT is the width of a patterns repeat expressed as an object like this: { "Measurement": "15", "Unit": "cm" }, if available'
 			+ '\n\t\t' + '\'ReleaseDates\': RELEASEDATES' + '\t\t' + '// Where RELEASEDATES is an object like this: { "Received": "[Short Received Month] [4 Digit Received Year]", "Delivery": "[Short Delivery Month] [4 Digit Delivery Year]" }'
 			+ '\n\t' + '}');
@@ -137,6 +138,7 @@ async function formatInformation(itemElement) {
 			+ '\n\t\t' + '\'webDesc\': WEBDESC,' + '\t\t\t\t' + '// Where WEBDESC contains as many of the following: [Collection] [Notes] [Fibre] [Width] [Release] [Delivery]'
 			+ '\n\t\t' + '\'delDate\': DELDATE,' + '\t\t\t\t' + '// Where DELDATE is "Rec [Short Received Month] [4 Digit Received Year]; Del [Short Delivery Month] [4 Digit Delivery Year]" or an empty string (eg. Rec Mar 2019; Del Jul 2019)'
 			+ '\n\t\t' + '\'purchaseCode\': PURCHASECODE' + '\t' + '// Where PURCHASECODE is the company\'s item code. Must be no greater than 50 characters.'
+			+ '\n\t\t' + '\'boltLength\': LENGTH' + '\t' + '// Where LENGTH is the length of a bolt of fabric. Number only, no units.'
 			+ '\n\t\t' + '\'webCategory\': WEBCATEGORY' + '\t\t' + '// Where WEBCATEGORY is the collections category on the Victorian Textiles website. Must be no greater than 25 characters'
 			+ '\n\t' + '}');
 	}
@@ -273,8 +275,8 @@ function shortenColourName(colourName) {
 }
 
 async function formatCSVOutput(collection) {
-	let items = 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'ItemName' + '\t' + 'ForeignName' + '\t' + 'User_Text' + '\t' + 'U_Stuff' + '\t' + 'SuppCatNum' + '\t' + 'U_WebCategory3' + '\n'; 
-	items += 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'Description' + '\t' + 'WebName' + '\t' + 'WebDescription' + '\t' + 'Delivery' + '\t' + 'PurchaseCode' + '\t' + 'WebCategory' + '\n';
+	let items = 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'ItemName' + '\t' + 'ForeignName' + '\t' + 'User_Text' + '\t' + 'U_Stuff' + '\t' + 'SuppCatNum' + '\t' + 'SalesFactor1' + '\t' + 'U_WebCategory3' + '\n'; 
+	items += 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'Description' + '\t' + 'WebName' + '\t' + 'WebDescription' + '\t' + 'Delivery' + '\t' + 'Length' + '\t' + 'SalesFactor1' + '\t' + 'WebCategory' + '\n';
 	let count = 0;
 	for (let item in collection) {
 		let currentItem = collection[item];
@@ -291,6 +293,7 @@ async function formatCSVOutput(collection) {
 				items += (formattedInfo.webDesc ? formattedInfo.webDesc : '') + '\t';
 				items += (formattedInfo.delDate ? formattedInfo.delDate : '') + '\t';
 				items += (formattedInfo.purchaseCode ? formattedInfo.purchaseCode : '') + '\t';
+				items += (formattedInfo.boltLength ? formattedInfo.boltLength : '') + '\t';
 				items += (formattedInfo.webCategory ? formattedInfo.webCategory : '') + '\n';
 			}
 		}
