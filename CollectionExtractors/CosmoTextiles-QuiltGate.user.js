@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.17.2
+// @version      2023.10.05.1
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -129,12 +129,13 @@ function getItemObject(item) {
 
 	let measureElem = document.querySelector('div.row04 div.column02');
 	let width = { 'Measurement': '45', 'Unit': 'in' };
+	let length = { 'Measurement': '7', 'Unit': 'm' };
 	let measureStr = measureElem?.innerText ?? '45in×7m';
 	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/i.exec(measureStr);
 	if (measureMatches && measureMatches.length > 1) {
 		width = { 'Measurement': parseFloat(measureMatches[1]), 'Unit': measureMatches[2].toLowerCase() };
 		let flt = parseFloat(measureMatches[3]);
-		let length = (() => {
+		let lengthF = (() => {
 			switch (flt) {
 				case 36: return '12';
 				case 40: return '10';
@@ -142,7 +143,7 @@ function getItemObject(item) {
 				default: return flt;
 			}
 		})();
-		special += (special.length > 0 ? ' - ' : '') + 'L' + length + measureMatches[4].toLowerCase();
+		length = { 'Measurement': lengthF, 'Unit': measureMatches[4].toLowerCase() };
 	}
 
 	let repeat = '';
@@ -159,6 +160,7 @@ function getItemObject(item) {
 		'SpecialNotes': special,
 		'Material': fibre,
 		'Width': width,
+		'BoltLength': length,
 		'Repeat': repeat,
 		'ReleaseDates': dates,
 	};
@@ -184,7 +186,7 @@ function formatInformation(itemElement) {
 	let webDesc = formatWebDescription({ 'Collection': item.CollectionName, 'Notes': item.SpecialNotes, 'Fibre': item.Material, 'Width': widthString, 'Release': relDateString, 'Delivery From': item.ReleaseDates.Delivery });
 	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
 
-	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': item.CollectionName };
+	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'boltLength': item.BoltLength.Measurement,  'webCategory': item.CollectionName };
 	return result;
 }
 
