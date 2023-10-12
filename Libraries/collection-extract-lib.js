@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2023.10.05.2
+// @version      2023.10.13.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -637,6 +637,7 @@ function _createButton(text, btnFunc, element, location = 'beforeEnd', showIf = 
 	if (showIf) {
 		let newButton = document.createElement('button');
 		newButton.innerText = text;
+		newButton.type = 'button';
 		newButton.classList.add('tg-dropdown-option');
 		newButton.onclick = btnFunc;
 
