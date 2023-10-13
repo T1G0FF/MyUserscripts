@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Madeira
 // @namespace    http://www.tgoff.me/
-// @version      2023.10.13.2
+// @version      2023.10.13.3
 // @description  Gets the names and codes from a Madeira Range
 // @author       www.tgoff.me
 // @match        *://www.madeirausa.com/*
@@ -52,7 +52,7 @@ function formatInformation(item) {
 	let company = getCompany();
 
 	let nameElem = item.querySelector('a.productTitle');
-	let givenName = nameElem?.innerText ?? '';	// 910-1001 MADEIRA CLASSIC RAYON #40 WEIGHT
+	let givenName = nameElem?.innerText.toUpperCase() ?? '';	// 910-1001 MADEIRA CLASSIC RAYON #40 WEIGHT
 	let spaceIndex = givenName.indexOf(' ');
 	let givenCode = givenName.substr(0, spaceIndex); // 910-1001
 	let givenTitle = givenName.substr(spaceIndex + 1); // MADEIRA CLASSIC RAYON #40 WEIGHT
@@ -64,9 +64,15 @@ function formatInformation(item) {
 	}
 
 	let descElem = item.querySelector('div.shortDesc');	
-	let givenDesc = descElem?.innerText ?? ''; // 5500yd CONE WHITE
+	let givenDesc = descElem?.innerText.toUpperCase() ?? ''; // 5500yd CONE WHITE
 	let givenSize = '';
 	let givenColour = '';
+	for (const ignore of ['ASST', 'COLLECTION', 'KIT']) {
+		let ignoreIndex = givenDesc.indexOf(ignore);
+		if (ignoreIndex >= 0) {
+			return;
+		}
+	}
 	for (const size of ['CONE', 'SPOOL']) {
 		let sizeIndex = givenDesc.indexOf(size);
 		if (sizeIndex >= 0) {
@@ -78,9 +84,9 @@ function formatInformation(item) {
 	}
 
 	let prefix = '';
-	let itemCode = (prefix + givenCode).toUpperCase();
+	let itemCode = (prefix + givenCode);
 	let barCode = formatBarCode(itemCode);
-	let purchaseCode = givenCode.toUpperCase();
+	let purchaseCode = givenCode;
 
 	let colour = givenColour.toTitleCase();
 	let name = givenTitle.replace('MADEIRA', '').trim().toTitleCase();
