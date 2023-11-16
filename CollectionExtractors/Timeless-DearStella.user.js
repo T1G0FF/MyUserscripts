@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.11.1
+// @version      2023.11.16.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -364,7 +364,7 @@ function formatInformation(itemElement) {
 
 	let webCategory = (() => {
 		switch(companyEnum) {
-			case Company.Timeless: return isTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
+			case Company.Timeless: return item.IsTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
 			case Company.DearStella: return item.CollectionName;
 			case Company.Marcus: return item.CollectionName;
 		}
