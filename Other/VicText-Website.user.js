@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2023.09.26.1
+// @version      2023.12.20.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -67,20 +67,25 @@ var cachedChildlessCollection = undefined;
 function addMiscCSS() {
 	let cssText = '';
 	cssText = `/* 4 per row */
+@media (min-width: 768px) {
 /* Items */
 #productListWrapper .col-xs-4.item,
 #productListWrapper .col-sm-4.item,
 #productListWrapper .col-md-4.item,
 #productListWrapper .col-lg-4.item {
+	aspect-ratio: 1 / 1.3;
 	width: 25%;
-	max-height: 293px !important;
+	height: unset;
+	max-height: none !important;
 }
 /* Categories */
 #productListWrapper .col-xs-4:not(.item),
 #productListWrapper .col-sm-4:not(.item),
 #productListWrapper .col-md-4:not(.item),
 #productListWrapper .col-lg-4:not(.item) {
+	aspect-ratio: 1 / 1.1;
 	width: 25%;
+	height: unset;
 	max-height: none !important;
 	min-height: 230px !important;
 	padding-left: 5px;
@@ -106,9 +111,10 @@ function addMiscCSS() {
 }
 
 .galleryImage, .galleryImage img {
-	height: 200px;
-	min-height: 200px;
-	max-height: 200px;
+	aspect-ratio: 1 / 1;
+	width: 100%;
+	height: unset;
+}
 }`;
 	MyStyles.addStyle('4PerRow', cssText);
 
