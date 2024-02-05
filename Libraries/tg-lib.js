@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2023.07.14.1
+// @version      2024.02.05.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -9,6 +9,14 @@
 function clamp(num, min, max) { return num <= min ? min : num >= max ? max : num; }
 
 function comp(a, b) { return a > b ? +1 : b > a ? -1 : 0; }
+
+function round(num, decimalPlaces = 0) {
+	if (num < 0)
+		return -round(-num, decimalPlaces);
+	var p = Math.pow(10, decimalPlaces);
+	var n = (num * p).toPrecision(15);
+	return Math.round(n) / p;
+}
 
 function colorLightenDarken(col, amt) {
 	let usePound = false;
