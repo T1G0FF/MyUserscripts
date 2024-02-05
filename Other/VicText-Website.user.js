@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2023.12.20.1
+// @version      2024.02.05.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -30,6 +30,7 @@ const WEBADD_CONFIG = {
 	'SCRAPE_TEMP_PARENTS': true,
 	'SCRAPE_COLLECTION_COUNT': true,
 	'SCRAPE_IMAGELESS': true,
+	'ADD_WHOLESALE': true,
 };
 
 // Browser doesn't like when we make too many navigation calls
@@ -55,6 +56,8 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
 	if (WEBADD_CONFIG.SORT_CODES) await addSortFilterInputs(undefined, document.querySelectorAll('div.col-md-4.col-sm-4.item'));
+	if (WEBADD_CONFIG.ADD_WHOLESALE) await addWholesalePrice();
+
 
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
 		addScraperOptions();
@@ -448,6 +451,49 @@ async function fixBrokenImages() {
 			let src = image.src.replaceAll(encodeURI(code), encodeURIComponent(code));
 			image.src = src;
 		}
+	}
+}
+
+const auPrice = new Intl.NumberFormat("en-US", {
+	style: "currency",
+	currency: "USD",
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+});
+
+async function addWholesalePrice() {
+	let cssText = `/* Hide Wholesale prices by Default */
+.wholesale-price {
+	position: absolute;
+	display: none;
+	z-index: 100;
+	left: 20%;
+	top: 50%;
+}`;
+	MyStyles._addStyle(cssText);
+
+	cssText = `/* Add Wholesale prices next to RRP */
+.wholesale-price {
+	display: inline-block;
+	font-size: 9px;
+	font-weight: normal;
+}`;
+	MyStyles.addStyle('WholesalePrices', cssText);
+
+	if (!document.querySelector('div.header-account-menu a[href*="login.php"]')) {
+		MyStyles.disableStyle('WholesalePrices');
+	}
+
+	let collection = await getCollection();
+	for (const currentItem of collection) {
+		let priceElem =  currentItem.querySelector('.featurePrice, .addonPrice, .galleryPrice');
+		let price = getPriceAsFloat(currentItem);
+		let priceWS = round(price / 2.2, 2);
+
+		let wsPriceElement = currentItem.querySelector('span.productDetailPriceIncGST');
+		wsPriceElement.classList.add('wholesale-price');
+		wsPriceElement.innerText = auPrice.format(priceWS);
+		priceElem.insertAdjacentElement('beforeEnd', wsPriceElement);
 	}
 }
 
@@ -1192,6 +1238,26 @@ addSortBy('Code', (item) => {
 	tempCode = tempCode.replace(/(\d+)/, m => zeroPad(parseInt(m), 10));
 	return tempCode;
 });
+
+addSortBy('Price', (item) => {
+	return getPriceAsFloat(item);
+});
+
+function getPriceAsFloat(item) {
+	let price = item.querySelector('.featurePrice, .addonPrice, .galleryPrice')?.innerText;
+
+	if (price) {
+		let gst = item.querySelector('div.productDetailPriceIncGST')?.innerText;
+		if (gst) {
+			price = price.replace(gst.innerText, '');
+		}
+
+		price = price.trim();
+		price = price.replace(/\$/, '');
+		return parseFloat(price);
+	}
+	return 0;
+}
 
 function zeroPad(num, totalLength) {
 	if (num === 0) return '0'.repeat(totalLength);
