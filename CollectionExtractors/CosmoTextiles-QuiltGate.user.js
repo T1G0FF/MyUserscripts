@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2024.03.28.1
+// @version      2024.03.28.2
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -32,6 +32,8 @@ function getTitleElement() {
 
 function getTempTitle() {
 	let tempTitle = getTitleElement().querySelector('span')?.innerText;
+	tempTitle = tempTitle.replace('[', '');
+	tempTitle = tempTitle.replace(']', '');
 	return tempTitle.trim();
 }
 
@@ -41,11 +43,9 @@ function getTitle() {
 	title = title.replace(titleElement.querySelector('span.tg-dropdown-container')?.innerText, '').trim();
 
 	if (isCosmo) {
-		let codeElem = titleElement.querySelector('span');
-		let tempTitle = getTempTitle();
+		let tempTitle = titleElement.querySelector('span')?.innerText;
 		title = title.replace(tempTitle, '').trim();
-		tempTitle = tempTitle.replace('[', '');
-		tempTitle = tempTitle.replace(']', '');
+		tempTitle = getTempTitle();
 		title = title.replace(tempTitle, '').trim();
 	}
 	else {
@@ -59,6 +59,9 @@ function getCollection() {
 	let collection;
 	if (isCosmo) {
 		collection = document.querySelectorAll('div.color-sample > a');
+		if (!collection || collection.length < 1) { // When the items have no images
+			collection = document.querySelectorAll('th:has(div.color-sample)');
+		}
 	}
 	else {
 		collection = document.querySelectorAll('div#mainContent table div.product_box_subimage a');
@@ -92,7 +95,8 @@ function getItemObject(item) {
 	}
 	else {
 		//'AN3701S_1A';
-		givenCode = getTempTitle() + '_' + item.getTextNodeValue(0, true).trim();
+		let codeText = item.querySelector('div:first-of-type')?.innerText;
+		givenCode = getTempTitle() + '_' + codeText.trim();
 	}
 
 	let prefix = 'QG';
