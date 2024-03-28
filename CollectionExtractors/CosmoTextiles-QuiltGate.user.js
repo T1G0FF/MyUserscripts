@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2023.12.15.1
+// @version      2024.03.28.1
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://www.quilt-gate.com/eng/detail.php?*
@@ -26,13 +26,12 @@ function getCompany() {
 }
 
 function getTitleElement() {
-	let titleElement = isCosmo ? document.querySelector('div#main_content_box h2 span:last-of-type') : document.querySelector('div#mainContent table td h3');
+	let titleElement = isCosmo ? document.querySelector('h3.ttl-product-name') : document.querySelector('div#mainContent table td h3');
 	return titleElement;
 }
 
 function getTempTitle() {
-	var tempTitle = document.querySelector('div#main_content_box h2 span strong')?.innerText;
-	if (tempTitle.indexOf('【品番】') >= 0) tempTitle = tempTitle.split('【品番】')[1];
+	let tempTitle = getTitleElement().querySelector('span')?.innerText;
 	return tempTitle.trim();
 }
 
@@ -42,12 +41,12 @@ function getTitle() {
 	title = title.replace(titleElement.querySelector('span.tg-dropdown-container')?.innerText, '').trim();
 
 	if (isCosmo) {
+		let codeElem = titleElement.querySelector('span');
 		let tempTitle = getTempTitle();
-
-		if (title.indexOf('（') >= 0) title = title.split('（')[1];
-		if (title.indexOf('）') >= 0) title = title.split('）')[0];
-		if (title.indexOf('商品名 ：') >= 0) title = title.split('商品名 ：')[1];
-		title = title.replace(tempTitle, '');
+		title = title.replace(tempTitle, '').trim();
+		tempTitle = tempTitle.replace('[', '');
+		tempTitle = tempTitle.replace(']', '');
+		title = title.replace(tempTitle, '').trim();
 	}
 	else {
 		if (title.indexOf(' - ') >= 0) title = title.split(' - ')[0];
@@ -59,10 +58,7 @@ function getTitle() {
 function getCollection() {
 	let collection;
 	if (isCosmo) {
-		collection = document.querySelectorAll('div#main_content_box table a[data-lightbox="color_img"]');
-		if (!collection || collection.length < 1) {
-			collection = document.querySelectorAll('div#main_content_box table[bordercolor="#CCCCCC"] tr td:first-of-type[align="center"]:not([bgcolor^="#"])');
-		}
+		collection = document.querySelectorAll('div.color-sample > a');
 	}
 	else {
 		collection = document.querySelectorAll('div#mainContent table div.product_box_subimage a');
@@ -85,9 +81,9 @@ let CosmoRegExEnum = {
 function getItemObject(item) {
 	let givenCode = '';
 
-	let imgLink = item.getAttribute('href');
+	let imgLink = item.href;
 	if (imgLink) {
-		let codeMatches = isCosmo ? /shohin_images\/hcd_big\/[A-Z0-9]+\/(.*?)\.jpg/i.exec(imgLink) : /products_photo\/(.*?)\.jpg/i.exec(imgLink);
+		let codeMatches = isCosmo ? /shohin_images\/hcd\/[A-Z0-9]+\/(.*?)_mk_main\.jpg/i.exec(imgLink) : /products_photo\/(.*?)\.jpg/i.exec(imgLink);
 		if (!codeMatches || codeMatches.length <= 1) {
 			Notify.log('No matches found in link for Item!', item);
 			return;
@@ -116,7 +112,7 @@ function getItemObject(item) {
 
 	let title = getFormattedTitle();
 
-	let materialElem = document.querySelector('div.row03 div.column02');
+	let materialElem = document.querySelector('#side p.data:nth-of-type(1)');
 	let material = materialElem?.innerText ?? '';
 	material = material.replace(/100%[\s]*COTTON/i, '');
 	material = material.replace(/C\/L[\s]*85\/15%/i, '');
@@ -124,10 +120,10 @@ function getItemObject(item) {
 	material = material.replace('PRINTED', '');
 	let special = material.trim().toTitleCase();
 
-	let fibreElem = document.querySelector('div.row05 div.column02');
+	let fibreElem = document.querySelector('#side p.data:nth-of-type(3)');
 	let fibre = fibreElem?.innerText ?? 'C100%';
 
-	let measureElem = document.querySelector('div.row04 div.column02');
+	let measureElem = document.querySelector('#side p.data:nth-of-type(2)');
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let length = { 'Measurement': '7', 'Unit': 'm' };
 	let measureStr = measureElem?.innerText ?? '45in×7m';
