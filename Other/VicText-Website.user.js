@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2024.03.19.1
+// @version      2024.04.08.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -1132,8 +1132,9 @@ async function btnAction_countCollection(fast = false) {
 					let itemsOnLastPage = -1;
 
 					let listWrapper = iFrameDocument.querySelector('div#productListWrapper');
-					let itemsOnPage = listWrapper.querySelectorAll('div.item');
-					itemsOnLastPage = itemsOnPage.length;
+					let itemsOnPage = listWrapper?.querySelectorAll('div.item');
+					itemsOnLastPage = itemsOnPage?.length ?? Number.POSITIVE_INFINITY;
+					if (!listWrapper) debugger;
 
 					return {
 						CollectionName: cpc.CollectionName,
@@ -1236,7 +1237,7 @@ function stockIndicatorToSortable(stock) {
 }
 
 addSortBy('Code', (item) => {
-	var tempCode = getCodeFromItem(item);
+	let tempCode = getCodeFromItem(item);
 	tempCode = tempCode.replace(/(\d+)/, m => zeroPad(parseInt(m), 10));
 	return tempCode;
 });
@@ -1263,12 +1264,12 @@ function getPriceAsFloat(item) {
 
 function zeroPad(num, totalLength) {
 	if (num === 0) return '0'.repeat(totalLength);
-	var an = Math.abs(num);
-	var digitCount = 1 + Math.floor(Math.log(an) / Math.LN10);
+	let an = Math.abs(num);
+	let digitCount = 1 + Math.floor(Math.log(an) / Math.LN10);
 	if (digitCount >= totalLength) {
 		return num;
 	}
-	var zeroString = Math.pow(10, totalLength - digitCount).toString().substr(1);
+	let zeroString = Math.pow(10, totalLength - digitCount).toString().substr(1);
 	return num < 0 ? '-' + zeroString + an : zeroString + an;
 }
 
