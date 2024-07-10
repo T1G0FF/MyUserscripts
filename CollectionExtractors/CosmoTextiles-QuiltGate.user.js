@@ -1,11 +1,15 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2024.03.28.2
+// @version      2024.07.11.1
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
-// @match        *://www.quilt-gate.com/eng/detail.php?*
+// @match        *://quilt-gate.com/eng/detail.php?*
+// @match        *://*.quilt-gate.com/eng/detail.php?*
 // @match        *://cosmo-tex.co.jp/hcd/search_detail.php?*
+// @match        *://*.cosmo-tex.co.jp/hcd/search_detail.php?*
+// @match        *://cosmo-tex.co.jp/hcd/search_detail_optional.php?*
+// @match        *://*.cosmo-tex.co.jp/hcd/search_detail_optional.php?*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
