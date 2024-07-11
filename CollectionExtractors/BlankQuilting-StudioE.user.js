@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2024.07.11.1
+// @version      2024.07.11.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -346,12 +346,12 @@ function formatInformation(itemElement) {
 }
 
 // https://cdn11.bigcommerce.com/s-par0o0ta6b/images/stencil/500x659/products/15784/24709/3923-30__44151.1716905753.jpg?c=2
-// https://cdn11.bigcommerce.com/s-par0o0ta6b/images/stencil/1280x1280/products/15804/24729/3923-30__44151.1716905753.jpg?c=2
+// https://cdn11.bigcommerce.com/s-par0o0ta6b/images/stencil/original/products/15804/24729/3923-30__44151.1716905753.jpg?c=2
 
 function formatImage(item) {
 	let img = isSearch ? item.querySelector('span.snize-thumbnail img') : item.querySelector('img');
 	let result = img.getAttribute('src');
-	result = result.replace('/500x659/', '/1280x1280/');
+	result = result.replace('/500x659/', '/original/');
 	return result;
 }
 
