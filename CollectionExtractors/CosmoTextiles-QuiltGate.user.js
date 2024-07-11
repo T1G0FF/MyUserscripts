@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2024.07.11.1
+// @version      2024.07.11.2
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://quilt-gate.com/eng/detail.php?*
@@ -126,6 +126,7 @@ function getItemObject(item) {
 	material = material.replace(/C\/L[\s]*85\/15%/i, '');
 	material = material.replace('C100%', '');
 	material = material.replace('PRINTED', '');
+	material = material.replace('D/GAUZE', 'DOUBLE GAUZE');
 	let special = material.trim().toTitleCase();
 
 	let fibreElem = document.querySelector('#side p.data:nth-of-type(3)');
@@ -208,6 +209,7 @@ function formatImage(item) {
 	}
 	else {
 		result = getAbsolutePath(imgLink);
+		result = result.replace('_mk_main', '');
 	}
 	return result;
 }
