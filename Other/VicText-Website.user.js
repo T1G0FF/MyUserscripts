@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2024.04.30.1
+// @version      2024.07.19.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -567,7 +567,8 @@ function changePagerButtonText(element, page, text) {
 }
 
 function addPagerOptionsAtTop(pagerWrappers) {
-	let heading = document.getElementById('productListWrapper').querySelector('h1');
+	let heading = document.querySelector('#mainContent h1');
+	if (!heading) return;
 	let divider = document.querySelector('div.productDetailDivider');
 	let clearFloat = document.querySelector('br.clearfloat');
 
