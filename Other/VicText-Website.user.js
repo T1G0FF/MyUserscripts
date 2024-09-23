@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2024.09.24.1
+// @version      2024.09.24.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -413,7 +413,7 @@ function addItemCodesToSwatches() {
 	text-indent: -50%;
 }
 
-/* Display Thumbnail Image on  Hover */
+/* Display Thumbnail Image on Hover */
 .swatcher-swatch:hover .swatch-product-img {
 	width: 250px;
 	height: 250px;
@@ -494,8 +494,8 @@ async function addWholesalePrice() {
 
 	let collection = await getCollection();
 	for (const currentItem of collection) {
-		let priceElem =  currentItem.querySelector('.featurePrice, .addonPrice, .galleryPrice');
-		let price = getPriceAsFloat(currentItem);
+		let priceElem = currentItem.querySelector('.featurePrice, .addonPrice, .galleryPrice');
+		let price = getPriceAsFloat(priceElem);
 		let priceWS = round(price / 2.2, 2);
 
 		let wsPriceElement = currentItem.querySelector('span.productDetailPriceIncGST');
@@ -508,15 +508,14 @@ async function addWholesalePrice() {
 
 	let productDetailsPrice = document.querySelector('p.productListPrice');
 	if (productDetailsPrice) {
-		let priceElem = currentItem.querySelector('.featurePrice, .addonPrice, .galleryPrice');
-		let price = getPriceAsFloat(currentItem);
+		let price = getPriceAsFloat(productDetailsPrice);
 		let priceWS = round(price / 2.2, 2);
 
 		let wsPriceElement = currentItem.querySelector('span.productDetailPriceIncGST');
 		if (wsPriceElement) {
 			wsPriceElement.classList.add('wholesale-price');
 			wsPriceElement.innerText = auPrice.format(priceWS);
-			priceElem.insertAdjacentElement('beforeEnd', wsPriceElement);
+			productDetailsPrice.insertAdjacentElement('beforeEnd', wsPriceElement);
 		}
 	}
 }
@@ -1266,11 +1265,11 @@ addSortBy('Code', (item) => {
 });
 
 addSortBy('Price', (item) => {
-	return getPriceAsFloat(item);
+	return getPriceAsFloat(item.querySelector('.featurePrice, .addonPrice, .galleryPrice'));
 });
 
-function getPriceAsFloat(item) {
-	let price = item.querySelector('.featurePrice, .addonPrice, .galleryPrice')?.innerText;
+function getPriceAsFloat(priceElem) {
+	let price = priceElem?.innerText;
 
 	if (price) {
 		let gst = item.querySelector('div.productDetailPriceIncGST')?.innerText;
