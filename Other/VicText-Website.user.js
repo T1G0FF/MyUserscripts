@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2024.07.19.1
+// @version      2024.09.24.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -495,6 +495,20 @@ async function addWholesalePrice() {
 	let collection = await getCollection();
 	for (const currentItem of collection) {
 		let priceElem =  currentItem.querySelector('.featurePrice, .addonPrice, .galleryPrice');
+		let price = getPriceAsFloat(currentItem);
+		let priceWS = round(price / 2.2, 2);
+
+		let wsPriceElement = currentItem.querySelector('span.productDetailPriceIncGST');
+		if (wsPriceElement) {
+			wsPriceElement.classList.add('wholesale-price');
+			wsPriceElement.innerText = auPrice.format(priceWS);
+			priceElem.insertAdjacentElement('beforeEnd', wsPriceElement);
+		}
+	}
+
+	let productDetailsPrice = document.querySelector('p.productListPrice');
+	if (productDetailsPrice) {
+		let priceElem = currentItem.querySelector('.featurePrice, .addonPrice, .galleryPrice');
 		let price = getPriceAsFloat(currentItem);
 		let priceWS = round(price / 2.2, 2);
 
