@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2024.07.11.2
+// @version      2024.10.25.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -12,7 +12,7 @@
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 const Company = {
@@ -40,6 +40,8 @@ let companyEnum = Company.BlankQuilting;
 	let elem = document.querySelector('div.ship-in span.shipin-title');
 	if (!elem) elem = getTitleElement();
 	if (isCollectionPage) {
+		ShowShipDates();
+
 		createButton('Copy All Collections', function () { CollectionsToClipBoard(GetAllCollections()); }, elem, 'beforeEnd', isCollectionPage);
 		createButton('Copy New Collections', function () { CollectionsToClipBoard(GetNewCollections()); }, elem, 'beforeEnd', isCollectionPage);
 	}
@@ -48,6 +50,25 @@ let companyEnum = Company.BlankQuilting;
 	}
 	addSortFilterInputs(elem);
 })();
+
+function ShowShipDates() {
+	// Add :hover to the 'li' for only on hover.
+	let cssText = `
+div.parent-category-area ul.grid_subcat li .card-title .cat-by-designer p:has(span.shipin-title) {
+	display: inline;
+}
+
+div.parent-category-area ul.grid_subcat li .card-title > a {
+	line-height: 1;
+}
+
+div.parent-category-area ul.grid_subcat li p.cat-name {
+	margin-bottom: auto;
+}
+`;
+
+	MyStyles._addStyle(cssText); // 'Shows hidden shipping date'
+}
 
 function GetNewCollections() {
 	let collection = GetAllCollections();
@@ -58,7 +79,7 @@ function GetNewCollections() {
 }
 
 function GetAllCollections() {
-	let collection = document.querySelectorAll('div.parent-category-area li div.cat-img');
+	let collection = document.querySelectorAll('div.parent-category-area ul.grid_subcat li div.cat-img');
 	return collection;
 }
 
@@ -359,17 +380,38 @@ function formatImage(item) {
  * Collection Sorting & Filtering
  ***********************************************/
 function getItemContainer() {
-	return document.querySelector('ul.productGrid');
+	return isCollectionPage ? document.querySelector('div.parent-category-area ul.grid_subcat') : document.querySelector('ul.productGrid');
 }
 
 function getCodeFromItem(item) {
-	let codeElement = isSearch ? item.querySelector('span.snize-title') : item.querySelector('h4.card-title > a');
+	let codeElement = {};
+	if (isCollectionPage) {
+		codeElement = item.querySelector('div.card-title > a');
+	}
+	else if (isSearch) {
+		codeElement = item.querySelector('span.snize-title');
+	}
+	else {
+		codeElement = item.querySelector('h4.card-title > a');
+	}
 	return codeElement?.innerText.trim();
 }
 
+addSortBy('Default', (item) => {
+	let collection = getCodeFromItem(item);
+	return [collection]
+});
+
+addSortBy('ShipDate', (item) => {
+	let collection = getCodeFromItem(item);
+	let shipDateElem = item.querySelector('.card-title .cat-by-designer p span.shipin-title');
+
+	let shipDate = Date.parse(shipDateElem?.innerText ?? '01 Jan 1970');
+	return [shipDate, collection]
+});
+
 function testFilterAgainst(item) {
-	let codeElement = isSearch ? item.querySelector('span.snize-item') : item.querySelector('h4.card-title');
-	let str = codeElement ? codeElement.innerText : item.innerText.toLowerCase().replace('choose options', '').replace('where to buy?', '');
+	let str = getCodeFromItem(item); // item.innerText.toLowerCase().replace('choose options', '').replace('where to buy?', '');
 	return str;
 }
 
