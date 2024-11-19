@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2024.11.19.1
+// @version      2024.11.19.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -281,6 +281,12 @@ function replaceStockIndicatorsWithIcons() {
 }`;
 	MyStyles._addStyle(cssText);
 
+	cssText = `/* Force ignore link colours */
+.stockIndicator > a {
+	color: unset;
+}`;
+	MyStyles._addStyle(cssText);
+
 	cssText = `/* Icon Stock Indicators */
 .stockIndicator span.stockIndicatorText {
 	display: none;
@@ -297,24 +303,26 @@ function replaceStockIndicatorsWithIcons() {
 	display: inline-block;
 }
 
+
+
 .stockColor-instock {
-	background-color: ${COLOURFUL ? GreenBG : defBGColour} !important;
-	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour} !important;
+	background-color: ${COLOURFUL ? GreenBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour};
 }
 
 .stockColor-backorder {
-	background-color: ${COLOURFUL ? OrangeBG : defBGColour} !important;
-	color: ${COLOURFUL_TEXT ? OrangeFG : defFGColour} !important;
+	background-color: ${COLOURFUL ? OrangeBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? OrangeFG : defFGColour};
 }
 
 .stockColor-indent {
-	background-color: ${COLOURFUL ? PurpleBG : defBGColour} !important;
-	color: ${COLOURFUL_TEXT ? PurpleFG : defFGColour} !important;
+	background-color: ${COLOURFUL ? PurpleBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? PurpleFG : defFGColour};
 }
 
 .stockColor-coming {
-	background-color: ${COLOURFUL ? BlueBG : defBGColour} !important;
-	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour} !important;
+	background-color: ${COLOURFUL ? BlueBG : defBGColour};
+	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour};
 }`;
 	MyStyles.addStyle('StockIndicatorsIcon', cssText);
 
@@ -353,7 +361,7 @@ function replaceStockIndicatorsWithIcons() {
 		let stockIconElement = document.createElement('span');
 		stockIconElement.classList.add('stockIndicatorIcon');
 		stockIconElement.innerText = stockIconString;
-		stockTextElement.insertAdjacentElement('beforebegin', stockIconElement);
+		stockContainerElem.insertAdjacentElement('afterbegin', stockIconElement);
 	}
 }
 
