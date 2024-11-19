@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2024.09.24.3
+// @version      2024.11.19.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -275,85 +275,85 @@ function replaceStockIndicatorsWithIcons() {
 	let PurpleBG = SWAP_FG_BG ? colLtPurple : colDkPurple;
 
 	let cssText = `/* Hide Stock Indicator Icons by Default */
-.stockIndicator > span.stockIndicatorIcon,
-.stockIndicator > span.stockIndicatorCount {
+.stockIndicator span.stockIndicatorIcon,
+.stockIndicator span.stockIndicatorCount {
 	display: none;
 }`;
 	MyStyles._addStyle(cssText);
 
 	cssText = `/* Icon Stock Indicators */
-.stockIndicator > span.stockIndicatorText {
+.stockIndicator span.stockIndicatorText {
 	display: none;
 }
-.stockIndicator:hover > span.stockIndicatorText {
+.stockIndicator:hover span.stockIndicatorText {
 	display: inline-block;
 }
-.stockIndicator:hover > span.stockIndicatorCount {
+.stockIndicator:hover span.stockIndicatorCount {
 	display: none;
 }
 
-.stockIndicator > span.stockIndicatorIcon,
-.stockIndicator > span.stockIndicatorCount {
+.stockIndicator span.stockIndicatorIcon,
+.stockIndicator span.stockIndicatorCount {
 	display: inline-block;
 }
 
 .stockColor-instock {
-	background-color: ${COLOURFUL ? GreenBG : defBGColour};
-	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour};
+	background-color: ${COLOURFUL ? GreenBG : defBGColour} !important;
+	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour} !important;
 }
 
 .stockColor-backorder {
-	background-color: ${COLOURFUL ? OrangeBG : defBGColour};
-	color: ${COLOURFUL_TEXT ? OrangeFG : defFGColour};
+	background-color: ${COLOURFUL ? OrangeBG : defBGColour} !important;
+	color: ${COLOURFUL_TEXT ? OrangeFG : defFGColour} !important;
 }
 
 .stockColor-indent {
-	background-color: ${COLOURFUL ? PurpleBG : defBGColour};
-	color: ${COLOURFUL_TEXT ? PurpleFG : defFGColour};
+	background-color: ${COLOURFUL ? PurpleBG : defBGColour} !important;
+	color: ${COLOURFUL_TEXT ? PurpleFG : defFGColour} !important;
 }
 
 .stockColor-coming {
-	background-color: ${COLOURFUL ? BlueBG : defBGColour};
-	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour};
+	background-color: ${COLOURFUL ? BlueBG : defBGColour} !important;
+	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour} !important;
 }`;
 	MyStyles.addStyle('StockIndicatorsIcon', cssText);
 
 	let collection = document.querySelectorAll('.stockIndicator');
-	for (const stockElement of collection) {
-		let spanTextSpan = stockElement.querySelector('span');
-		spanTextSpan.classList.add('stockIndicatorText');
-		let stockText = spanTextSpan.innerText;
-		let stockIconText;
-		if (stockText.indexOf('In Stock') >= 0) {
-			let tempStr = stockText.substring(0, stockText.indexOf(' '));
+	for (const stockContainerElem of collection) {
+		let stockTextElement = stockContainerElem.querySelector('span');
+		stockTextElement.classList.add('stockIndicatorText');
+		let stockTextString = stockTextElement.innerText;
+		let stockIconString;
+		if (stockTextString.indexOf('In Stock') >= 0) {
+			let tempStr = stockTextString.substring(0, stockTextString.indexOf(' '));
 			let tempNum = parseInt(tempStr);
 
-			stockElement.classList.add('stockColor-instock');
-			stockIconText = '✓';
+			stockContainerElem.classList.add('stockColor-instock');
+			stockIconString = '✓';
 			if (!isNaN(tempNum)) { // Is a number, append it.
 				let stockCountElement = document.createElement('span');
 				stockCountElement.classList.add('stockIndicatorCount');
 				stockCountElement.innerText = `\u00A0${tempNum}`;
-				stockElement.insertAdjacentElement('afterbegin', stockCountElement);
+				stockContainerElem.insertAdjacentElement('afterbegin', stockCountElement);
 			}
 		}
-		else if (stockText.indexOf('On Backorder') >= 0) {
-			stockElement.classList.add('stockColor-backorder');
-			stockIconText = 'X';
+		else if (stockTextString.indexOf('On Backorder') >= 0) {
+			stockContainerElem.classList.add('stockColor-backorder');
+			stockIconString = 'X';
 		}
-		else if (stockText.indexOf('Indent Only') >= 0) {
-			stockElement.classList.add('stockColor-indent');
-			stockIconText = '<';
+		else if (stockTextString.indexOf('Indent Only') >= 0) {
+			stockContainerElem.classList.add('stockColor-indent');
+			stockIconString = '<';
 		}
-		else if (stockText.indexOf('On Order With Supplier') >= 0) {
-			stockElement.classList.add('stockColor-coming');
-			stockIconText = '>';
+		else if (stockTextString.indexOf('On Order With Supplier') >= 0) {
+			stockContainerElem.classList.add('stockColor-coming');
+			stockIconString = '>';
 		}
 
 		let stockIconElement = document.createElement('span');
 		stockIconElement.classList.add('stockIndicatorIcon');
-		stockIconElement.innerText = stockIconText;
-		stockElement.insertAdjacentElement('afterbegin', stockIconElement);
+		stockIconElement.innerText = stockIconString;
+		stockTextElement.insertAdjacentElement('beforebegin', stockIconElement);
 	}
 }
 
