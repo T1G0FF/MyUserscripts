@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2024.07.11.1
+// @version      2025.01.24.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -272,9 +272,11 @@ function shortenColourName(colourName) {
 	colourName = colourName.trim();
 	colourName = colourName.toUpperCase();
 	colourName = colourName.replaceAll('WHITE ON WHITE', 'WOW');
+	colourName = colourName.replaceAll('WHITE ON ', 'WO');
 	colourName = colourName.replaceAll('LIGHT ', 'LT');
 	colourName = colourName.replaceAll('MEDIUM ', 'MD');
 	colourName = colourName.replaceAll('DARK ', 'DK');
+	colourName = colourName.replaceAll('TURQUOISE ', 'TURQ');
 	return colourName;
 }
 
