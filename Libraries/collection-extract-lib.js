@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2025.01.24.1
+// @version      2025.01.24.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -80,11 +80,6 @@ function formatTitle(title) {
 	title = title.replaceAll('Search Results: ', '');
 	title = title.replaceAll('Search Results For: ', '');
 	title = title.replaceAll(' - Single Colorway', '');
-	//title = title.replaceAll('Copy Info', '');
-	//title = title.replaceAll('Copy HTML', '');
-	//title = title.replaceAll('Save Images', '');
-	//title = title.replaceAll('Sort Codes', '');
-	//title = title.replaceAll('Options', '');
 	if (window.location.hostname.includes('stoffabrics')) {
 		let StofSearchExtractRegEx = /Search results for '(.*)'/;
 		title = title.replaceAll(StofSearchExtractRegEx, '$1');
@@ -276,12 +271,14 @@ function shortenColourName(colourName) {
 	colourName = colourName.replaceAll('LIGHT ', 'LT');
 	colourName = colourName.replaceAll('MEDIUM ', 'MD');
 	colourName = colourName.replaceAll('DARK ', 'DK');
-	colourName = colourName.replaceAll('TURQUOISE ', 'TURQ');
+	colourName = colourName.replaceAll('TURQUOISE', 'TURQ');
+	colourName = colourName.replaceAll('FOREGROUND', 'FG');
+	colourName = colourName.replaceAll('BACKGROUND', 'BG');
 	return colourName;
 }
 
 async function formatCSVOutput(collection) {
-	let items = 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'ItemName' + '\t' + 'ForeignName' + '\t' + 'User_Text' + '\t' + 'U_Stuff' + '\t' + 'SuppCatNum' + '\t' + 'SalesFactor1' + '\t' + 'U_WebCategory3' + '\n'; 
+	let items = 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'ItemName' + '\t' + 'ForeignName' + '\t' + 'User_Text' + '\t' + 'U_Stuff' + '\t' + 'SuppCatNum' + '\t' + 'SalesFactor1' + '\t' + 'U_WebCategory3' + '\n';
 	items += 'RecordKey' + '\t' + 'ItemCode' + '\t' + 'BarCode' + '\t' + 'Description' + '\t' + 'WebName' + '\t' + 'WebDescription' + '\t' + 'Delivery' + '\t' + 'PurchaseCode' + '\t' + 'SalesFactor1' + '\t' + 'WebCategory' + '\n';
 	let count = 0;
 	for (let item in collection) {
