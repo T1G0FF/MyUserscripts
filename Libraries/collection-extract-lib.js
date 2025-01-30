@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2025.01.24.2
+// @version      2025.01.31.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -257,8 +257,9 @@ function fixColourName(colourName) {
 	colourName = colourName.replaceAll('Md[. ]', 'Medium ');
 	colourName = colourName.replaceAll('Dk[. ]', 'Dark ');
 	colourName = colourName.replaceAll('Gray', 'Grey');
-	colourName = colourName.replaceAll('-', ' ');   // Remove Dashes
-	colourName = colourName.replaceAll('[.]', ' '); // Remove Periods
+	colourName = colourName.replaceAll('[\'\"]]', '');  // Remove Quotes
+	colourName = colourName.replaceAll('-', ' ');  // Remove Dashes
+	colourName = colourName.replaceAll('[.]', ' ');  // Remove Periods
 	colourName = colourName.replaceAll('[ ]+', ' ');  // Replace Double Spaces
 	colourName = colourName.toTitleCase();
 	return colourName;
