@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2025.01.31.1
+// @version      2025.01.31.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://www.blankquilting.net/*
@@ -107,7 +107,7 @@ async function CollectionsToClipBoard(collection) {
 	await Notify.log(msg);
 }
 
-let blankRegEx = /([a-zA-Z]+)?([0-9]+)([a-zA-Z]+)?(?:-[ ]*(?:([0-9]+)([a-zA-Z]+)?)?)?(?:[ ]*([\w\ \-\.\/]+))?/;
+let blankRegEx = /(?<Prefix>[a-zA-Z]+)?(?<Collection>[0-9]+)(?<LetterBefore>[a-zA-Z]+)?(?:-[ ]*(?:(?<ColourCode>[0-9]+)(?<LetterAfter>[a-zA-Z]+)?)?)?(?:[ ]*(?<ColourName>[\w\ \-\.\/\']+))?/;
 let RegexEnum = {
 	'Prefix': 1,
 	'Collection': 2,
@@ -203,6 +203,10 @@ function getItemObject(item) {
 		// Full Collection Item
 		let imgElement = item.querySelector('img.card-image');
 		let itemName = imgElement.getAttribute('alt');
+		if (itemName.indexOf('||') > 0) {
+			itemName = itemName.split('||')[0].trim();
+		}
+
 		let classList = Array.from(item.classList);
 		classList.remove('product', 'item', 'first', 'last');
 		if (companyEnum == Company.BlankQuilting) {
