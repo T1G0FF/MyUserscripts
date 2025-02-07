@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Constant Contact Date Fix
 // @namespace    http://www.tgoff.me/
-// @version      2025.02.04.1
+// @version      2025.02.07.1
 // @description  Adds an automatically updating label underneath the datepicker with the date in a locale accurate format.
 // @author       www.tgoff.me
 // @match        https://app.constantcontact.com/pages/campaigns/email
@@ -45,13 +45,13 @@ function createMutationObserver(addedCallback, removedCallback) {
 
 function initFieldFinder() {
 	let dateElem = document.querySelector('input.date-picker-input');
-	let fakeDate = dateElem?.parentElement.querySelector('span.fakeDate');
+	let localeDate = dateElem?.parentElement.querySelector('span.localeDate');
 
 	if (dateElem) {
-		if (!fakeDate) {
+		if (!localeDate) {
 			if (DEBUG) console.log('Date Fixer initialised!');
 			let elem = document.createElement('span');
-			elem.classList.add('fakeDate');
+			elem.classList.add('localeDate');
 			dateElem.insertAdjacentElement('afterend', elem);
 
 			dateElem.onblur += (event) => {
@@ -95,11 +95,14 @@ function fixDates(element) {
 
 function updateDate() {
 	let dateElem = document.querySelector('input.date-picker-input');
-	let fakeDate = dateElem?.parentElement.querySelector('span.fakeDate');
+	let localeDate = dateElem?.parentElement.querySelector('span.localeDate');
 
-	if (dateElem && fakeDate) {
+	if (dateElem && localeDate) {
 		let date = new Date(dateElem.value);
 		let locale = (navigator.languages?.[0] ?? navigator.language) || 'en';
-		fakeDate.innerText = locale + ' Date: ' + date.toLocaleDateString();
+		let weekday = date.toLocaleString(locale, {
+			weekday: 'short'
+		});
+		localeDate.innerText = locale + ' Date: ' + weekday + ' ' + date.toLocaleDateString(locale);
 	}
 }
