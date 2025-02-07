@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Constant Contact Date Fix
 // @namespace    http://www.tgoff.me/
-// @version      2025.02.07.1
+// @version      2025.02.07.2
 // @description  Adds an automatically updating label underneath the datepicker with the date in a locale accurate format.
 // @author       www.tgoff.me
 // @match        https://app.constantcontact.com/pages/campaigns/email
@@ -24,13 +24,13 @@ function createMutationObserver(addedCallback, removedCallback) {
 		// 'observer' is the MutationObserver instance
 		mutations.forEach((record) => {
 			record.addedNodes.forEach((element) => {
-				if (!(element instanceof Element)) return; 
-				
+				if (!(element instanceof Element)) return;
+
 				if (addedCallback) setTimeout(function () { addedCallback(element); }, 250);
 			});
 			record.removedNodes.forEach((element) => {
-				if (!(element instanceof Element)) return; 
-				
+				if (!(element instanceof Element)) return;
+
 				if (removedCallback) setTimeout(function () { removedCallback(element); }, 250);
 			});
 		});

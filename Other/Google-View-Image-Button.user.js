@@ -554,7 +554,7 @@ if (DEBUG) {
 
 var customStyle = document.createElement('style');
 customStyle.type = 'text/css';
-customStyle.innerText = 
+customStyle.innerText =
 `.irc_dsh>.irc_hol.vi_ext_addon,
 .irc_ft>.irc_help.vi_ext_addon,
 .PvkmDc.vi_ext_addon,
