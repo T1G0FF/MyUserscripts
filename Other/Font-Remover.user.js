@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         General - Font Remover (Helvetica Neue)
 // @namespace    http://www.tgoff.me/
-// @version      2021.07.09.1
+// @version      2025.02.20.1
 // @description  Replaces Helvetica Neue font family from CSS font stack to use next fallback. Provides Arial as fallback only if no other is given. Based on afalchi82's Chrome Extension of the same name.
 // @author       www.tgoff.me
 // @match        *://*/*
@@ -103,7 +103,8 @@ function elementReplace(element) {
 	if (result.updated) {
 		let currStyle = element.getAttribute('style');
 		currStyle = currStyle ? currStyle + ';' : '';
-		element.setAttribute('style', currStyle + 'font-family:' + result.fontStack + ' !important');
+		//element.setAttribute('style', currStyle + 'font-family:' + result.fontStack + ' !important');
+		element.style.cssText = currStyle + 'font-family:' + result.fontStack + ' !important';
 	}
 }
 
