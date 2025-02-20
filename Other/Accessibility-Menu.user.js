@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
 // @namespace    http://www.tgoff.me/
-// @version      2022.09.27.1
+// @version      2025.02.20.1
 // @description  Simulates the website as a color vision impaired person would see. Based on leocardz.com's Chrome Extension Colorblinding. Which is based on SVG data at https://github.com/Altreus/colourblind and Data matrices at http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/
 // @author       www.tgoff.me
 // @match        *://*/*
 // @noframes
-// @grant        none
+// @grant        GM_addElement
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -166,14 +166,16 @@ body.ReadingMask .ReadingMaskBottom {
 })();
 
 function _addStyle(css) {
-	let node = document.createElement('style');
-	node.type = 'text/css';
-	node.appendChild(document.createTextNode(css));
+	let node = {};
 	let heads = document.getElementsByTagName('head');
 	if (heads.length > 0) {
-		heads[0].appendChild(node);
+		node = GM_addElement(heads[0], 'style', {
+			textContent: css
+		});
 	} else {
-		document.documentElement.appendChild(node);
+		node = GM_addElement(document.documentElement, 'style', {
+			textContent: css
+		});
 	}
 	return node;
 };
