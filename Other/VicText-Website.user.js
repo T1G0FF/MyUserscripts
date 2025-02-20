@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2024.11.19.2
+// @version      2025.02.20.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -134,7 +134,7 @@ function addMiscCSS() {
 .galleryImage {
 	display:flex;
 	justify-content:center;
-	align-items:center;
+	align-items:normal;
 }`;
 	MyStyles.addStyle('CenterImages', cssText);
 
