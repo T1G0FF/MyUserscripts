@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2024.02.05.1
+// @version      2025.02.27.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -557,6 +557,7 @@ let Toast = new function() {
 	this.CONFIG_TOAST_DELAY = 1500;
 	this.CONFIG_TOAST_COUNT = 5;
 
+	this._toaster;
 	this._toasts;
 	this._msgQueue;
 	this.created = false;
@@ -582,6 +583,13 @@ let Toast = new function() {
   font-size: 17px;
 }`;
 		MyStyles.addStyle('AllToasts', cssText);
+
+		this._toaster = document.querySelector('#tgToaster');
+		if (!this._toaster) {
+			this._toaster = document.createElement('div');
+			this._toaster.id = 'tgToaster';
+			document.body.appendChild(this._toaster);
+		}
 
 		this._toasts = [];
 		for (let index = 1; index <= this.MAX_TOAST_COUNT; index++) {
@@ -653,7 +661,7 @@ let Toast = new function() {
   to {bottom: 0; opacity: 0;}
 }`;
 		MyStyles._addStyle(cssText);
-		document.body.appendChild(this._toasts[index]);
+		this._toaster.appendChild(this._toasts[index]);
 		this._toasts[index].inUse = false;
 	};
 
