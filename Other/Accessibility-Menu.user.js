@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
 // @namespace    http://www.tgoff.me/
-// @version      2025.02.20.1
+// @version      2025.02.27.1
 // @description  Simulates the website as a color vision impaired person would see. Based on leocardz.com's Chrome Extension Colorblinding. Which is based on SVG data at https://github.com/Altreus/colourblind and Data matrices at http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/
 // @author       www.tgoff.me
 // @match        *://*/*
@@ -59,33 +59,65 @@ let colorBlindFilter = {
 let readingMask = {
 	topElement: {},
 	bottomElement: {},
-	create: function() {
-			if (document.querySelectorAll(".ReadingMaskTop").length) return;
+	create: function () {
+		if (document.querySelectorAll('.ReadingMaskTop').length) return;
 
-			document.body.classList.add("ReadingMask");
-			readingMask.topElement = document.createElement("div");
-			readingMask.topElement.classList.add("ReadingMaskTop");
-			document.body.appendChild(readingMask.topElement);
-			readingMask.bottomElement = document.createElement("div");
-			readingMask.bottomElement.classList.add("ReadingMaskBottom");
-			document.body.appendChild(readingMask.bottomElement);
-			document.addEventListener("mousemove", readingMask.move);
-			document.addEventListener("click", readingMask.move);
-		},
-	move: function(event) {
-			let mouseY = event.clientY;
-			let readingMaskHeight = (window.outerHeight + window.innerHeight) * 0.075;
-			let halfHeight = Math.round(readingMaskHeight / 2);
-			readingMask.topElement.style.height = mouseY - halfHeight + "px";
-			readingMask.bottomElement.style.top = mouseY + halfHeight + "px";
-		},
-	remove: function() {
-			document.body.classList.remove("ReadingMask");
-			readingMask.topElement.remove();
-			readingMask.bottomElement.remove();
-			document.removeEventListener("mousemove", readingMask.move);
-			document.removeEventListener("click", readingMask.move);
-		}
+		document.body.classList.add('ReadingMask');
+		readingMask.topElement = document.createElement('div');
+		readingMask.topElement.classList.add('ReadingMaskTop');
+		document.body.appendChild(readingMask.topElement);
+		readingMask.bottomElement = document.createElement('div');
+		readingMask.bottomElement.classList.add('ReadingMaskBottom');
+		document.body.appendChild(readingMask.bottomElement);
+		document.addEventListener('mousemove', readingMask.move);
+		document.addEventListener('click', readingMask.move);
+	},
+	move: function (event) {
+		let mouseY = event.clientY;
+		let readingMaskHeight = (window.outerHeight + window.innerHeight) * 0.075;
+		let halfHeight = Math.round(readingMaskHeight / 2);
+		readingMask.topElement.style.height = mouseY - halfHeight + 'px';
+		readingMask.bottomElement.style.top = mouseY + halfHeight + 'px';
+	},
+	remove: function () {
+		document.body.classList.remove('ReadingMask');
+		readingMask.topElement.remove();
+		readingMask.bottomElement.remove();
+		document.removeEventListener('mousemove', readingMask.move);
+		document.removeEventListener('click', readingMask.move);
+	}
+}
+
+let readingGuide = {
+	guideElement: {},
+	create: function () {
+		if (document.querySelectorAll('.ReadingGuide').length) return;
+
+		document.body.classList.add('ReadingGuide');
+		readingGuide.guideElement = document.createElement('div');
+		readingGuide.guideElement.classList.add('ReadingGuideRuler');
+		document.body.appendChild(readingGuide.guideElement);
+		document.addEventListener('mousemove', readingGuide.move);
+		document.addEventListener('click', readingGuide.move);
+	},
+	move: function (event) {
+		let mouseX = event.clientX;
+		let mouseY = event.clientY;
+		let readingGuideWidth = window.innerWidth * 0.4;
+		let halfWidth = Math.round(readingGuideWidth / 2);
+		let readingGuideHeight = 12;//(window.outerHeight + window.innerHeight) * 0.015;
+		let halfHeight = Math.round(readingGuideHeight / 2);
+		let left = Math.min(Math.max(mouseX - halfWidth, 0), window.innerWidth - readingGuideWidth);
+		readingGuide.guideElement.style.left = left + 'px';
+		readingGuide.guideElement.style.top = mouseY - halfHeight + 'px';
+		readingGuide.guideElement.style.pointerEvents = 'none';
+	},
+	remove: function () {
+		document.body.classList.remove('ReadingGuide');
+		readingGuide.guideElement.remove();
+		document.removeEventListener('mousemove', readingGuide.move);
+		document.removeEventListener('click', readingGuide.move);
+	}
 }
 
 let cssText = `
@@ -93,7 +125,7 @@ let cssText = `
 	position: fixed;
 	background: none;
 	bottom: 1px;
-	right: ` + (document.querySelector('#CSSToggleContainer') ? 'calc(1px + 14px + 1px)' : '1px') + `;
+	right: ${(document.querySelector('#CSSToggleContainer') ? 'calc(1px + 14px + 1px)' : '1px')};
 	height: 14px;
 	width: 14px;
 	z-index: 2147483647;
@@ -150,6 +182,29 @@ body.ReadingMask .ReadingMaskBottom {
 	bottom: 0;
 	top: auto;
 }
+
+body.ReadingGuide .ReadingGuideRuler {
+	background: #000000;
+	border: 2px solid #FFFF00;
+	display: block;
+	position: fixed;
+	left: 0;
+	right: 0;
+	width: 40vw;
+	min-width: 200px;
+	height: 12px;
+	z-index: 999999;
+}
+
+html.genericDarkmode,
+html.genericDarkmodeExImages {
+    background-color: #FFFFFF !important;
+	filter: hue-rotate(180deg) invert(1);
+}
+
+html.genericDarkmodeExImages img {
+    filter: hue-rotate(180deg) invert(1);
+}
 `;
 
 (function () {
@@ -161,6 +216,8 @@ body.ReadingMask .ReadingMaskBottom {
 
 		_addStyle(cssText);
 		_addReadingMaskToggle(container);
+		_addReadingGuideToggle(container);
+		_addGenericDarkmodeToggle(container);
 		_addColorBlindToggles(container);
 	}, 500);
 })();
@@ -182,17 +239,48 @@ function _addStyle(css) {
 
 function _addColorBlindToggles(container) {
 	let filterDiv = document.createElement('div');
-	filterDiv.id = 'colorBlindFilters';
+	filterDiv.id = 'ColorBlindFilterSvgObjects';
 	filterDiv.style.width = '0px';
 	filterDiv.style.height = '0px';
 	filterDiv.style.display = 'none';
 	filterDiv.innerHTML = colorBlindFilter.svgElement;
 	container.appendChild(filterDiv);
 
+	let filterWrapper = document.createElement('div');
+	filterWrapper.style.display = 'none';
+	filterWrapper.id = 'ColorBlindFilterToggleWrapper';
+
 	for (const name in colorBlindFilter.simulations) {
 		let id = colorBlindFilter.simulations[name];
-		let radio = _addColorBlindToggle(container, name, id);
+		let radio = _addColorBlindToggle(filterWrapper, name, id);
 	}
+	container.appendChild(filterWrapper);
+
+	let check = document.createElement('input');
+	check.type = 'checkbox';
+	check.name = 'ColorBlindFilterToggle';
+	let thisId = 'ColorBlindFilterToggleCheckBox';
+	check.id = thisId;
+
+	check.setAttribute('checked', 'unchecked');
+	check.checked = false;
+
+	check.onclick = function () {
+		if (check.checked) {
+			filterWrapper.style.display = 'initial';
+		}
+		else {
+			filterWrapper.style.display = 'none';
+			document.querySelector('#ColorBlindToggleRadioButton_INIT').click();
+		}
+	}
+
+	let label = document.createElement('label');
+	label.setAttribute('for', thisId);
+	label.innerText = 'ColorBlind Filter';
+	label.classList.add('AccessibilityToggleLabel');
+	label.appendChild(check);
+	container.appendChild(label);
 }
 
 function _addColorBlindToggle(container, name, id) {
@@ -205,19 +293,16 @@ function _addColorBlindToggle(container, name, id) {
 	radio.id = thisId;
 
 	if (id === 'init') {
-		let htmlElement = document.getElementsByTagName('html')[0];
-		colorBlindFilter.initialBackup = htmlElement.style.filter;
+		colorBlindFilter.initialBackup = document.documentElement.style.filter;
 		radio.onclick = function () {
-			let htmlElement = document.getElementsByTagName('html')[0];
-			htmlElement.style.filter = colorBlindFilter.initialBackup;
+			document.documentElement.style.filter = colorBlindFilter.initialBackup;
 		};
-		radio.setAttribute("checked", "checked");
+		radio.setAttribute('checked', 'checked');
 		radio.checked = true;
 	}
 	else {
 		radio.onclick = function () {
-			let htmlElement = document.getElementsByTagName('html')[0];
-			htmlElement.style.filter = 'url(#' + id + ')';
+			document.documentElement.style.filter = 'url(#' + id + ')';
 		};
 	}
 
@@ -238,7 +323,7 @@ function _addReadingMaskToggle(container) {
 	let thisId = 'ReadingMaskToggleCheckBox';
 	check.id = thisId;
 
-	check.setAttribute("checked", "unchecked");
+	check.setAttribute('checked', 'unchecked');
 	check.checked = false;
 
 	check.onclick = function () {
@@ -248,6 +333,78 @@ function _addReadingMaskToggle(container) {
 	let label = document.createElement('label');
 	label.setAttribute('for', thisId);
 	label.innerText = 'Reading Mask';
+	label.classList.add('AccessibilityToggleLabel');
+
+	label.appendChild(check);
+	container.appendChild(label);
+	return check;
+};
+
+function _addReadingGuideToggle(container) {
+	let check = document.createElement('input');
+	check.type = 'checkbox';
+	check.name = 'ReadingGuide';
+	let thisId = 'ReadingGuideToggleCheckBox';
+	check.id = thisId;
+
+	check.setAttribute('checked', 'unchecked');
+	check.checked = false;
+
+	check.onclick = function () {
+		check.checked ? readingGuide.create() : readingGuide.remove();
+	}
+
+	let label = document.createElement('label');
+	label.setAttribute('for', thisId);
+	label.innerText = 'Reading Guide';
+	label.classList.add('AccessibilityToggleLabel');
+
+	label.appendChild(check);
+	container.appendChild(label);
+	return check;
+};
+
+function _addGenericDarkmodeToggle(container) {
+	let check = document.createElement('input');
+	check.type = 'checkbox';
+	check.name = 'GenericDarkmode';
+	let thisId = 'GenericDarkmodeToggleCheckBox';
+	check.id = thisId;
+
+	check.setAttribute('checked', 'unchecked');
+	check.checked = false;
+
+	check.triple = 0;
+	check.onclick = function () {
+		check.triple = (check.triple + 1) % 3;
+		switch (check.triple) {
+			case 0:
+				check.setAttribute('checked', 'unchecked');
+				check.checked = false;
+				check.style.filter = '';
+				document.documentElement.classList.remove('genericDarkmode');
+				document.documentElement.classList.remove('genericDarkmodeExImages');
+				break;
+			case 1:
+				check.setAttribute('checked', 'checked');
+				check.checked = true;
+				check.style.filter = 'invert(0)';
+				document.documentElement.classList.remove('genericDarkmodeExImages');
+				document.documentElement.classList.add('genericDarkmode');
+				break;
+			case 2:
+				check.setAttribute('checked', 'checked');
+				check.checked = true;
+				check.style.filter = 'invert(1)';
+				document.documentElement.classList.remove('genericDarkmode');
+				document.documentElement.classList.add('genericDarkmodeExImages');
+				break;
+		}
+	}
+
+	let label = document.createElement('label');
+	label.setAttribute('for', thisId);
+	label.innerText = 'Generic Darkmode';
 	label.classList.add('AccessibilityToggleLabel');
 
 	label.appendChild(check);
