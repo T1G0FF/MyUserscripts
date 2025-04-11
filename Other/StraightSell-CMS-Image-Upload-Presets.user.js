@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Straightsell CMS Image Upload Presets
 // @namespace    http://www.tgoff.me/
-// @version      2025.02.03.1
+// @version      2025.04.11.1
 // @description  Provides single click presets for image uploads.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/index.php?app=cm&section=docsManage*
@@ -52,6 +52,21 @@ div.presetContainer {
 		let thumbSize = document.querySelector('input#thumbnailSizeUpload');
 
 		let buttonElement = document.createElement('button');
+		buttonElement.innerText = 'Slideshow Preset';
+		buttonElement.type = 'button';
+		buttonElement.style.marginLeft = '12px';
+		buttonElement.style.padding = '2px 10px';
+		buttonElement.onclick = function () {
+			dest.value = '/documents/slideshow';
+			unzip.checked = true;
+			pub.checked = true;
+			optim.checked = false;
+			thumbCreate.checked = false;
+			fieldUpdate();
+		};
+		buttonLocationElement.insertAdjacentElement('AfterBegin', buttonElement);
+
+		buttonElement = document.createElement('button');
 		buttonElement.innerText = 'Documents Preset';
 		buttonElement.type = 'button';
 		buttonElement.style.marginLeft = '12px';
