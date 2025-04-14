@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Straightsell CMS Image Upload Presets
 // @namespace    http://www.tgoff.me/
-// @version      2025.04.11.1
+// @version      2025.04.14.1
 // @description  Provides single click presets for image uploads.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/index.php?app=cm&section=docsManage*
@@ -18,7 +18,7 @@ var width = '750px';
 })();
 
 function addPresetButtons() {
-	let dest = document.querySelector('select#folder');
+	let dest = document.querySelector('input#fileUpload');
 
 	if (dest) {
 		let cssText = `
@@ -37,12 +37,19 @@ div.presetContainer {
 }`;
 		addStyle(cssText);
 
-		let locParent = dest.parentElement
-		let buttonLocationElement = locParent.cloneNode();
-		buttonLocationElement.replaceChildren();
-		buttonLocationElement.classList.add('presetContainer');
-		buttonLocationElement.classList.add('widthFix');
-		locParent.insertAdjacentElement('AfterEnd', buttonLocationElement);
+		let locParent = dest.parentElement;
+		let presetHeaderElement = locParent.cloneNode();
+		presetHeaderElement.replaceChildren();
+		presetHeaderElement.innerText = "Presets"
+		presetHeaderElement.classList.add('presetHeader');
+		presetHeaderElement.classList.add('widthFix');
+		locParent.insertAdjacentElement('AfterEnd', presetHeaderElement);
+
+		let presetContainerElement = locParent.cloneNode();
+		presetContainerElement.replaceChildren();
+		presetContainerElement.classList.add('presetContainer');
+		presetContainerElement.classList.add('widthFix');
+		presetHeaderElement.insertAdjacentElement('AfterEnd', presetContainerElement);
 
 		let unzip = document.querySelector('input#unzip');
 		let pub = document.querySelector('input[name*="publishUP"]');
@@ -51,56 +58,18 @@ div.presetContainer {
 		let thumbFolder = document.querySelector('select#uploadThumbFolder');
 		let thumbSize = document.querySelector('input#thumbnailSizeUpload');
 
-		let buttonElement = document.createElement('button');
-		buttonElement.innerText = 'Slideshow Preset';
-		buttonElement.type = 'button';
-		buttonElement.style.marginLeft = '12px';
-		buttonElement.style.padding = '2px 10px';
+		let buttonElement = getNewPresetButton('Fullsize');
 		buttonElement.onclick = function () {
-			dest.value = '/documents/slideshow';
+			dest.value = '/productimages';
 			unzip.checked = true;
 			pub.checked = true;
 			optim.checked = false;
 			thumbCreate.checked = false;
 			fieldUpdate();
 		};
-		buttonLocationElement.insertAdjacentElement('AfterBegin', buttonElement);
+		presetContainerElement.insertAdjacentElement('BeforeEnd', buttonElement);
 
-		buttonElement = document.createElement('button');
-		buttonElement.innerText = 'Documents Preset';
-		buttonElement.type = 'button';
-		buttonElement.style.marginLeft = '12px';
-		buttonElement.style.padding = '2px 10px';
-		buttonElement.onclick = function () {
-			dest.value = '/documents/productpdf';
-			unzip.checked = true;
-			pub.checked = true;
-			optim.checked = false;
-			thumbCreate.checked = false;
-			fieldUpdate();
-		};
-		buttonLocationElement.insertAdjacentElement('AfterBegin', buttonElement);
-
-		buttonElement = document.createElement('button');
-		buttonElement.innerText = 'Category Preset';
-		buttonElement.type = 'button';
-		buttonElement.style.marginLeft = '12px';
-		buttonElement.style.padding = '2px 10px';
-		buttonElement.onclick = function () {
-			dest.value = '/documents/categories';
-			unzip.checked = true;
-			pub.checked = true;
-			optim.checked = false;
-			thumbCreate.checked = false;
-			fieldUpdate();
-		};
-		buttonLocationElement.insertAdjacentElement('AfterBegin', buttonElement);
-
-		buttonElement = document.createElement('button');
-		buttonElement.innerText = 'Thumbs Preset';
-		buttonElement.type = 'button';
-		buttonElement.style.marginLeft = '12px';
-		buttonElement.style.padding = '2px 10px';
+		buttonElement = getNewPresetButton('Thumbs');
 		buttonElement.onclick = function () {
 			dest.value = '/productimages/thumbnails';
 			unzip.checked = true;
@@ -111,23 +80,52 @@ div.presetContainer {
 			thumbSize.value = '50';
 			fieldUpdate();
 		};
-		buttonLocationElement.insertAdjacentElement('AfterBegin', buttonElement);
+		presetContainerElement.insertAdjacentElement('BeforeEnd', buttonElement);
 
-		buttonElement = document.createElement('button');
-		buttonElement.innerText = 'Fullsize Preset';
-		buttonElement.type = 'button';
-		buttonElement.style.marginLeft = '12px';
-		buttonElement.style.padding = '2px 10px';
+		buttonElement = getNewPresetButton('Category');
 		buttonElement.onclick = function () {
-			dest.value = '/productimages';
+			dest.value = '/documents/categories';
 			unzip.checked = true;
 			pub.checked = true;
 			optim.checked = false;
 			thumbCreate.checked = false;
 			fieldUpdate();
 		};
-		buttonLocationElement.insertAdjacentElement('AfterBegin', buttonElement);
+		presetContainerElement.insertAdjacentElement('BeforeEnd', buttonElement);
+
+		buttonElement = getNewPresetButton('Documents');
+		buttonElement.onclick = function () {
+			dest.value = '/documents/productpdf';
+			unzip.checked = true;
+			pub.checked = true;
+			optim.checked = false;
+			thumbCreate.checked = false;
+			fieldUpdate();
+		};
+		presetContainerElement.insertAdjacentElement('BeforeEnd', buttonElement);
+
+		buttonElement = getNewPresetButton('Slideshow');
+		buttonElement.onclick = function () {
+			dest.value = '/documents/slideshow';
+			unzip.checked = true;
+			pub.checked = true;
+			optim.checked = false;
+			thumbCreate.checked = false;
+			fieldUpdate();
+		};
+		presetContainerElement.insertAdjacentElement('BeforeEnd', buttonElement);
 	}
+}
+
+function getNewPresetButton(text) {
+	let buttonElement = document.createElement('button');
+	buttonElement.classList.add('btn');
+	buttonElement.classList.add('btn-secondary');
+	buttonElement.type = 'button';
+	buttonElement.innerText = text;
+	buttonElement.style.marginLeft = '12px';
+	buttonElement.style.padding = '2px 10px';
+	return buttonElement;
 }
 
 function fieldUpdate() {
