@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Straightsell CMS Image Upload Presets
 // @namespace    http://www.tgoff.me/
-// @version      2025.04.14.1
+// @version      2025.04.14.2
 // @description  Provides single click presets for image uploads.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/index.php?app=cm&section=docsManage*
@@ -18,9 +18,9 @@ var width = '750px';
 })();
 
 function addPresetButtons() {
-	let dest = document.querySelector('input#fileUpload');
+	let choose = document.querySelector('input#fileUpload');
 
-	if (dest) {
+	if (choose) {
 		let cssText = `
 div.presetContainer {
 	justify-content: end;
@@ -37,7 +37,7 @@ div.presetContainer {
 }`;
 		addStyle(cssText);
 
-		let locParent = dest.parentElement;
+		let locParent = choose.parentElement;
 		let presetHeaderElement = locParent.cloneNode();
 		presetHeaderElement.replaceChildren();
 		presetHeaderElement.innerText = "Presets"
@@ -51,6 +51,7 @@ div.presetContainer {
 		presetContainerElement.classList.add('widthFix');
 		presetHeaderElement.insertAdjacentElement('AfterEnd', presetContainerElement);
 
+		let dest = document.querySelector('select#folder');
 		let unzip = document.querySelector('input#unzip');
 		let pub = document.querySelector('input[name*="publishUP"]');
 		let optim = document.querySelector('input[name*="optimiseJpegs"]');
