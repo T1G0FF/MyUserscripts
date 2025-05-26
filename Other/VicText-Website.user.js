@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2025.02.20.1
+// @version      2025.05.26.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -547,7 +547,7 @@ function morePagerOptions() {
 		select[0].add(option);
 	}
 
-	let pagerForm = document.getElementsByName('itemsPerPage');
+	let pagerForm = document.querySelector('div.pagerPageSelectWrapper > form');
 	if (pagerForm && pagerForm.length > 0) {
 		let prevButtonElement = document.querySelector('ul.pagination li:first-of-type');
 		let prevButton = changePagerButtonText(prevButtonElement, -1, '⟨');
@@ -555,7 +555,7 @@ function morePagerOptions() {
 		let nextButtonElement = document.querySelector('ul.pagination li:last-of-type');
 		let nextButton = changePagerButtonText(nextButtonElement, -1, '⟩');
 
-		let pageCount = pagerForm[0].lastElementChild?.innerText;
+		let pageCount = pagerForm.lastElementChild?.innerText;
 		if (pageCount) {
 			pageCount = parseInt(pageCount);
 			if (pageCount > 1) {
@@ -593,20 +593,32 @@ function changePagerButtonText(element, page, text) {
 }
 
 function addPagerOptionsAtTop(pagerWrappers) {
-	let heading = document.querySelector('#mainContent h1');
-	if (!heading) return;
+	let isBlogPage = true;
+	let targetElem = document.querySelector('div#Blog');
+	if (!targetElem) {
+		isBlogPage = false;
+		targetElem = document.querySelector('#mainContent h1');
+	}
+	if (!targetElem) return;
+
 	let divider = document.querySelector('div.productDetailDivider');
 	let clearFloat = document.querySelector('br.clearfloat');
 
 	let pagerContainer = document.createElement('div');
-	pagerContainer.append(divider.cloneNode(true));
+	if (!isBlogPage) pagerContainer.append(divider.cloneNode(true));
+
 	for (const pagerWrapper of pagerWrappers) {
 		pagerContainer.append(pagerWrapper.cloneNode(true));
 	}
 	pagerContainer.append(clearFloat.cloneNode(true));
 	pagerContainer.append(divider.cloneNode(true));
 
-	heading.after(pagerContainer);
+	if (isBlogPage) {
+		targetElem.before(pagerContainer);
+	}
+	else {
+		targetElem.after(pagerContainer);
+	}
 }
 
 /***********************************************
