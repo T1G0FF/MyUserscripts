@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Straightsell CMS Image Upload Presets
 // @namespace    http://www.tgoff.me/
-// @version      2025.04.14.2
+// @version      2025.05.29.1
 // @description  Provides single click presets for image uploads.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/index.php?app=cm&section=docsManage*
@@ -86,6 +86,17 @@ div.presetContainer {
 		buttonElement = getNewPresetButton('Category');
 		buttonElement.onclick = function () {
 			dest.value = '/documents/categories';
+			unzip.checked = true;
+			pub.checked = true;
+			optim.checked = false;
+			thumbCreate.checked = false;
+			fieldUpdate();
+		};
+		presetContainerElement.insertAdjacentElement('BeforeEnd', buttonElement);
+
+		buttonElement = getNewPresetButton('Blog');
+		buttonElement.onclick = function () {
+			dest.value = '/documents/blog';
 			unzip.checked = true;
 			pub.checked = true;
 			optim.checked = false;
