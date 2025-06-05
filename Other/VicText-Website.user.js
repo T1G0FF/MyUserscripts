@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VicText Website Additions
 // @namespace    http://www.tgoff.me/
-// @version      2025.05.26.1
+// @version      2025.06.05.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://www.victoriantextiles.com.au/*
@@ -31,6 +31,7 @@ const WEBADD_CONFIG = {
 	'SCRAPE_COLLECTION_COUNT': true,
 	'SCRAPE_IMAGELESS': true,
 	'ADD_WHOLESALE': true,
+	'ADD_SHOPPINGCART_BTNS': true,
 };
 
 // Browser doesn't like when we make too many navigation calls
@@ -65,6 +66,8 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'beforeEnd');
+
+	if (WEBADD_CONFIG.ADD_SHOPPINGCART_BTNS) addShoppingCartButtons();
 })();
 
 function addMiscCSS() {
@@ -470,9 +473,9 @@ async function fixBrokenImages() {
 	}
 }
 
-const auPrice = new Intl.NumberFormat("en-US", {
-	style: "currency",
-	currency: "USD",
+const auPrice = new Intl.NumberFormat('en-US', {
+	style: 'currency',
+	currency: 'USD',
 	minimumFractionDigits: 2,
 	maximumFractionDigits: 2,
 });
@@ -618,6 +621,133 @@ function addPagerOptionsAtTop(pagerWrappers) {
 	}
 	else {
 		targetElem.after(pagerContainer);
+	}
+}
+
+/***********************************************
+ * Shopping Cart Buttons
+ ***********************************************/
+
+function addShoppingCartButtons() {
+	let shoppingCartForm = document.querySelector('form#ShoppingCartForm div#fullCart');
+	if (shoppingCartForm) {
+		let btnLocElem = shoppingCartForm.parentElement.querySelector('div#fullCart > div.pull-right');
+
+		let testLinesBtn = document.createElement('button');
+		testLinesBtn.type = 'button';
+		testLinesBtn.classList.add('btn');
+		testLinesBtn.classList.add('btn-primary');
+		testLinesBtn.innerText = 'Test Lines';
+		testLinesBtn.onclick = () => { btnAction_testLines() };
+		btnLocElem.insertAdjacentElement('afterBegin', testLinesBtn);
+
+		let copyOrderBtn = document.createElement('button');
+		copyOrderBtn.type = 'button';
+		copyOrderBtn.classList.add('btn');
+		copyOrderBtn.classList.add('btn-primary');
+		copyOrderBtn.innerText = 'Copy Order';
+		copyOrderBtn.onclick = () => { btnAction_copyOrder(false) };
+		btnLocElem.insertAdjacentElement('afterBegin', copyOrderBtn);
+	}
+	let restoreCartBtn = document.querySelector('form#RestoreCart input#RestoreSavedCart');
+	if (restoreCartBtn) {
+		let copyOrderBtn = document.createElement('button');
+		copyOrderBtn.type = 'button';
+		copyOrderBtn.classList.add('btn');
+		copyOrderBtn.classList.add('btn-primary');
+		copyOrderBtn.innerText = 'Copy Order';
+		copyOrderBtn.onclick = () => { btnAction_copyOrder(true) };
+		restoreCartBtn.insertAdjacentElement('beforeBegin', copyOrderBtn);
+	}
+}
+
+async function btnAction_copyOrder(isSavedCart) {
+	let count = 0;
+	let result = '';
+
+	if (isSavedCart) {
+		let rows = document.querySelectorAll('form#RestoreCart div.table-responsive table.table.table-striped tr');
+		for (const row of rows) {
+			let columns = row.querySelectorAll('td');
+			if (columns && columns.length > 0) {
+				let itemCode = columns[0].innerText;
+				let qty = columns[2].innerText;
+
+				result += itemCode + '\t' + qty + '\n';
+				count++;
+			}
+		}
+	}
+	else {
+		let rows = document.querySelectorAll('form#ShoppingCartForm div#fullCart table.table.table-striped tr');
+		for (const row of rows) {
+			let itemCodeElem = row.querySelector('input[name*="productCodesArray"]');
+			let qtyElem = row.querySelector('input[name*="productQuantityArray"]');
+
+			if (itemCodeElem && qtyElem) {
+				let itemCode = itemCodeElem.getAttribute('value');
+				let qty = qtyElem.getAttribute('value');
+
+				result += itemCode + '\t' + qty + '\n';
+				count++;
+			}
+		}
+	}
+
+	let msg = 'None found!';
+	if (count > 0) {
+		GM_setClipboard(result);
+		msg = count + ' found and copied!';
+	}
+	if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
+}
+
+async function btnAction_testLines() {
+	let count = 0;
+	let msg = '';
+
+	let rows = document.querySelectorAll('form#ShoppingCartForm div#fullCart table.table.table-striped tr');
+	for (const row of rows) {
+		let itemCodeElem = row.querySelector('input[name*="productCodesArray"]');
+		let qtyElem = row.querySelector('input[name*="productQuantityArray"]');
+		let minOrderElem = row.querySelector('input[id*="MinOrder"]');
+		let multipleElem = row.querySelector('input[id*="orderMultiple"]');
+
+		if (itemCodeElem && qtyElem) {
+			count++;
+
+			let itemCode = itemCodeElem.getAttribute('value');
+			let qty = Number.parseFloat(qtyElem.getAttribute('value'));
+
+			if (minOrderElem) {
+				let minOrder = Number.parseFloat(minOrderElem.getAttribute('value'));
+				if (qty < minOrder) {
+					if (msg && msg.length > 0) msg += '\n';
+					msg += 'Row ' + count + ': [' + itemCode + '] MinOrder(' + qty + ' < ' + minOrder + ')';
+				}
+			}
+			if (multipleElem) {
+				let multiple = Number.parseFloat(multipleElem.getAttribute('value'));
+				if (qty % multiple != 0) {
+					if (msg && msg.length > 0) msg += '\n';
+					msg += 'Row ' + count + ': [' + itemCode + '] OrderMultiple(' + qty + ' !! ' + multiple + ')';
+				}
+			}
+		}
+	}
+
+	if (msg && msg.length > 0) {
+		window.alert(msg);
+		console.warn(msg);
+	}
+	else {
+		msg = 'No errors found!'
+		if (Toast.CONFIG_TOAST_POPUPS) {
+			await Toast.enqueue(msg);
+		}
+		else {
+			window.alert(msg);
+		}
 	}
 }
 
