@@ -1,12 +1,13 @@
 // ==UserScript==
-// @name         StraightSell CMS Enhancements
+// @name         StraightSell CMS - Enhancements
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.23.1
 // @description  Allows you to toggle the visibility of all the far too easy to click Delete/Remove/Revoke links.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=straightsell.com.au
-// @run-at        document-idle
+// @grant        none
+// @run-at       document-idle
 // ==/UserScript==
 
 const DEBUG = false;

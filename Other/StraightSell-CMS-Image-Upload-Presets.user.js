@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Straightsell CMS Image Upload Presets
+// @name         StraightSell CMS - Image Upload Presets
 // @namespace    http://www.tgoff.me/
 // @version      2025.05.29.1
 // @description  Provides single click presets for image uploads.
@@ -7,6 +7,7 @@
 // @match        *://cp.straightsell.com.au/index.php?app=cm&section=docsManage*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=straightsell.com.au
 // @grant        none
+// @run-at       document-idle
 // ==/UserScript==
 
 var width = '750px';

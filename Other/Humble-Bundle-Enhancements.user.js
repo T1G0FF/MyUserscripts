@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name         Humble Bundle Enhancements
+// @name         Humble Bundle - Enhancements
 // @namespace    http://www.tgoff.me/
 // @version      2019.11.14.1
 // @description  Adds an item count to the Bulk Download button.
 // @author       www.tgoff.me
-// @match        *://www.humblebundle.com/downloads?key=*
+// @match        *://humblebundle.com/downloads?key=*
+// @match        *://*.humblebundle.com/downloads?key=*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=humblebundle.com
 // @grant        none
 // @run-at       document-idle

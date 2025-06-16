@@ -4,12 +4,13 @@
 // @version      2025.03.31.1
 // @description  Bypasses the "Your device isn’t part of the Netflix Household for this account" popup.
 // @author       www.tgoff.me
+// @match        *://netflix.com/*
 // @match        *://*.netflix.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=netflix.com
-// @downloadURL  https://github.com/T1G0FF/MyUserscripts/blob/main/Other/Household-Bypass.user.js
-// @updateURL    https://github.com/T1G0FF/MyUserscripts/blob/main/Other/Household-Bypass.user.js
-// @run-at       document-idle
+// @downloadURL  https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Other/Household-Bypass.user.js
+// @updateURL    https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Other/Household-Bypass.user.js
 // @grant        none
+// @run-at       document-idle
 // ==/UserScript==
 
 let modalSelector	= '.nf-modal.interstitial-full-screen';

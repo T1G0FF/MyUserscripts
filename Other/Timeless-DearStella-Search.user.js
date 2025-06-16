@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Timeless Treasures / Dear Stella Search Improvements
+// @name         Timeless Treasures / Dear Stella - Search Improvements
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.04.1
-// @description  Timeless Treasures / Dear Stella search improvements.
+// @description  Allows pasting VicText codes into search bar.
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/*
 // @match        *://*.ttfabrics.com/*

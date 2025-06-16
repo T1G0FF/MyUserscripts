@@ -1,16 +1,17 @@
 // ==UserScript==
-// @name         VicText Website Additions
+// @name         Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2025.06.05.1
+// @version      2025.06.16.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
+// @match        *://victoriantextiles.com.au/*
 // @match        *://www.victoriantextiles.com.au/*
 // @match        *://2386edit.straightsell.com.au/*
 // @noframes
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
-// @run-at       document-idle
 // @grant        GM_setClipboard
+// @run-at       document-idle
 // ==/UserScript==
 
 /* eslint-disable no-undef */

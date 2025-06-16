@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Bandcamp Volume Bar
+// @name         Bandcamp - Volume Bar
 // @namespace    http://www.tgoff.me/
 // @version      2019.11.08.1
 // @description  Adds a volume bar to Bandcamp
@@ -8,7 +8,7 @@
 // @match        *://rabbitjunk.com/*
 // @exclude      *://bandcamp.com/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=bandcamp.com
-// @require      http://tgoff.me/tamper-monkey/tg-lib.js
+// @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==

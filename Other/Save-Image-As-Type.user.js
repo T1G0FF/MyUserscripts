@@ -5,6 +5,7 @@
 // @description  Based on 'Save image as Type' Chrome extension by 'html5gamer' (https://chrome.google.com/webstore/detail/save-image-as-type/gabfmnliflodkdafenbcpjdlppllnemd)
 // @author       www.tgoff.me
 // @match        *://*/*
+// @grant        none
 // @run-at       document-start
 // @noframes
 // ==/UserScript==

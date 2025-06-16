@@ -1,12 +1,14 @@
 // ==UserScript==
-// @name         OnClick Handler Remover - Issuu
+// @name         Issuu - OnClick Handler Remover
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.14.1
 // @description  Replaces the onclick handler with a regular link on Issuu Publications
 // @author       www.tgoff.me
 // @match        *://issuu.com/*
+// @match        *://*.issuu.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=issuu.com
-// @run-at        document-idle
+// @grant        none
+// @run-at       document-idle
 // ==/UserScript==
 
 let titleRegex = /(?:Cover of \")([-_a-zA-Z0-9]+)(?:\")/g;

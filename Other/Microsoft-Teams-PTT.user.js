@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Microsoft Teams PTT
+// @name         Microsoft Teams - Push-To-Talk
 // @namespace    http://www.tgoff.me/
 // @version      2021.05.19.1
 // @description  Adds Push-To-Talk functionality to Microsoft Teams. Based entirely on https://github.com/greatesh/Microsoft-teams-PTS/tree/master

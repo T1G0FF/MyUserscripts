@@ -1,11 +1,13 @@
 // ==UserScript==
-// @name         Metricon Price Getter
+// @name         Metricon - Price Getter
 // @namespace    http://www.tgoff.me/
 // @version      2021.03.23.1
 // @description  Gets the prices for the Metricon Home Designs
 // @author       www.tgoff.me
-// @match        *://www.metricon.com.au/home-designs/*
+// @match        *://metricon.com.au/home-designs/*
+// @match        *://*.metricon.com.au/home-designs/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=metricon.com.au
+// @grant        none
 // @run-at       document-start
 // ==/UserScript==
 

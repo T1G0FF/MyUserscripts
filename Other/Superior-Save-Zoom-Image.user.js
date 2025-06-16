@@ -1,14 +1,15 @@
 // ==UserScript==
-// @name         Save Superior Threads Zoom Images
+// @name         Superior Threads - Save Zoom Image
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.1
 // @description  Adds buttons to Superior Threads product pages allowing for copying/opening of the high res zoom image.
 // @author       www.tgoff.me
+// @include      *://superiorthreads.*
 // @include      *://*.superiorthreads.*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=superiorthreads.com
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @grant        GM_setClipboard
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 (function () {

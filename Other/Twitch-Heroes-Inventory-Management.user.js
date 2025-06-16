@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name         Twitch Heroes Inventory Management
+// @name         Twitch Heroes - Inventory Management
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.14.1
 // @description  Adds some helpful buttons for Sorting and Filtering your inventory.
 // @author       www.tgoff.me
 // @match        *://twitch-heroes.com/equipped
+// @match        *://*.twitch-heroes.com/equipped
 // @require      http://tgoff.me/tamper-monkey/tg-lib.js
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=twitch-heroes.com
 // @grant        none

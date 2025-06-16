@@ -1,13 +1,16 @@
 // ==UserScript==
-// @name         eParcel Consignee Buttons
+// @name         eParcel - Consignee Buttons
 // @namespace    http://www.tgoff.me/
-// @version      2022.02.21.1
+// @version      2025.06.13.1
 // @description  Adds buttons to display all records and also one to quick export all shown records.
 // @author       www.tgoff.me
 // @match        *://online.auspost.com.au/eParcel/merchant/auth/viewConsigneeList.do
 // @match        *://online.auspost.com.au/eParcel/merchant/auth/submitCreateConsignee.do
+// @match        *://eparcel.auspost.com.au/eParcel/merchant/auth/viewConsigneeList.do
+// @match        *://eparcel.auspost.com.au/eParcel/merchant/auth/submitCreateConsignee.do
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=auspost.com.au
 // @grant        none
+// @run-at       document-idle
 // ==/UserScript==
 
 (function () {

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Olfa Redirect Intercept
+// @name         Olfa - Intercept Redirects
 // @namespace    http://www.tgoff.me/
 // @version      2020.12.08.1
 // @description  Prevents the Olfa website from automatically redirecting you to your regional equivalent site.
@@ -8,6 +8,7 @@
 // @match        *://*.olfa.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=olfa.com
 // @grant        none
+// @run-at       document-start
 // ==/UserScript==
 
 (function () {
