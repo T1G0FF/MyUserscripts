@@ -6,7 +6,7 @@
 // @author       www.tgoff.me
 // @match        *://zuver.net.au/domain-registration/domain-names/
 // @grant        none
-// @runat        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 function comp(a, b) { return a > b ? +1 : b > a ? -1 : 0; }

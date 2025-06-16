@@ -9,7 +9,7 @@
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @runat        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 (function () {

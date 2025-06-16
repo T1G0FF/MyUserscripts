@@ -6,7 +6,7 @@
 // @author       www.tgoff.me
 // @match        *://192.168.1.1/
 // @grant        none
-// @runat        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 function comp(a, b) { return a > b ? +1 : b > a ? -1 : 0; }
