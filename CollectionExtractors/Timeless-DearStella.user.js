@@ -53,7 +53,7 @@ let companyEnum = Company.Timeless;
 
 function getCompany() {
 	let company = (() => {
-		switch(companyEnum) {
+		switch (companyEnum) {
 			case Company.Timeless: return 'Timeless Treasures';
 			case Company.DearStella: return 'Dear Stella';
 			case Company.Marcus: return 'Marcus Fabrics';
@@ -153,7 +153,7 @@ function getItemObject(itemElement) {
 	let isTonga = (collectionFuzz.indexOf('TONGA') >= 0);
 
 	let prefix = (() => {
-		switch(companyEnum) {
+		switch (companyEnum) {
 			case Company.Timeless: return isTonga ? 'JN ' : 'TT';
 			case Company.DearStella: return 'DS ';
 			case Company.Marcus: return 'MF';
@@ -363,7 +363,7 @@ function formatInformation(itemElement) {
 	let delDateString = "Not Given - " + toDeliveryString(item.ReleaseDates);
 
 	let webCategory = (() => {
-		switch(companyEnum) {
+		switch (companyEnum) {
 			case Company.Timeless: return item.IsTonga ? item.CollectionName : 'TT ' + item.CollectionFuzz.toTitleCase();
 			case Company.DearStella: return item.CollectionName;
 			case Company.Marcus: return item.CollectionName;
@@ -381,7 +381,7 @@ function formatInformation(itemElement) {
 // https://www.ttfabrics.com/image/watermark/itemIR-212447/addImg-102/w-500/h-500/0dd618d7/HOLIDAY-CM8511-BLACK.jpg
 
 async function formatImage(item, index, total) {
-	let result = await scrapeFullSizeImage(item, index === total-1);
+	let result = await scrapeFullSizeImage(item, index === total - 1);
 	result = result.replace("watermark/", "");
 	//result = result.replace("image/", "image/addImg-102/");
 	result = result.replace(/(?:\/w-\d+)?(?:\/h-\d+)?/g, "");

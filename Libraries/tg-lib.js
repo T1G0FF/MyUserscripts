@@ -206,7 +206,7 @@ function lazyLoadThumbImages(e, currentItem) {
 }
 */
 function handleEvent(func, params) {
-	return function(e) {
+	return function (e) {
 		func(e, params);
 	};
 }
@@ -261,7 +261,7 @@ function addSvgFallback(element, svgSrc, fallbackSrc) {
 	};
 }
 
-HTMLElement.prototype.addClass = function(classes) {
+HTMLElement.prototype.addClass = function (classes) {
 	let temp;
 	let current = this.className.split(/\s+/);
 	let tempArray = [];
@@ -274,7 +274,7 @@ HTMLElement.prototype.addClass = function(classes) {
 	return;
 };
 
-HTMLElement.prototype.removeClass = function(classes) {
+HTMLElement.prototype.removeClass = function (classes) {
 	let temp;
 	let current = classes.split(/\s+/);
 	while (current.length) {
@@ -284,7 +284,7 @@ HTMLElement.prototype.removeClass = function(classes) {
 	return;
 };
 
-HTMLElement.prototype.getAllChildren = function() {
+HTMLElement.prototype.getAllChildren = function () {
 	let elem = this;
 	let children = [];
 	let q = [];
@@ -302,7 +302,7 @@ HTMLElement.prototype.getAllChildren = function() {
 	return children;
 };
 
-HTMLElement.prototype.getCoords = function() {
+HTMLElement.prototype.getCoords = function () {
 	let box = this.getBoundingClientRect();
 
 	let body = document.body;
@@ -320,7 +320,7 @@ HTMLElement.prototype.getCoords = function() {
 	return { top: Math.round(top), left: Math.round(left) };
 };
 
-HTMLElement.prototype.getTextNode = function(index = 1, ignoreEmpty = true) {
+HTMLElement.prototype.getTextNode = function (index = 1, ignoreEmpty = true) {
 	let count = 0;
 	let element = this;
 	for (var i = 0; i < element.childNodes.length; i++) {
@@ -337,22 +337,22 @@ HTMLElement.prototype.getTextNode = function(index = 1, ignoreEmpty = true) {
 	}
 }
 
-HTMLElement.prototype.getTextNodeValue = function(index = 1, ignoreEmpty = true) {
+HTMLElement.prototype.getTextNodeValue = function (index = 1, ignoreEmpty = true) {
 	return this.getTextNode().nodeValue;
 }
 
-String.prototype.escapeRegExp = function() {
+String.prototype.escapeRegExp = function () {
 	let target = this;
 	return target.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
 };
 
-String.prototype.replaceAll = function(search, replacement = '', caseSensitive = false) {
+String.prototype.replaceAll = function (search, replacement = '', caseSensitive = false) {
 	let target = this;
 	let options = caseSensitive ? 'g' : 'gi';
 	return target.replace(new RegExp(search, options), replacement);
 };
 
-String.prototype.toTitleCase = function(ignoreCase = true) {
+String.prototype.toTitleCase = function (ignoreCase = true) {
 	let target = this;
 	// ([^.]?) - The not dot is an attempt to ignore web addresses, it's far from perfect.
 	target = target.replace(/([^.]?)\b([a-zA-Z]+)\b/g, (match, p1, p2, offset, string) => {
@@ -364,7 +364,7 @@ String.prototype.toTitleCase = function(ignoreCase = true) {
 	return target;
 };
 
-Array.prototype.remove = function() {
+Array.prototype.remove = function () {
 	var what, a = arguments, L = a.length, ax;
 	while (L && this.length) {
 		what = a[--L];
@@ -382,13 +382,13 @@ Array.prototype.remove = function() {
 // @author       www.tgoff.me
 // ==/UserScript==
 
-let MyStyles = new function() {
+let MyStyles = new function () {
 	this.added = false;
 	this.addedStyles = {};
 	this.addedCheckboxes = {};
 	this.container = {};
 
-	this.init = function() {
+	this.init = function () {
 		let cssText = `
 		#CSSToggleContainer {
 			position: fixed;
@@ -433,7 +433,7 @@ let MyStyles = new function() {
 		this.container.id = 'CSSToggleContainer';
 
 		let that = this;
-		this._addStyleToggle('SelectAll', function() {
+		this._addStyleToggle('SelectAll', function () {
 			let checkBox = that.addedCheckboxes['SELECTALL'];
 			that._setAllAddedStyles(!checkBox.checked, true);
 		});
@@ -442,7 +442,7 @@ let MyStyles = new function() {
 		this.added = true;
 	};
 
-	this.addStyle = function(name, css, disabled = false) {
+	this.addStyle = function (name, css, disabled = false) {
 		if (!this.added) this.init();
 		let nameKey = name.toUpperCase();
 		let node;
@@ -460,7 +460,7 @@ let MyStyles = new function() {
 		node.id = nameKey;
 	};
 
-	this._addStyle = function(css, disabled = false) {
+	this._addStyle = function (css, disabled = false) {
 		let node = document.createElement('style');
 		node.type = 'text/css';
 		node.appendChild(document.createTextNode(css));
@@ -474,24 +474,24 @@ let MyStyles = new function() {
 		return node;
 	};
 
-	this._updateStyle = function(node, css, disabled = false) {
+	this._updateStyle = function (node, css, disabled = false) {
 		node.disabled = true;
 		node.innerText = css;
 		node.disabled = disabled;
 		return node;
 	};
 
-	this.addStyleToggle = function(name, checked = true) {
+	this.addStyleToggle = function (name, checked = true) {
 		let nameKey = name.toUpperCase();
 		let that = this;
 
-		this._addStyleToggle(name, function() {
+		this._addStyleToggle(name, function () {
 			let checkBox = that.addedCheckboxes[nameKey];
 			that._setStyle(nameKey, !checkBox.checked, false);
 		}, checked);
 	};
 
-	this._addStyleToggle = function(name, func, checked = true) {
+	this._addStyleToggle = function (name, func, checked = true) {
 		let nameKey = name.toUpperCase();
 
 		let checkbox = document.createElement('input');
@@ -510,7 +510,7 @@ let MyStyles = new function() {
 		this.addedCheckboxes[nameKey] = checkbox;
 	};
 
-	this._setStyle = function(name, disabled, updateCheckBox = true) {
+	this._setStyle = function (name, disabled, updateCheckBox = true) {
 		let nameKey = name.toUpperCase();
 		if (this.addedStyles.hasOwnProperty(nameKey)) {
 			this.addedStyles[nameKey].disabled = disabled;
@@ -521,25 +521,25 @@ let MyStyles = new function() {
 		}
 	};
 
-	this._setAllAddedStyles = function(disabled, updateCheckBox = true) {
+	this._setAllAddedStyles = function (disabled, updateCheckBox = true) {
 		for (var nameKey in this.addedStyles) {
 			this._setStyle(nameKey, disabled, updateCheckBox);
 		}
 	};
 
-	this.enableStyle = function(name, updateCheckBox = true) {
+	this.enableStyle = function (name, updateCheckBox = true) {
 		this._setStyle(name, false, updateCheckBox);
 	};
 
-	this.enableAllAddedStyles = function() {
+	this.enableAllAddedStyles = function () {
 		this._setAllAddedStyles(false, true);
 	};
 
-	this.disableStyle = function(name, updateCheckBox = true) {
+	this.disableStyle = function (name, updateCheckBox = true) {
 		this._setStyle(name, true, updateCheckBox);
 	};
 
-	this.disableAllAddedStyles = function() {
+	this.disableAllAddedStyles = function () {
 		this._setAllAddedStyles(true, true);
 	};
 };
@@ -551,7 +551,7 @@ let MyStyles = new function() {
 // @author       www.tgoff.me
 // ==/UserScript==
 
-let Toast = new function() {
+let Toast = new function () {
 	this.MAX_TOAST_COUNT = 10;
 	this.CONFIG_TOAST_POPUPS = true;
 	this.CONFIG_TOAST_DELAY = 1500;
@@ -562,11 +562,11 @@ let Toast = new function() {
 	this._msgQueue;
 	this.created = false;
 
-	this._getMargin = function(index) {
+	this._getMargin = function (index) {
 		return (56 * index) + (10 * (index - 1)) + 'px';
 	}
 
-	this.init = async function() {
+	this.init = async function () {
 		this._msgQueue = new Queue();
 		if (inIframe()) return;
 		let cssText = `
@@ -607,7 +607,7 @@ let Toast = new function() {
 		this.created = true;
 
 		let that = this;
-		setInterval(async function() {
+		setInterval(async function () {
 			if (!that._msgQueue.isEmpty()) {
 				let index = await that.get();
 				if (index > 0) {
@@ -619,7 +619,7 @@ let Toast = new function() {
 		}, 250); // Check every 250ms
 	};
 
-	this.create = async function(index) {
+	this.create = async function (index) {
 		if (inIframe()) return;
 		this._toasts[index] = {};
 		this._toasts[index] = document.createElement('div');
@@ -665,7 +665,7 @@ let Toast = new function() {
 		this._toasts[index].inUse = false;
 	};
 
-	this.get = async function() {
+	this.get = async function () {
 		if (inIframe()) return;
 		if (!this.created) await this.init();
 		for (let index = 1; index <= this.MAX_TOAST_COUNT; index++) {
@@ -678,7 +678,7 @@ let Toast = new function() {
 		return -1;
 	};
 
-	this.popup = async function(index, msg, timeout = this.CONFIG_TOAST_DELAY) {
+	this.popup = async function (index, msg, timeout = this.CONFIG_TOAST_DELAY) {
 		if (inIframe()) return;
 		this._toasts[index].innerText = msg;
 		timeout = timeout < 1000 ? 1000 : timeout;
@@ -687,7 +687,7 @@ let Toast = new function() {
 		this._toasts[index].classList.add('show');
 
 		let that = this;
-		setTimeout(function() {
+		setTimeout(function () {
 			that._toasts[index].classList.remove('show');
 			that._toasts[index].inUse = false;
 
@@ -708,16 +708,16 @@ let Toast = new function() {
 		}, timeout);
 	};
 
-	this.enqueue = async function(msg, timer) {
+	this.enqueue = async function (msg, timer) {
 		if (!this._msgQueue) this._msgQueue = new Queue();
 		this._msgQueue.enqueue({ 'msg': msg, 'timer': timer });
 	}
 };
 
-let Notify = new function() {
+let Notify = new function () {
 	if (!Toast.created) Toast.init();
 
-	this.log = async function(msg, object = undefined, timer = 3000) {
+	this.log = async function (msg, object = undefined, timer = 3000) {
 		let func = console.log;
 		await this._notify(func, msg, object, timer);
 		return;
@@ -760,11 +760,11 @@ let Notify = new function() {
 function Queue() {
 	this.length = 0;
 
-	this.isEmpty = function() {
+	this.isEmpty = function () {
 		return (this.length === 0);
 	};
 
-	this.enqueue = function(data) {
+	this.enqueue = function (data) {
 		var node = { 'data': data };
 		if (this.last) {
 			// New node added to end
@@ -776,7 +776,7 @@ function Queue() {
 		this.length++;
 	};
 
-	this.dequeue = function() {
+	this.dequeue = function () {
 		var node = this.first;
 		if (node) {
 			this.first = node.next;
@@ -789,12 +789,12 @@ function Queue() {
 		return undefined;
 	};
 
-	this.peek = function() {
+	this.peek = function () {
 		var node = this.first;
 		return (node ? node.data : undefined);
 	};
 
-	this.slice = function(start = 0, end = Infinity) {
+	this.slice = function (start = 0, end = Infinity) {
 		var output = [];
 
 		var i = 0;
@@ -814,7 +814,7 @@ function Queue() {
 // ==/UserScript==
 
 function DownloadQueue() {
-	this._check = async function() {
+	this._check = async function () {
 		if (typeof GM_download === 'undefined') {
 			await Notify.log('GM_download is not defined!', undefined, 5000);
 			return false;
@@ -827,7 +827,7 @@ function DownloadQueue() {
 	this.timer;
 	this.isRunning = false;
 
-	this._downloader = function() {
+	this._downloader = function () {
 		if (this._queue.length > 0) {
 			let args = this._queue.dequeue();
 			GM_download(args);
@@ -837,12 +837,12 @@ function DownloadQueue() {
 		}
 	};
 
-	this.enqueue = async function(object) {
+	this.enqueue = async function (object) {
 		if (this.valid) {
 			this._queue.enqueue(object);
 			if (!this.isRunning) {
 				var self = this;
-				this.timer = setInterval((function() {
+				this.timer = setInterval((function () {
 					self.isRunning = true;
 					self._downloader();
 				}), 500);
@@ -860,7 +860,7 @@ let downloadQueue = new DownloadQueue();
 // ==/UserScript==
 
 function Params(urlFull) {
-	this._getParams = function(urlFull) {
+	this._getParams = function (urlFull) {
 		let result = [];
 		let url = urlFull.split('?')[0];
 		// Include the '?'
@@ -873,7 +873,7 @@ function Params(urlFull) {
 		return result;
 	};
 
-	this._sortParams = function() {
+	this._sortParams = function () {
 		this.list = this.list.sort((a, b) => (a.key.toUpperCase() > b.key.toUpperCase()) ? 1 : -1);
 	};
 
@@ -881,12 +881,12 @@ function Params(urlFull) {
 	this.list = this._getParams(urlFull);
 
 
-	this.addParam = function(paramKey, paramValue) {
+	this.addParam = function (paramKey, paramValue) {
 		this.list.push({ 'key': paramKey, 'value': paramValue });
 		return this.toURL(true);
 	};
 
-	this.addParams = function(paramsList) {
+	this.addParams = function (paramsList) {
 		let currentKVP;
 		for (let i = 0; i < paramsList.length; i++) {
 			if (paramsList.hasOwnProperty(i)) {
@@ -900,7 +900,7 @@ function Params(urlFull) {
 		return this.toURL(true);
 	};
 
-	this.getValue = function(paramKey) {
+	this.getValue = function (paramKey) {
 		let currentKVP;
 		for (let i = 0; i < this.list.length; i++) {
 			if (this.list.hasOwnProperty(i)) {
@@ -913,7 +913,7 @@ function Params(urlFull) {
 		return undefined;
 	};
 
-	this.removeParam = function(paramKey) {
+	this.removeParam = function (paramKey) {
 		let currentKVP;
 		for (let i = 0; i < this.list.length; i++) {
 			if (this.list.hasOwnProperty(i)) {
@@ -926,12 +926,12 @@ function Params(urlFull) {
 		return this.toURL(true);
 	};
 
-	this.sortParams = function() {
+	this.sortParams = function () {
 		this._sortParams();
 		return this.toURL(true);
 	};
 
-	this.toURL = function(rerun = false) {
+	this.toURL = function (rerun = false) {
 		if (!rerun) return this._fullURL;
 		let result = this.url;
 		if (this.list.length > 0) {
@@ -954,7 +954,7 @@ function Params(urlFull) {
 	};
 	this._fullURL = this.toURL(true);
 }
-Params.sort = function(urlFull) {
+Params.sort = function (urlFull) {
 	let urlParamsObject = new Params(urlFull);
 	urlParamsObject._sortParams();
 	return urlParamsObject.toURL();

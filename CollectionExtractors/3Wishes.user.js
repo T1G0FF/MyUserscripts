@@ -126,7 +126,7 @@ function getItemObject(itemElement) {
 
 			let countingElements = document.querySelectorAll('div.cItemDivContainer div.cItemTitleDiv p.cItemTitle');
 			let collectionCount = 0
-			let ignoreTypes = [ 'AST', 'FQBX' ]
+			let ignoreTypes = ['AST', 'FQBX']
 			for (const countingElement in countingElements) {
 				if (countingElements.hasOwnProperty(countingElement)) {
 					const element = countingElements[countingElement];

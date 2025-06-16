@@ -13,8 +13,8 @@
 // @run-at       document-idle
 // ==/UserScript==
 
-let modalSelector	= '.nf-modal.interstitial-full-screen';
-let playerSelector	= '[data-uia="player"]';
+let modalSelector = '.nf-modal.interstitial-full-screen';
+let playerSelector = '[data-uia="player"]';
 (function () {
 	'use strict';
 

@@ -445,7 +445,7 @@ function formatInformation(itemElement) {
 // https://wilmingtonprints.com/pub/media/catalog/product/cache/c9e0b0ef589f3508e5ba515cde53c5ff/Q/1/Q1013-51000-100_1.jpg
 
 function formatImage(itemElement) {
-	let img = itemElement.querySelector('img.product-image-photo') ;
+	let img = itemElement.querySelector('img.product-image-photo');
 	let result = img.getAttribute('src');
 	result = result.replace('b2dc3f25879ce9c2207d16fffde75f0f', 'c9e0b0ef589f3508e5ba515cde53c5ff');
 	return result;

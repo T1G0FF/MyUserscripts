@@ -15,7 +15,7 @@ const LIB_CONFIG = {
 
 // Creates default buttons used by all.
 function createButtons(element = getTitleElement(), location = 'beforeEnd', foreground = 'white', background = 'black') {
-	if (LIB_CONFIG.ADD_COPYINFO) createButton('Copy Info', function() { resetWarnings(); copyCollection(); }, element, location);
+	if (LIB_CONFIG.ADD_COPYINFO) createButton('Copy Info', function () { resetWarnings(); copyCollection(); }, element, location);
 	if (LIB_CONFIG.ADD_COPYHTML) createButton('Copy HTML', function () { resetWarnings(); copyHTML(); }, element, location);
 	if (LIB_CONFIG.ADD_SAVEIMGS) createButton('Save Images', function () { resetWarnings(); saveImages(); }, element, location);
 }
@@ -164,7 +164,7 @@ function getReleaseDates(availDate = getAvailabilityDate(), delDelay = 3) {
 	delDate.setMonth(delDate.getMonth() + delDelay);
 	let delMonth = delDate.toLocaleString('en-au', { month: 'short' });
 	// Fixes 'June', 'July', 'Sept'
-	delMonth = delMonth.substring(0,3);
+	delMonth = delMonth.substring(0, 3);
 	let delYear = delDate.getFullYear();
 
 	return {
@@ -857,7 +857,7 @@ function addSortBy(string, selectorFunc) {
 		'string': string
 	};
 
-	if(string === 'Default') {
+	if (string === 'Default') {
 		SORT_BY_LOOKUP[0] = obj;
 	}
 	else {
@@ -871,7 +871,7 @@ function isSorted() {
 
 async function btnAction_sortCollectionDir(sortDirButton = undefined, direction = +1) {
 	let next = (SORT_DIR + direction);
-	SORT_DIR = next < 0 ? SORT_DIR_LOOKUP.length-1 : next % SORT_DIR_LOOKUP.length;
+	SORT_DIR = next < 0 ? SORT_DIR_LOOKUP.length - 1 : next % SORT_DIR_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortDirButton) {
 		sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
@@ -880,7 +880,7 @@ async function btnAction_sortCollectionDir(sortDirButton = undefined, direction 
 
 async function btnAction_sortCollectionBy(sortByButton = undefined, direction = +1) {
 	let next = (SORT_BY + direction);
-	SORT_BY = next < 0 ? SORT_BY_LOOKUP.length-1 : next % SORT_BY_LOOKUP.length;
+	SORT_BY = next < 0 ? SORT_BY_LOOKUP.length - 1 : next % SORT_BY_LOOKUP.length;
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortByButton) {
 		sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
@@ -925,7 +925,7 @@ async function filterCollection() {
 
 var collectionOriginalSort = undefined;
 async function refreshCollection(itemContainer = getItemContainer(), itemList = undefined) {
-	if(!itemList) {
+	if (!itemList) {
 		if (!collectionOriginalSort) {
 			collectionOriginalSort = Array.from(await getCollection());
 		}
@@ -957,7 +957,7 @@ async function refreshCollection(itemContainer = getItemContainer(), itemList = 
 	}
 
 	if (filterFalseList.length > 0) {
-		for (let j = filterFalseList.length - 1; j >= 0 ; j--) {
+		for (let j = filterFalseList.length - 1; j >= 0; j--) {
 			let itemOut = filterFalseList[j];
 			removeFilterMatchStyle(itemOut);
 			itemContainer.insertAdjacentElement('afterBegin', itemOut);

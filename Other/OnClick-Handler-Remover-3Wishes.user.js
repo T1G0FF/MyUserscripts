@@ -21,10 +21,10 @@ I encase the item in a link element using the url specified in said handler, the
 */
 
 let linkRegex = /(?:handleCItemClick\()['"]?(.*)['"]?(?:\);)/g;
-(function() {
+(function () {
 	'use strict';
 	console.log('Begin click handlers removal');
-	setTimeout(function() {
+	setTimeout(function () {
 		removeOnClickHandlers();
 		console.log('Click handlers removed!');
 	}, 1000);
