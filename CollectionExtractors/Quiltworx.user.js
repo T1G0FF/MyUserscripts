@@ -5,13 +5,13 @@
 // @description  Gets the names and codes from Quiltworx
 // @author       www.tgoff.me
 // @match        *://quiltworx.com/patterns/*
-// @match        *://www.quiltworx.com/patterns/*
-// @noframes
+// @match        *://*.quiltworx.com/patterns/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
+// @noframes
 // ==/UserScript==
 
 (function () {

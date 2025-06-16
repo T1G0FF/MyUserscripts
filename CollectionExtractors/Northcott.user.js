@@ -4,19 +4,19 @@
 // @version      2023.07.14.1
 // @description  Gets the names and codes from a Northcott or Banyan Batiks Collection
 // @author       www.tgoff.me
-// @match        *://www.northcott.net/product-detail.aspx?*
-// @match        *://www.northcott.com/product-detail.aspx?*
 // @match        *://northcott.net/product-detail.aspx?*
+// @match        *://*.northcott.net/product-detail.aspx?*
 // @match        *://northcott.com/product-detail.aspx?*
-// @match        *://www.northcott.net/product.aspx?*
-// @match        *://www.northcott.com/product.aspx?*
+// @match        *://*.northcott.com/product-detail.aspx?*
 // @match        *://northcott.net/product.aspx?*
+// @match        *://*.northcott.net/product.aspx?*
 // @match        *://northcott.com/product.aspx?*
+// @match        *://*.northcott.com/product.aspx?*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 (function () {

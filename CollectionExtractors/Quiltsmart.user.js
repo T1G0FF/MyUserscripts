@@ -5,13 +5,13 @@
 // @description  Gets the names and codes from Quiltsmart
 // @author       www.tgoff.me
 // @match        *://quiltsmart.com/shop/*
-// @match        *://www.quiltsmart.com/shop/*
-// @noframes
+// @match        *://*.quiltsmart.com/shop/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
+// @noframes
 // ==/UserScript==
 
 let isSearch = false;

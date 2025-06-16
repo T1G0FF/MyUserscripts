@@ -4,11 +4,12 @@
 // @version      2023.07.14.1
 // @description  Gets the names and codes from a Susybee Collection
 // @author       www.tgoff.me
-// @match        *://www.worldofsusybee.com/textiles/*/*
+// @match        *://worldofsusybee.com/textiles/*
+// @match        *://*.worldofsusybee.com/textiles/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 (function () {

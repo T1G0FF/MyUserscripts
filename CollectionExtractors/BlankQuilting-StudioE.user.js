@@ -4,10 +4,10 @@
 // @version      2025.01.31.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
-// @match        *://www.blankquilting.net/*
 // @match        *://blankquilting.net/*
-// @match        *://www.studioefabrics.net/*
+// @match        *://*.blankquilting.net/*
 // @match        *://studioefabrics.net/*
+// @match        *://*.studioefabrics.net/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard

@@ -8,6 +8,7 @@
 // @match        *://*.gamersheroes.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=gamersheroes.com
 // @grant        none
+// @runat        document-idle
 // ==/UserScript==
 
 (function () {

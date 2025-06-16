@@ -4,12 +4,13 @@
 // @version      2023.03.21.8
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
-// @match        *://www.fabriceditions.com/shop/3-Wishes-*-Collections/*
+// @match        *://fabriceditions.com/shop/3-Wishes-*-Collections/*
+// @match        *://*.fabriceditions.com/shop/3-Wishes-*-Collections/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 (function () {

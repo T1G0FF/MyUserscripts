@@ -4,14 +4,17 @@
 // @version      2023.03.21.1
 // @description  Gets the names and codes from a Stof Collection
 // @author       www.tgoff.me
-// @match        *://www.stoffabrics.com/theme/*
-// @match        *://www.stoffabrics.com/collection/*
-// @match        *://www.stoffabrics.com/catalogsearch/result/*
+// @match        *://stoffabrics.com/theme/*
+// @match        *://*.stoffabrics.com/theme/*
+// @match        *://stoffabrics.com/collection/*
+// @match        *://*.stoffabrics.com/collection/*
+// @match        *://stoffabrics.com/catalogsearch/result/*
+// @match        *://*.stoffabrics.com/catalogsearch/result/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 (function () {

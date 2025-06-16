@@ -4,12 +4,13 @@
 // @version      2023.03.21.1
 // @description  Gets the names and codes from a Brewer Sewing search
 // @author       www.tgoff.me
-// @match        *://www.brewersewing.com/*
+// @match        *://brewersewing.com/*
+// @match        *://*.brewersewing.com/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 let isSearch = false;

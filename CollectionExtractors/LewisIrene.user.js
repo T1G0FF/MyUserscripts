@@ -4,13 +4,15 @@
 // @version      2023.07.14.1
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.
 // @author       www.tgoff.me
-// @match        *://www.lewisandirene.com/our-fabrics/*
-// @match        *://www.lewisandirene.com/our-patterns/*
+// @match        *://lewisandirene.com/our-fabrics/*
+// @match        *://*.lewisandirene.com/our-fabrics/*
+// @match        *://lewisandirene.com/our-patterns/*
+// @match        *://*.lewisandirene.com/our-patterns/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
-// @run-at        document-idle
+// @run-at       document-idle
 // ==/UserScript==
 
 let LewisIreneRegEx = /([a-zA-Z]+)([0-9]+)(?:\.([0-9]+)|(?:\s+[a-zA-Z]{2}[0-9]{2}))?(?:[-\s]+)([\/\w -()&]+)/;

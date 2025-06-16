@@ -5,23 +5,23 @@
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
-// @match        *://www.ttfabrics.com/category/*
+// @match        *://*.ttfabrics.com/category/*
 // @match        *://ttfabrics.com/advanced_search_result.php?*
-// @match        *://www.ttfabrics.com/advanced_search_result.php?*
+// @match        *://*.ttfabrics.com/advanced_search_result.php?*
 // @match        *://dearstelladesign.com/category/*
-// @match        *://www.dearstelladesign.com/category/*
+// @match        *://*.dearstelladesign.com/category/*
 // @match        *://dearstelladesign.com/advanced_search_result.php?*
-// @match        *://www.dearstelladesign.com/advanced_search_result.php?*
+// @match        *://*.dearstelladesign.com/advanced_search_result.php?*
 // @match        *://marcusfabrics.com/category/*
-// @match        *://www.marcusfabrics.com/category/*
+// @match        *://*.marcusfabrics.com/category/*
 // @match        *://marcusfabrics.com/advanced_search_result.php?*
-// @match        *://www.marcusfabrics.com/advanced_search_result.php?*
-// @noframes
+// @match        *://*.marcusfabrics.com/advanced_search_result.php?*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
 // @grant        GM_download
 // @run-at       document-idle
+// @noframes
 // ==/UserScript==
 
 const Company = {

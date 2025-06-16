@@ -4,12 +4,12 @@
 // @version      2025.01.24.1
 // @description  Gets the names and codes from a Marshall Dry Goods Collection
 // @author       www.tgoff.me
-// @match        *://www.marshalldrygoods.com/shop/fabrics/*
 // @match        *://marshalldrygoods.com/shop/fabrics/*
-// @match        *://www.marshalldrygoods.com/shop/wholesale/*
+// @match        *://*.marshalldrygoods.com/shop/fabrics/*
 // @match        *://marshalldrygoods.com/shop/wholesale/*
-// @match        *://www.marshalldrygoods.com/shop/home/search/results/*
+// @match        *://*.marshalldrygoods.com/shop/wholesale/*
 // @match        *://marshalldrygoods.com/shop/home/search/results/*
+// @match        *://*.marshalldrygoods.com/shop/home/search/results/*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
