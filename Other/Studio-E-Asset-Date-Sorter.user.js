@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Studio E - Asset Date Sorter
 // @namespace    http://www.tgoff.me/
-// @version      2021.03.26.0
+// @version      2021.03.26.1
 // @description  Allows sorting of the Band table in search results.
 // @author       www.tgoff.me
 // @match        *://studioefabrics.net/asset/*
