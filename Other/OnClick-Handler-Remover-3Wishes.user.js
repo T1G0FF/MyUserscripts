@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         3 Wishes - OnClick Handler Remover
+// @name         # 3 Wishes - OnClick Handler Remover
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.2
 // @description  Replaces the onclick handler with a regular link on 3 Wishes Collections
@@ -12,17 +12,18 @@
 // ==/UserScript==
 
 /*
-The devs, in all thier wisdom use this as a click handler on the items:
-    function handleCItemClick(url) {
-        window.location = url;
-    }
+The devs, in all their wisdom use this as a click handler on the items:
+	function handleCItemClick(url) {
+		window.location = url;
+	}
 Which means you can't open them in a new tab or window with middle click or ctrl+click.
 I encase the item in a link element using the url specified in said handler, then remove the handler.
 */
 
 let linkRegex = /(?:handleCItemClick\()['"]?(.*)['"]?(?:\);)/g;
 (function() {
-    'use strict';
+	'use strict';
+	console.log('Begin click handlers removal');
 	setTimeout(function() {
 		removeOnClickHandlers();
 		console.log('Click handlers removed!');
