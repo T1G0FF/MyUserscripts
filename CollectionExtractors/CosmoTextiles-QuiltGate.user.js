@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Cosmo Textiles / Quilt Gate
+// @name         # VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
 // @version      2024.07.11.2
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection

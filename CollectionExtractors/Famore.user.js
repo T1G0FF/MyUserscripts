@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Famore
+// @name         # VicText Collection Extractor - Famore
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=famorecutlery.com
 // @namespace    http://tgoff.me/
 // @version      2023.03.21.1

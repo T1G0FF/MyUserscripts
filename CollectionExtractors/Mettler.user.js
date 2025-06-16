@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Mettler
+// @name         # VicText Collection Extractor - Mettler
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.1
 // @description  Gets the names and codes from a Mettler Range

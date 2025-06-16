@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         StraightSell CMS - Enhancements
+// @name         # StraightSell CMS - Enhancements
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.23.1
 // @description  Allows you to toggle the visibility of all the far too easy to click Delete/Remove/Revoke links.

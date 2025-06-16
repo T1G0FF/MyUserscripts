@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Netflix - Bypass Household Modal
+// @name         # Netflix - Bypass Household Modal
 // @namespace    http://www.tgoff.me/
 // @version      2025.03.31.1
 // @description  Bypasses the "Your device isn’t part of the Netflix Household for this account" popup.

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         General - Save Image as Type
+// @name         # General - Save Image as Type
 // @namespace    http://www.tgoff.me/
 // @version      2024.03.07.1
 // @description  Based on 'Save image as Type' Chrome extension by 'html5gamer' (https://chrome.google.com/webstore/detail/save-image-as-type/gabfmnliflodkdafenbcpjdlppllnemd)

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Amazon - Save Zoom Image
+// @name         # Amazon - Save Zoom Image
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.1
 // @description  Adds buttons to Amazon product pages allowing for copying/opening of the high res zoom image.

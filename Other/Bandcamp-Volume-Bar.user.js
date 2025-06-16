@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Bandcamp - Volume Bar
+// @name         # Bandcamp - Volume Bar
 // @namespace    http://www.tgoff.me/
 // @version      2019.11.08.1
 // @description  Adds a volume bar to Bandcamp

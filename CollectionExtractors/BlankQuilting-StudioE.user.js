@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Blank Quilting / Studio E
+// @name         # VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
 // @version      2025.01.31.2
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection

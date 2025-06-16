@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
+// @name         # General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
 // @namespace    http://www.tgoff.me/
 // @version      2025.02.27.1
 // @description  Simulates the website as a color vision impaired person would see. Based on leocardz.com's Chrome Extension Colorblinding. Which is based on SVG data at https://github.com/Altreus/colourblind and Data matrices at http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/

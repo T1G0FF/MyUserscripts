@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Metricon - Price Getter
+// @name         # Metricon - Price Getter
 // @namespace    http://www.tgoff.me/
 // @version      2021.03.23.1
 // @description  Gets the prices for the Metricon Home Designs

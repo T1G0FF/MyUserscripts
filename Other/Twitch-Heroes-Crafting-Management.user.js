@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Twitch Heroes - Crafting Management
+// @name         # Twitch Heroes - Crafting Management
 // @namespace    http://www.tgoff.me/
 // @version      2019.02.06.1
 // @description  Adds some helpful buttons for Resource management and Crafting.

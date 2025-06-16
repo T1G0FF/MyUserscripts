@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Wilmington
+// @name         # VicText Collection Extractor - Wilmington
 // @namespace    http://www.tgoff.me/
 // @version      2023.09.18.2
 // @description  Gets the names and codes from a Wilmington Collection

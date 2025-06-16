@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Superior Threads - Save Zoom Image
+// @name         # Superior Threads - Save Zoom Image
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.1
 // @description  Adds buttons to Superior Threads product pages allowing for copying/opening of the high res zoom image.

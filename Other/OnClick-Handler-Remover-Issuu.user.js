@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Issuu - OnClick Handler Remover
+// @name         # Issuu - OnClick Handler Remover
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.14.1
 // @description  Replaces the onclick handler with a regular link on Issuu Publications

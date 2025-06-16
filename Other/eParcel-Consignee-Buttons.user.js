@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         eParcel - Consignee Buttons
+// @name         # eParcel - Consignee Buttons
 // @namespace    http://www.tgoff.me/
 // @version      2025.06.13.1
 // @description  Adds buttons to display all records and also one to quick export all shown records.

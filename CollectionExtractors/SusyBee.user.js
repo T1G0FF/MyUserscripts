@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Susybee
+// @name         # VicText Collection Extractor - Susybee
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.14.1
 // @description  Gets the names and codes from a Susybee Collection

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Olfa - Intercept Redirects
+// @name         # Olfa - Intercept Redirects
 // @namespace    http://www.tgoff.me/
 // @version      2020.12.08.1
 // @description  Prevents the Olfa website from automatically redirecting you to your regional equivalent site.

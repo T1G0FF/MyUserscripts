@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Dear Stella / Timeless Treasures
+// @name         # VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
 // @version      2023.11.16.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection

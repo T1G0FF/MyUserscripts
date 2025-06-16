@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Gamers Heroes - Remove Ads
+// @name         # Gamers Heroes - Remove Ads
 // @namespace    http://www.tgoff.me/
 // @version      2020.12.08.1
 // @description  Removes Sidebar and Bottom Bar from Gamers Heroes

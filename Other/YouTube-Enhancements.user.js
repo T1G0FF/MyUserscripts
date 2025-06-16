@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         YouTube - Enhancements
+// @name         # YouTube - Enhancements
 // @namespace    http://www.tgoff.me/
 // @version      2020.11.25.2
 // @description  Adds a button for toggling YouTube comments, forces Dark Mode to be on when page loads

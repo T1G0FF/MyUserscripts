@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         The Guardian - DarkMode Twitter IFrames
+// @name         # The Guardian - DarkMode Twitter IFrames
 // @namespace    http://www.tgoff.me/
 // @version      2021.05.06.1
 // @description  Sets the embedded tweets to use dark mode.

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Lewis & Irene
+// @name         # VicText Collection Extractor - Lewis & Irene
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.14.1
 // @description  Gets the names and codes from a Lewis & Irene Collection. Also adds some visible item & collection labels.

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         StraightSell CMS - Image Upload Presets
+// @name         # StraightSell CMS - Image Upload Presets
 // @namespace    http://www.tgoff.me/
 // @version      2025.05.29.1
 // @description  Provides single click presets for image uploads.

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Northcott
+// @name         # VicText Collection Extractor - Northcott
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.14.1
 // @description  Gets the names and codes from a Northcott or Banyan Batiks Collection

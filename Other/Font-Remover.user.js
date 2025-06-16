@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         General - Font Remover (Helvetica Neue)
+// @name         # General - Font Remover (Helvetica Neue)
 // @namespace    http://www.tgoff.me/
 // @version      2025.02.20.1
 // @description  Replaces Helvetica Neue font family from CSS font stack to use next fallback. Provides Arial as fallback only if no other is given. Based on afalchi82's Chrome Extension of the same name.

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Twitch Heroes - Inventory Management
+// @name         # Twitch Heroes - Inventory Management
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.14.1
 // @description  Adds some helpful buttons for Sorting and Filtering your inventory.

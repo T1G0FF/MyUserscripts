@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Marshall Dry Goods
+// @name         # VicText Collection Extractor - Marshall Dry Goods
 // @namespace    http://www.tgoff.me/
 // @version      2025.01.24.1
 // @description  Gets the names and codes from a Marshall Dry Goods Collection

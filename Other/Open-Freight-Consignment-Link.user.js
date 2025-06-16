@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         OpenFreight - Consignment Link
+// @name         # OpenFreight - Consignment Link
 // @namespace    http://www.tgoff.me/
 // @version      2023.07.07.1
 // @description  Adds a links to the Consignment page from the tracking window and visa versa

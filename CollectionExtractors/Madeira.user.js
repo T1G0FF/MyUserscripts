@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Madeira
+// @name         # VicText Collection Extractor - Madeira
 // @namespace    http://www.tgoff.me/
 // @version      2023.10.16.1
 // @description  Gets the names and codes from a Madeira Range

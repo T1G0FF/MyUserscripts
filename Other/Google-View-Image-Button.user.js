@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name            Google - View Image button - EDIT
+// @name         #    Google - View Image button - EDIT
 // @namespace       https://github.com/bijij/ViewImage
 // @version         3.6.4.1
 // @description     This userscript re-implements the "View Image" and "Search by image" buttons into google images.

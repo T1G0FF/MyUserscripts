@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Dannells - Image Extractor
+// @name         # Dannells - Image Extractor
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.1
 // @description  Gets the images from a Dannells Item

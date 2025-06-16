@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Constant Contact - Enhancements
+// @name         # Constant Contact - Enhancements
 // @namespace    http://www.tgoff.me/
 // @version      2025.06.10.1
 // @description  Adds larger per page count to select menu and allows copying of campaign data to clipboard & Adds an automatically updating label underneath the datepicker with the date in a locale accurate format.

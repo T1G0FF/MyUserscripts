@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Full Line Stencils
+// @name         # VicText Collection Extractor - Full Line Stencils
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.1
 // @description  Gets the names and codes from a Full Line Stencils Collection

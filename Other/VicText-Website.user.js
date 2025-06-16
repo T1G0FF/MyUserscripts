@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Victorian Textiles - Enhancements
+// @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
 // @version      2025.06.16.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.

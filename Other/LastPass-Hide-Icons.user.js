@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         LastPass - Hide Icons
+// @name         # LastPass - Hide Icons
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.1
 // @description  Hides LastPass icons in fields.

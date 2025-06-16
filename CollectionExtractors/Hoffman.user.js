@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - Hoffman
+// @name         # VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
 // @version      2023.08.28.1
 // @description  Gets the names and codes from a Hoffman Collection

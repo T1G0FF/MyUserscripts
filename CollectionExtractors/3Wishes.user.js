@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VicText Collection Extractor - 3 Wishes
+// @name         # VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
 // @version      2023.03.21.8
 // @description  Gets the names and codes from a 3 Wishes Collection
