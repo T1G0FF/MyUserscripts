@@ -4,8 +4,8 @@
 // @version      2021.02.07.1
 // @description  Enlarges actor pictures in IMDb cast lists when you hover over them.
 // @author       www.tgoff.me
-// @include      *://imdb.com/title/*
-// @include      *://*.imdb.com/title/*
+// @match        *://imdb.com/title/*
+// @match        *://*.imdb.com/title/*
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==

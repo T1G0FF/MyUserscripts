@@ -5,7 +5,7 @@
 // @description  Gets the names and codes from a SSS
 // @author       www.tgoff.me
 // @match        *://sss.com.au/*
-// @match        *://www.sss.com.au/*
+// @match        *://*.sss.com.au/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=sss.com.au
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js

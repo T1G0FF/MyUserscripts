@@ -5,7 +5,7 @@
 // @description  Gets the names and codes from a Linda's Electric Quilters Collection
 // @author       www.tgoff.me
 // @match        *://lindas.com/collections/*
-// @match        *://www.lindas.com/collections/*
+// @match        *://*.lindas.com/collections/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=lindas.com
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js

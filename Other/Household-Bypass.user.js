@@ -28,8 +28,7 @@ let playerSelector = '[data-uia="player"]';
 
 				console.log('Removing modal element:', modal);
 				modal.remove();
-			}
-		);
+			});
 	}
 
 	function restorePlayerUI() {

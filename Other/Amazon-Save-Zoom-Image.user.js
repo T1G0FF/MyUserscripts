@@ -4,8 +4,8 @@
 // @version      2023.03.21.1
 // @description  Adds buttons to Amazon product pages allowing for copying/opening of the high res zoom image.
 // @author       www.tgoff.me
-// @include      *://amazon.*
-// @include      *://*.amazon.*
+// @match        *://amazon.*
+// @match        *://*.amazon.*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
 // @grant        GM_setClipboard
 // @run-at       document-idle

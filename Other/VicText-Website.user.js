@@ -997,7 +997,7 @@ function addScraperOptions() {
 	table.classList.add('tg-dropdown-option');
 	table.classList.add('tg-table');
 	table.innerHTML =
-`<tbody>
+		`<tbody>
 	<tr class="tg-table-header">
 		<td colspan="2" class="tg-dropdown-text">Scraper Options</td>
 	</tr>

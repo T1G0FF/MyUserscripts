@@ -4,8 +4,8 @@
 // @version      2023.03.21.1
 // @description  Adds buttons to Superior Threads product pages allowing for copying/opening of the high res zoom image.
 // @author       www.tgoff.me
-// @include      *://superiorthreads.*
-// @include      *://*.superiorthreads.*
+// @match        *://superiorthreads.*
+// @match        *://*.superiorthreads.*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=superiorthreads.com
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @grant        GM_setClipboard
