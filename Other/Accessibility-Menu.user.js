@@ -1,16 +1,17 @@
 // ==UserScript==
 // @name         # General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
 // @namespace    http://www.tgoff.me/
-// @version      2025.02.27.1
+// @version      2025.08.09.1
 // @description  Simulates the website as a color vision impaired person would see. Based on leocardz.com's Chrome Extension Colorblinding. Which is based on SVG data at https://github.com/Altreus/colourblind and Data matrices at http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/
 // @author       www.tgoff.me
 // @match        *://*/*
 // @noframes
 // @grant        GM_addElement
-// @run-at       document-idle
+// @run-at       document-body
 // ==/UserScript==
 
 let colorBlindFilter = {
+	enabled: window.localStorage.getItem('colorBlindFilterEnabled') ?? 'init',
 	initialBackup: {},
 	simulations: {
 		'Red-Blind': 'protanopia',
@@ -57,6 +58,7 @@ let colorBlindFilter = {
 }
 
 let readingMask = {
+	enabled: window.localStorage.getItem('readingMaskEnabled') ?? false,
 	topElement: {},
 	bottomElement: {},
 	create: function () {
@@ -89,6 +91,7 @@ let readingMask = {
 }
 
 let readingGuide = {
+	enabled: window.localStorage.getItem('readingGuideEnabled') ?? false,
 	guideElement: {},
 	create: function () {
 		if (document.querySelectorAll('.ReadingGuide').length) return;
@@ -118,6 +121,10 @@ let readingGuide = {
 		document.removeEventListener('mousemove', readingGuide.move);
 		document.removeEventListener('click', readingGuide.move);
 	}
+}
+
+let darkMode = {
+	enabled: window.localStorage.getItem('darkModeEnabled') ?? 0
 }
 
 let cssText = `
@@ -219,6 +226,11 @@ html.genericDarkmodeExImages img {
 		_addReadingGuideToggle(container);
 		_addGenericDarkmodeToggle(container);
 		_addColorBlindToggles(container);
+
+		setTimeout(function () {
+			let container = document.querySelector('#AccessibilityToggleContainer');
+			container.style.right = document.querySelector('#CSSToggleContainer') ? 'calc(1px + 14px + 1px)' : '1px';
+		}, 500);
 	}, 500);
 })();
 
@@ -250,6 +262,8 @@ function _addColorBlindToggles(container) {
 	filterWrapper.style.display = 'none';
 	filterWrapper.id = 'ColorBlindFilterToggleWrapper';
 
+	// Backup initial filter style.
+	colorBlindFilter.initialBackup = document.documentElement.style.filter;
 	for (const name in colorBlindFilter.simulations) {
 		let id = colorBlindFilter.simulations[name];
 		let radio = _addColorBlindToggle(filterWrapper, name, id);
@@ -262,8 +276,14 @@ function _addColorBlindToggles(container) {
 	let thisId = 'ColorBlindFilterToggleCheckBox';
 	check.id = thisId;
 
-	check.setAttribute('checked', 'unchecked');
-	check.checked = false;
+	if (colorBlindFilter.enabled === 'init') {
+		check.setAttribute('checked', 'unchecked');
+		check.checked = false;
+	}
+	else {
+		check.setAttribute('checked', 'checked');
+		check.checked = true;
+	}
 
 	check.onclick = function () {
 		if (check.checked) {
@@ -274,6 +294,7 @@ function _addColorBlindToggles(container) {
 			document.querySelector('#ColorBlindToggleRadioButton_INIT').click();
 		}
 	}
+	if (check.checked) check.onclick();
 
 	let label = document.createElement('label');
 	label.setAttribute('for', thisId);
@@ -292,19 +313,25 @@ function _addColorBlindToggle(container, name, id) {
 	let thisId = 'ColorBlindToggleRadioButton_' + nameKey;
 	radio.id = thisId;
 
-	if (id === 'init') {
-		colorBlindFilter.initialBackup = document.documentElement.style.filter;
-		radio.onclick = function () {
-			document.documentElement.style.filter = colorBlindFilter.initialBackup;
-		};
+	if (id === colorBlindFilter.enabled) {
 		radio.setAttribute('checked', 'checked');
 		radio.checked = true;
 	}
 	else {
-		radio.onclick = function () {
-			document.documentElement.style.filter = 'url(#' + id + ')';
-		};
+		radio.setAttribute('checked', 'unchecked');
+		radio.checked = false;
 	}
+
+	radio.onclick = function () {
+		window.localStorage.setItem('colorBlindFilterEnabled', id);
+		if (id === 'init') {
+			document.documentElement.style.filter = colorBlindFilter.initialBackup;
+		}
+		else {
+			document.documentElement.style.filter = 'url(#' + id + ')';
+		}
+	};
+	if (id === colorBlindFilter.enabled) radio.onclick();
 
 	let label = document.createElement('label');
 	label.setAttribute('for', thisId);
@@ -323,12 +350,20 @@ function _addReadingMaskToggle(container) {
 	let thisId = 'ReadingMaskToggleCheckBox';
 	check.id = thisId;
 
-	check.setAttribute('checked', 'unchecked');
-	check.checked = false;
+	if (readingMask.enabled) {
+		check.setAttribute('checked', 'checked');
+		check.checked = true;
+	}
+	else {
+		check.setAttribute('checked', 'unchecked');
+		check.checked = false;
+	}
 
 	check.onclick = function () {
+		window.localStorage.setItem('readingMaskEnabled', check.checked);
 		check.checked ? readingMask.create() : readingMask.remove();
 	}
+	if (check.checked) check.onclick();
 
 	let label = document.createElement('label');
 	label.setAttribute('for', thisId);
@@ -347,12 +382,20 @@ function _addReadingGuideToggle(container) {
 	let thisId = 'ReadingGuideToggleCheckBox';
 	check.id = thisId;
 
-	check.setAttribute('checked', 'unchecked');
-	check.checked = false;
+	if (readingGuide.enabled) {
+		check.setAttribute('checked', 'checked');
+		check.checked = true;
+	}
+	else {
+		check.setAttribute('checked', 'unchecked');
+		check.checked = false;
+	}
 
 	check.onclick = function () {
+		window.localStorage.setItem('readingGuideEnabled', check.checked);
 		check.checked ? readingGuide.create() : readingGuide.remove();
 	}
+	if (check.checked) check.onclick();
 
 	let label = document.createElement('label');
 	label.setAttribute('for', thisId);
@@ -374,33 +417,12 @@ function _addGenericDarkmodeToggle(container) {
 	check.setAttribute('checked', 'unchecked');
 	check.checked = false;
 
-	check.triple = 0;
+	check.triple = parseInt(darkMode.enabled);
 	check.onclick = function () {
 		check.triple = (check.triple + 1) % 3;
-		switch (check.triple) {
-			case 0:
-				check.setAttribute('checked', 'unchecked');
-				check.checked = false;
-				check.style.filter = '';
-				document.documentElement.classList.remove('genericDarkmode');
-				document.documentElement.classList.remove('genericDarkmodeExImages');
-				break;
-			case 1:
-				check.setAttribute('checked', 'checked');
-				check.checked = true;
-				check.style.filter = 'invert(0)';
-				document.documentElement.classList.remove('genericDarkmodeExImages');
-				document.documentElement.classList.add('genericDarkmode');
-				break;
-			case 2:
-				check.setAttribute('checked', 'checked');
-				check.checked = true;
-				check.style.filter = 'invert(1)';
-				document.documentElement.classList.remove('genericDarkmode');
-				document.documentElement.classList.add('genericDarkmodeExImages');
-				break;
-		}
+		_setDarkModeStyle(check);
 	}
+	_setDarkModeStyle(check);
 
 	let label = document.createElement('label');
 	label.setAttribute('for', thisId);
@@ -411,3 +433,30 @@ function _addGenericDarkmodeToggle(container) {
 	container.appendChild(label);
 	return check;
 };
+
+function _setDarkModeStyle(check) {
+	window.localStorage.setItem('darkModeEnabled', check.triple);
+	switch (check.triple) {
+		case 0:
+			check.setAttribute('checked', 'unchecked');
+			check.checked = false;
+			check.style.filter = '';
+			document.documentElement.classList.remove('genericDarkmode');
+			document.documentElement.classList.remove('genericDarkmodeExImages');
+			break;
+		case 1:
+			check.setAttribute('checked', 'checked');
+			check.checked = true;
+			check.style.filter = 'invert(0)';
+			document.documentElement.classList.remove('genericDarkmodeExImages');
+			document.documentElement.classList.add('genericDarkmode');
+			break;
+		case 2:
+			check.setAttribute('checked', 'checked');
+			check.checked = true;
+			check.style.filter = 'invert(1)';
+			document.documentElement.classList.remove('genericDarkmode');
+			document.documentElement.classList.add('genericDarkmodeExImages');
+			break;
+	}
+}
