@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.09.1
+// @version      2025.08.09.2
 // @description  Simulates the website as a color vision impaired person would see. Based on leocardz.com's Chrome Extension Colorblinding. Which is based on SVG data at https://github.com/Altreus/colourblind and Data matrices at http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/
 // @author       www.tgoff.me
 // @match        *://*/*
@@ -58,7 +58,7 @@ let colorBlindFilter = {
 }
 
 let readingMask = {
-	enabled: window.localStorage.getItem('readingMaskEnabled') ?? false,
+	enabled: JSON.parse(window.localStorage.getItem('readingMaskEnabled')) ?? false,
 	topElement: {},
 	bottomElement: {},
 	create: function () {
@@ -91,7 +91,7 @@ let readingMask = {
 }
 
 let readingGuide = {
-	enabled: window.localStorage.getItem('readingGuideEnabled') ?? false,
+	enabled: JSON.parse(window.localStorage.getItem('readingGuideEnabled')) ?? false,
 	guideElement: {},
 	create: function () {
 		if (document.querySelectorAll('.ReadingGuide').length) return;
@@ -124,7 +124,7 @@ let readingGuide = {
 }
 
 let darkMode = {
-	enabled: window.localStorage.getItem('darkModeEnabled') ?? 0
+	enabled: intParse(window.localStorage.getItem('darkModeEnabled')) ?? 0
 }
 
 let cssText = `
@@ -417,7 +417,7 @@ function _addGenericDarkmodeToggle(container) {
 	check.setAttribute('checked', 'unchecked');
 	check.checked = false;
 
-	check.triple = parseInt(darkMode.enabled);
+	check.triple = darkMode.enabled;
 	check.onclick = function () {
 		check.triple = (check.triple + 1) % 3;
 		_setDarkModeStyle(check);
