@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.09.2
+// @version      2025.08.09.3
 // @description  Simulates the website as a color vision impaired person would see. Based on leocardz.com's Chrome Extension Colorblinding. Which is based on SVG data at https://github.com/Altreus/colourblind and Data matrices at http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/
 // @author       www.tgoff.me
 // @match        *://*/*
@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 let colorBlindFilter = {
-	enabled: window.localStorage.getItem('colorBlindFilterEnabled') ?? 'init',
+	enabled: window.localStorage.getItem('ACCESS-MENU_ColorBlindFilterEnabled') ?? 'init',
 	initialBackup: {},
 	simulations: {
 		'Red-Blind': 'protanopia',
@@ -58,7 +58,7 @@ let colorBlindFilter = {
 }
 
 let readingMask = {
-	enabled: JSON.parse(window.localStorage.getItem('readingMaskEnabled')) ?? false,
+	enabled: JSON.parse(window.localStorage.getItem('ACCESS-MENU_ReadingMaskEnabled')) ?? false,
 	topElement: {},
 	bottomElement: {},
 	create: function () {
@@ -91,7 +91,7 @@ let readingMask = {
 }
 
 let readingGuide = {
-	enabled: JSON.parse(window.localStorage.getItem('readingGuideEnabled')) ?? false,
+	enabled: JSON.parse(window.localStorage.getItem('ACCESS-MENU_ReadingGuideEnabled')) ?? false,
 	guideElement: {},
 	create: function () {
 		if (document.querySelectorAll('.ReadingGuide').length) return;
@@ -124,7 +124,7 @@ let readingGuide = {
 }
 
 let darkMode = {
-	enabled: intParse(window.localStorage.getItem('darkModeEnabled')) ?? 0
+	enabled: JSON.parse(window.localStorage.getItem('ACCESS-MENU_DarkModeEnabled')) ?? 0
 }
 
 let cssText = `
@@ -323,7 +323,7 @@ function _addColorBlindToggle(container, name, id) {
 	}
 
 	radio.onclick = function () {
-		window.localStorage.setItem('colorBlindFilterEnabled', id);
+		window.localStorage.setItem('ACCESS-MENU_ColorBlindFilterEnabled', id);
 		if (id === 'init') {
 			document.documentElement.style.filter = colorBlindFilter.initialBackup;
 		}
@@ -360,7 +360,7 @@ function _addReadingMaskToggle(container) {
 	}
 
 	check.onclick = function () {
-		window.localStorage.setItem('readingMaskEnabled', check.checked);
+		window.localStorage.setItem('ACCESS-MENU_ReadingMaskEnabled', check.checked);
 		check.checked ? readingMask.create() : readingMask.remove();
 	}
 	if (check.checked) check.onclick();
@@ -392,7 +392,7 @@ function _addReadingGuideToggle(container) {
 	}
 
 	check.onclick = function () {
-		window.localStorage.setItem('readingGuideEnabled', check.checked);
+		window.localStorage.setItem('ACCESS-MENU_ReadingGuideEnabled', check.checked);
 		check.checked ? readingGuide.create() : readingGuide.remove();
 	}
 	if (check.checked) check.onclick();
@@ -435,7 +435,7 @@ function _addGenericDarkmodeToggle(container) {
 };
 
 function _setDarkModeStyle(check) {
-	window.localStorage.setItem('darkModeEnabled', check.triple);
+	window.localStorage.setItem('ACCESS-MENU_DarkModeEnabled', check.triple);
 	switch (check.triple) {
 		case 0:
 			check.setAttribute('checked', 'unchecked');
