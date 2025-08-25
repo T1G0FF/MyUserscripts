@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2023.11.16.1
+// @version      2025.08.25.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -422,7 +422,7 @@ async function scrapeFullSizeImage(item, lastCall) {
 		ScraperIFrame.src = item.querySelector('a[title*=" / "]').getAttribute('href');
 		ScraperIFrame.addEventListener("load", function () {
 			if (ScraperIFrame.src != 'about:blank') {
-				let img = ScraperIFrame.contentDocument.querySelector('ul#ItemImagesGallery li.active');
+				let img = ScraperIFrame.contentDocument.querySelector('ul[id*="ItemImagesGallery"] li.active');
 				if (img) {
 					let link = img.getAttribute('data-src');
 					returnedLink = link;
