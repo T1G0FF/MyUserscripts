@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.29.2
+// @version      2025.08.29.3
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -831,6 +831,7 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 		clearTimeout(filterTextbox.typingTimer);
 	});
 
+	filterCollection();
 	updateForSort(sortDirButton, sortByButton);
 }
 
