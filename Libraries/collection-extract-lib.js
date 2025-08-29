@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2025.01.31.2
+// @version      2025.08.29.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -704,7 +704,7 @@ function hideDropdownTableElements(tableElement) {
  * Collection Sorting & Filtering
  ***********************************************/
 var WARN_SORT_COMPAREITEMS = true;
-var SORT_DIR = 0;
+var SORT_DIR = JSON.parse(window.localStorage.getItem('EXTRACT-LIB_SortDirection')) ?? 0;
 const SORT_DIR_LOOKUP = [
 	{
 		'direction': 0,
@@ -720,7 +720,7 @@ const SORT_DIR_LOOKUP = [
 	},
 ]
 
-var SORT_BY = 0;
+var SORT_BY = JSON.parse(window.localStorage.getItem('EXTRACT-LIB_SortBy')) ?? 0;
 var SORT_BY_LOOKUP = [
 	{
 		'compare': (aItem, bItem) => {
@@ -831,7 +831,7 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 		clearTimeout(filterTextbox.typingTimer);
 	});
 
-	filterCollection();
+	updateForSort();
 }
 
 function addSortBy(string, selectorFunc) {
@@ -872,16 +872,22 @@ function isSorted() {
 async function btnAction_sortCollectionDir(sortDirButton = undefined, direction = +1) {
 	let next = (SORT_DIR + direction);
 	SORT_DIR = next < 0 ? SORT_DIR_LOOKUP.length - 1 : next % SORT_DIR_LOOKUP.length;
-	refreshCollection(getItemContainer(), await sortCollection());
-	if (sortDirButton) {
-		sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
-	}
+	window.localStorage.setItem('EXTRACT-LIB_SortDirection', SORT_DIR);
+	updateForSort();
 }
 
 async function btnAction_sortCollectionBy(sortByButton = undefined, direction = +1) {
 	let next = (SORT_BY + direction);
 	SORT_BY = next < 0 ? SORT_BY_LOOKUP.length - 1 : next % SORT_BY_LOOKUP.length;
+	window.localStorage.setItem('EXTRACT-LIB_SortBy', SORT_BY);
+	updateForSort();
+}
+
+async function updateForSort() {
 	refreshCollection(getItemContainer(), await sortCollection());
+	if (sortDirButton) {
+		sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
+	}
 	if (sortByButton) {
 		sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
 	}
