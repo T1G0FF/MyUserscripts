@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.29.1
+// @version      2025.08.29.2
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -831,7 +831,7 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 		clearTimeout(filterTextbox.typingTimer);
 	});
 
-	updateForSort();
+	updateForSort(sortDirButton, sortByButton);
 }
 
 function addSortBy(string, selectorFunc) {
@@ -873,17 +873,17 @@ async function btnAction_sortCollectionDir(sortDirButton = undefined, direction 
 	let next = (SORT_DIR + direction);
 	SORT_DIR = next < 0 ? SORT_DIR_LOOKUP.length - 1 : next % SORT_DIR_LOOKUP.length;
 	window.localStorage.setItem('EXTRACT-LIB_SortDirection', SORT_DIR);
-	updateForSort();
+	updateForSort(sortDirButton, undefined);
 }
 
 async function btnAction_sortCollectionBy(sortByButton = undefined, direction = +1) {
 	let next = (SORT_BY + direction);
 	SORT_BY = next < 0 ? SORT_BY_LOOKUP.length - 1 : next % SORT_BY_LOOKUP.length;
 	window.localStorage.setItem('EXTRACT-LIB_SortBy', SORT_BY);
-	updateForSort();
+	updateForSort(undefined, sortByButton);
 }
 
-async function updateForSort() {
+async function updateForSort(sortDirButton = undefined, sortByButton = undefined) {
 	refreshCollection(getItemContainer(), await sortCollection());
 	if (sortDirButton) {
 		sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
