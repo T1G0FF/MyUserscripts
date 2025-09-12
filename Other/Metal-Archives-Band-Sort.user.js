@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Metal Archives - Band Table Sorter
 // @namespace    http://www.tgoff.me/
-// @version      2025.05.16.1
+// @version      2025.09.12.1
 // @description  Allows sorting of the Band table in search results.
 // @author       www.tgoff.me
 // @match        https://www.metal-archives.com/search/advanced/searching/bands*
@@ -140,6 +140,6 @@ function zeroPad(num, totalLength) {
 	if (digitCount >= totalLength) {
 		return num;
 	}
-	var zeroString = Math.pow(10, totalLength - digitCount).toString().substr(1);
+	var zeroString = Math.pow(10, totalLength - digitCount).toString().substring(1);
 	return num < 0 ? '-' + zeroString + an : zeroString + an;
 }

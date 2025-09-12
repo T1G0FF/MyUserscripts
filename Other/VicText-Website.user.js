@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.29.1
+// @version      2025.09.12.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -1447,7 +1447,7 @@ function zeroPad(num, totalLength) {
 	if (digitCount >= totalLength) {
 		return num;
 	}
-	let zeroString = Math.pow(10, totalLength - digitCount).toString().substr(1);
+	let zeroString = Math.pow(10, totalLength - digitCount).toString().substring(1);
 	return num < 0 ? '-' + zeroString + an : zeroString + an;
 }
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Router - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2023.08.23.1
+// @version      2025.09.12.1
 // @description  Allows sorting of table on certain TPLink Routers
 // @author       www.tgoff.me
 // @match        *://192.168.1.1/
@@ -146,6 +146,6 @@ function zeroPad(num, totalLength) {
 	if (digitCount >= totalLength) {
 		return num;
 	}
-	var zeroString = Math.pow(10, totalLength - digitCount).toString().substr(1);
+	var zeroString = Math.pow(10, totalLength - digitCount).toString().substring(1);
 	return num < 0 ? '-' + zeroString + an : zeroString + an;
 }

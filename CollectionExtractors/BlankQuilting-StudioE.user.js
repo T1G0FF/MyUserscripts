@@ -92,7 +92,7 @@ async function CollectionsToClipBoard(collection) {
 		let link = item.querySelector('a');
 		let image = link.querySelector('img');
 		let title = link.title;
-		if (title[0] === '*') title = title.substr(1).trim();
+		if (title[0] === '*') title = title.substring(1).trim();
 		let current = '<div>' + title + '<img src="' + image.src + '"></div>\n';
 		result.info += current;
 		result.count++;
@@ -137,7 +137,7 @@ function getTitle() {
 	let titleElement = isSearch ? document.querySelector('div.snize-search-results-header > a.snize-no-products-found-link') : getTitleElement();
 	let title = titleElement?.innerText.trim();
 	title = title.replace(titleElement.querySelector('span.tg-dropdown-container')?.innerText, '').trim();
-	if (title[0] === '*') title = title.substr(1);
+	if (title[0] === '*') title = title.substring(1);
 	return title;
 }
 

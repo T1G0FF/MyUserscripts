@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - SSS
 // @namespace    http://www.tgoff.me/
-// @version      2023.10.26.1
+// @version      2025.09.12.1
 // @description  Gets the names and codes from a SSS
 // @author       www.tgoff.me
 // @match        *://sss.com.au/*
@@ -59,6 +59,6 @@ function formatInformation(item) {
 // https://sss.com.au/images/database/MADEIRA/Web/EL017.0102.jpg
 function formatImage(item) {
 	let imageUrl = item.querySelector('a[onclick="loadingSpinner(this)"] > img').src;
-	imageUrl = imageUrl.substr(0, imageUrl.indexOf('&')).replace('imagepreview.ashx?p=', '');
+	imageUrl = imageUrl.substring(0, imageUrl.indexOf('&')).replace('imagepreview.ashx?p=', '');
 	return imageUrl;
 }

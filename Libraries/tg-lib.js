@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2025.02.27.1
+// @version      2025.09.12.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -77,7 +77,7 @@ function getMonthName(monthNum) {
 }
 function getShortMonthName(monthNum) {
 	let mon = getMonthName(monthNum);
-	return mon ? mon.substr(0, 3) : '';
+	return mon ? mon.substring(0, 3) : '';
 }
 function getMonthIndex(monthName) {
 	let month = monthNames.indexOf(monthName);
@@ -87,7 +87,7 @@ function getQuarter(date) {
 	date = date || new Date();
 	if (!date.hasOwnProperty('getFullYear')) date = new Date(date);
 	var q = Math.floor(date.getMonth() / 3) + 1;
-	var y = date.getFullYear().toString().substr(2, 2);
+	var y = date.getFullYear().toString().substring(2, 4);
 	return { 'Quarter': q, 'Year': y };
 }
 
@@ -97,7 +97,7 @@ function getDayName(dayNum) {
 }
 function getShortDayName(dayNum) {
 	let day = getDayName(dayNum);
-	return day ? day.substr(0, 3) : '';
+	return day ? day.substring(0, 3) : '';
 }
 function getDayIndex(dayName) {
 	let day = dayNames.indexOf(dayName);
@@ -142,7 +142,7 @@ function padWithZeros(number, numZeros = 3) {
 	if (!number) return zeros;
 	if (number.length > numZeros) return number;
 	number = (zeros + number);
-	return number.substr(number.length - numZeros);
+	return number.substring(number.length - numZeros);
 }
 
 function isArray(obj) {
