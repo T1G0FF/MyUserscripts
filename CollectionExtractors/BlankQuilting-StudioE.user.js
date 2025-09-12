@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2025.01.31.2
+// @version      2025.09.12.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://blankquilting.net/*
@@ -27,9 +27,9 @@ let companyEnum = Company.BlankQuilting;
 (function () {
 	'use strict';
 	isSearch = window.location.pathname.includes('search-results-page');
-	isCollectionPage = document.querySelectorAll('div.parent-category-area li').length > 0;
+	isCollectionPage = document.querySelectorAll('div.page article.subcategory').length > 0;
 
-	let breadcrumbs = document.querySelector('ul.breadcrumbs');
+	let breadcrumbs = document.querySelector('ol.breadcrumbs');
 	if (breadcrumbs?.innerText.indexOf('Stof Fabrics') >= 0) {
 		companyEnum = Company.Stof;
 	}
@@ -40,7 +40,7 @@ let companyEnum = Company.BlankQuilting;
 	let elem = document.querySelector('div.ship-in span.shipin-title');
 	if (!elem) elem = getTitleElement();
 	if (isCollectionPage) {
-		ShowShipDates();
+		//ShowShipDates();
 
 		createButton('Copy All Collections', function () { CollectionsToClipBoard(GetAllCollections()); }, elem, 'beforeEnd', isCollectionPage);
 		createButton('Copy New Collections', function () { CollectionsToClipBoard(GetNewCollections()); }, elem, 'beforeEnd', isCollectionPage);
@@ -70,17 +70,19 @@ div.parent-category-area ul.grid_subcat li p.cat-name {
 	MyStyles._addStyle(cssText); // 'Shows hidden shipping date'
 }
 
+function GetAllCollections() {
+	let collection = document.querySelectorAll('div.page article.subcategory div.subcategory-img-blk');
+	return collection;
+}
+
 function GetNewCollections() {
 	let collection = GetAllCollections();
 	return Array.prototype.filter.call(collection, (item) => {
 		let link = item.querySelector('a');
-		return link.title.indexOf('*') >= 0;
+		let title = link.getAttribute('aria-label');
+		if (!title) title = link.querySelector('img').title;
+		return title.indexOf('*') >= 0;
 	});
-}
-
-function GetAllCollections() {
-	let collection = document.querySelectorAll('div.parent-category-area ul.grid_subcat li div.cat-img');
-	return collection;
 }
 
 async function CollectionsToClipBoard(collection) {
@@ -129,7 +131,8 @@ function getCompany() {
 }
 
 function getTitleElement() {
-	let titleElement = isSearch ? document.querySelector('h1.page-heading') : document.querySelector('.page-heading > span');
+	let titleElement = document.querySelector('.description-desktop h1.page-heading');
+	if (!titleElement) titleElement = document.querySelector('#main-content h1.page-heading');
 	return titleElement;
 }
 
@@ -158,13 +161,13 @@ function getAvailabilityDate() {
 function getCollection() {
 	let collection;
 	if (isCollectionPage) {
-		collection = document.querySelectorAll('div.parent-category-area li');
+		collection = document.querySelectorAll('div.page article.subcategory div.subcategory-img-blk');
 	}
 	else if (isSearch) {
 		collection = document.querySelectorAll('div.snize-search-results li.snize-product');
 	}
 	else {
-		collection = document.querySelectorAll('main.page-content li.product.item');
+		collection = document.querySelectorAll('#product-listing-container .productGrid .product');
 	}
 
 	if (!collection || collection.length < 1) {
@@ -179,7 +182,7 @@ function getItemObject(item) {
 		return { 'CollectionName': collElement.innerText.trim() };
 	}
 
-	let codeElement = isSearch ? item.querySelector('span.snize-title') : item.querySelector('h4.card-title > a');
+	let codeElement = isSearch ? item.querySelector('span.snize-title') : item.querySelector('.card-title > a');
 	if (!codeElement) {
 		Notify.log('Code elements not found!', item);
 		return;
@@ -192,28 +195,38 @@ function getItemObject(item) {
 	let prefix = (() => {
 		switch (companyEnum) {
 			case Company.BlankQuilting: return 'BQ';
-			case Company.StudioE: return 'BQ';
+			case Company.StudioE: return 'SE';
 			case Company.Stof: return '';
 		}
 	})();
 	let title = getFormattedTitle();
 	let dates = getReleaseDates();
 
-	if (item.matches('.Full') || item.matches('.FULL')) {
+	let special = [];
+	if (title.indexOf(' - ') > 0) {
+		let dash = title.indexOf(' - ');
+		special.push(title.substring(dash + 3));
+		title = title.substring(0, dash)
+	}
+	else if (title.endsWith('Digital')) {
+		special.push('Digital');
+		title = title.replace('Digital', '').trim();
+	}
+
+	let collElem = item.querySelector('.card-body p[data-product-sku*="FULL"][data-product-sku*="COLL"]');
+	if (collElem) {
 		// Full Collection Item
 		let imgElement = item.querySelector('img.card-image');
 		let itemName = imgElement.getAttribute('alt');
 		if (itemName.indexOf('||') > 0) {
 			itemName = itemName.split('||')[0].trim();
 		}
-
-		let classList = Array.from(item.classList);
-		classList.remove('product', 'item', 'first', 'last');
-		if (companyEnum == Company.BlankQuilting) {
-			classList.remove('Full');
+		if (itemName[itemName.length - 1] === '*') {
+			itemName = itemName.substring(0, itemName.length - 1).trim();
 		}
-		let purchaseCode = Array.prototype.join.call(classList, ' ');
-		let collectionCount = document.querySelector('div.ship-in-cnt > p:last-of-type > span').innerText;
+
+		let purchaseCode = collElem.getAttribute('data-product-sku');
+		let collectionCount = '~' + (item.parentElement.querySelectorAll('.product').length - 1);
 		return {
 			'isFullCollection': true,
 			'Prefix': 'COL-' + prefix,
@@ -239,6 +252,29 @@ function getItemObject(item) {
 	}
 	if (matches[RegexEnum.LetterBefore]) {
 		collectionCode = collectionCode + matches[RegexEnum.LetterBefore];
+		switch (matches[RegexEnum.LetterBefore].toUpperCase()) {
+			case 'F':
+				special.push('Flannel');
+				break;
+			case 'G':
+				special.push('Glow');
+				break;
+			case 'MK':
+				special.push('Plush Microfiber Fleece');
+				break;
+			case 'M':
+				special.push('Metallic');
+				break;
+			case 'BP':
+				special.push('Book Panel');
+				break;
+			case 'B':
+				special.push('Blocks');
+				break;
+			case 'P':
+				special.push('Panel');
+				break;
+		}
 	}
 
 	let colourCode = '';
@@ -247,6 +283,11 @@ function getItemObject(item) {
 	}
 	if (matches[RegexEnum.LetterAfter]) {
 		colourCode = colourCode + matches[RegexEnum.LetterAfter];
+		switch (matches[RegexEnum.LetterAfter].toUpperCase()) {
+			case 'P':
+				special.push('Pearlescent');
+				break;
+		}
 	}
 
 	let colourName = '';
@@ -256,6 +297,9 @@ function getItemObject(item) {
 	}
 
 	let purchaseCode = givenCode;
+	if (purchaseCode[purchaseCode.length - 1] === '*') {
+		purchaseCode = purchaseCode.substring(0, purchaseCode.length - 1).trim();
+	}
 	if (matches[RegexEnum.ColourName] && matches[RegexEnum.ColourName].length > 0 && matches[RegexEnum.ColourCode] && matches[RegexEnum.ColourCode].length > 0) {
 		purchaseCode = purchaseCode.replaceAll(matches[RegexEnum.ColourName].toUpperCase(), '').trim();
 	}
@@ -266,17 +310,6 @@ function getItemObject(item) {
 	if (descElement) {
 		let givenDesc = descElement.innerText.trim();
 		patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
-	}
-
-	let special = '';
-	if (title.indexOf(' - ') > 0) {
-		let dash = title.indexOf(' - ');
-		special = title.substr(dash + 3);
-		title = title.substr(0, dash)
-	}
-	else if (title.endsWith('Digital')) {
-		special = 'Digital';
-		title = title.replace('Digital', '').trim();
 	}
 
 	let material = 'C100%';
