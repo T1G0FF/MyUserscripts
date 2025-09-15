@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # StraightSell CMS - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.23.1
+// @version      2025.09.15.1
 // @description  Allows you to toggle the visibility of all the far too easy to click Delete/Remove/Revoke links.
 // @author       www.tgoff.me
 // @match        *://cp.straightsell.com.au/*
@@ -20,7 +20,8 @@ function callbackDelay(callback, delay = 150) {
 
 var hideDeleteOptions;
 var showButton;
-var selectorsList = ['.ListtableRow1 a.action[href^="javascript:confirmDelete"]',
+var selectorsList = [
+	'.ListtableRow1 a.action[href^="javascript:confirmDelete"]',
 	'.ListtableRow2 a.action[href^="javascript:confirmDelete"]',
 	'.ListtableRow1 a.action[onclick*="ACTION=DELETE"]',
 	'.ListtableRow2 a.action[onclick*="ACTION=DELETE"]',
@@ -28,7 +29,9 @@ var selectorsList = ['.ListtableRow1 a.action[href^="javascript:confirmDelete"]'
 	'.ListtableRow2 a.action[href*="ACTION=REMOVE"]',
 	'.ListtableRow1 a.action[href*="ACTION=REVOKE"]',
 	'.ListtableRow2 a.action[href*="ACTION=REVOKE"]',
-	'#LISTPAGES td a[href*="ACTION=DELETE"]'
+	'.table-striped td a.action[href*="ACTION=DELETE"]',
+	'.table-striped td a.action[href*="ACTION=REMOVE"]',
+	'.table-striped td a.action[href*="ACTION=REVOKE"]'
 ];
 
 (() => {
