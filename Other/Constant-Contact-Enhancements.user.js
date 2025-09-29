@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Constant Contact - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2025.06.10.1
+// @version      2025.07.03.1
 // @description  Adds larger per page count to select menu and allows copying of campaign data to clipboard & Adds an automatically updating label underneath the datepicker with the date in a locale accurate format.
 // @author       www.tgoff.me
 // @match        https://app.constantcontact.com/*
@@ -101,7 +101,7 @@ function addMorePerPage(perPageElem) {
 	if (perPageElem) {
 		let optElem = perPageElem.querySelector('option');
 
-		for (const count of [50, 100, MAX_PER_PAGE]) {
+		for (const count of [100, MAX_PER_PAGE]) {
 			let newOptElem = optElem.cloneNode(true);
 			newOptElem.value = count;
 			newOptElem.innerText = newOptElem.innerText.replace('10', count);
