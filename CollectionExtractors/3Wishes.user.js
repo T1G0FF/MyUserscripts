@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - 3 Wishes
 // @namespace    http://www.tgoff.me/
-// @version      2023.03.21.8
+// @version      2025.09.29.1
 // @description  Gets the names and codes from a 3 Wishes Collection
 // @author       www.tgoff.me
 // @match        *://fabriceditions.com/shop/3-Wishes-*-Collections/*
@@ -24,7 +24,7 @@ function getCompany() {
 }
 
 function getTitleElement() {
-	return document.querySelector('div.container > div.row > div[align*="center"] > h1');
+	return document.querySelector('div.container > div.row > div[align*="center"] > div.component-header');
 }
 
 function getCollection() {
@@ -153,7 +153,7 @@ function getItemObject(itemElement) {
 				'CollectionName': title,
 				'ItemName': itemName,
 				'CollectionCount': collectionCount,
-				'BoltLength': { 'Measurement': '11', 'Unit': 'm' },
+				'BoltLength': { 'Measurement': '9.1', 'Unit': 'm' },
 				'ReleaseDates': dates,
 			};
 	}
