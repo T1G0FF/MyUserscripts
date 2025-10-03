@@ -94,9 +94,10 @@ async function CollectionsToClipBoard(collection) {
 	collection.forEach((item) => {
 		let link = item.querySelector('a');
 		let image = link.querySelector('img');
-		let title = link.title;
+		let title = image.title;
+		if (!title) title = '';
 		if (title[0] === '*') title = title.substring(1).trim();
-		let current = '<div>' + title + '<img src="' + image.src + '"></div>\n';
+		let current = '<div>' + title + '<img src="' + getHighestResImg(image) + '"></div>\n';
 		result.info += current;
 		result.count++;
 	});
@@ -215,6 +216,7 @@ function getItemObject(item) {
 	}
 
 	let collElem = item.querySelector('.card-body p[data-product-sku*="FULL"][data-product-sku*="COLL"]');
+	if (!collElem) collElem = item.querySelector('.card-body p[data-product-sku*="COLL"]');
 	if (collElem) {
 		// Full Collection Item
 		let imgElement = item.querySelector('img.card-image');
