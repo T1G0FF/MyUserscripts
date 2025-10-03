@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Blank Quilting / Studio E
 // @namespace    http://www.tgoff.me/
-// @version      2025.09.12.1
+// @version      2025.10.03.1
 // @description  Gets the names and codes from a Blank Quilting or Studio E Collection
 // @author       www.tgoff.me
 // @match        *://blankquilting.net/*
@@ -15,6 +15,7 @@
 // @run-at       document-idle
 // ==/UserScript==
 
+const FULL_COLL_BOLT_LENGTH = 9.1;
 const Company = {
 	BlankQuilting: 0,
 	StudioE: 1,
@@ -234,7 +235,7 @@ function getItemObject(item) {
 			'CollectionName': title,
 			'ItemName': itemName,
 			'CollectionCount': collectionCount,
-			'BoltLength': { 'Measurement': '11', 'Unit': 'm' },
+			'BoltLength': { 'Measurement': ('' + FULL_COLL_BOLT_LENGTH), 'Unit': 'm' },
 			'ReleaseDates': dates,
 		};
 	}
