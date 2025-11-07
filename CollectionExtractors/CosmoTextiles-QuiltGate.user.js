@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2024.07.11.2
+// @version      2025.11.07.1
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://quilt-gate.com/eng/detail.php?*
 // @match        *://*.quilt-gate.com/eng/detail.php?*
-// @match        *://cosmo-tex.co.jp/hcd/search_detail.php?*
-// @match        *://*.cosmo-tex.co.jp/hcd/search_detail.php?*
-// @match        *://cosmo-tex.co.jp/hcd/search_detail_optional.php?*
-// @match        *://*.cosmo-tex.co.jp/hcd/search_detail_optional.php?*
+// @match        *://cosmo-tex.co.jp/*/search_detail.php?*
+// @match        *://*.cosmo-tex.co.jp/*/search_detail.php?*
+// @match        *://cosmo-tex.co.jp/*/search_detail_optional.php?*
+// @match        *://*.cosmo-tex.co.jp/*/search_detail_optional.php?*
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/collection-extract-lib.js
 // @grant        GM_setClipboard
@@ -18,9 +18,11 @@
 // ==/UserScript==
 
 let isCosmo = false;
+let isFashion = false;
 (function () {
 	'use strict';
 	isCosmo = window.location.hostname.includes('cosmo-tex');
+	isFashion = window.location.pathname.includes('/asd/');
 	createButtons();
 })();
 
@@ -30,7 +32,7 @@ function getCompany() {
 }
 
 function getTitleElement() {
-	let titleElement = isCosmo ? document.querySelector('h3.ttl-product-name') : document.querySelector('div#mainContent table td h3');
+	let titleElement = isCosmo ? document.querySelector('.ttl-product-name') : document.querySelector('div#mainContent table td h3');
 	return titleElement;
 }
 
@@ -45,12 +47,15 @@ function getTitle() {
 	let titleElement = getTitleElement();
 	let title = titleElement?.innerText.trim();
 	title = title.replace(titleElement.querySelector('span.tg-dropdown-container')?.innerText, '').trim();
+	title = title.replace(/\r|\n|\r\n/g, ' ').trim();
 
 	if (isCosmo) {
-		let tempTitle = titleElement.querySelector('span')?.innerText;
-		title = title.replace(tempTitle, '').trim();
-		tempTitle = getTempTitle();
-		title = title.replace(tempTitle, '').trim();
+		if (!isFashion) {
+			let tempTitle = titleElement.querySelector('span')?.innerText;
+			title = title.replace(tempTitle, '').trim();
+			tempTitle = getTempTitle();
+			title = title.replace(tempTitle, '').trim();
+		}
 	}
 	else {
 		if (title.indexOf(' - ') >= 0) title = title.split(' - ')[0];
@@ -78,7 +83,7 @@ function getAvailabilityDate() {
 	return undefined;
 }
 
-let CosmoRegEx = /([A-Z]+[0-9]+[A-Z]?)_?([0-9]+)?([A-Z]+)?/i;
+let CosmoRegEx = /([A-Z0-9-]+[A-Z]*)_?([0-9]+)?([A-Z]+)?/i;
 let CosmoRegExEnum = {
 	'Collection': 1,
 	'Pattern': 2,
@@ -90,8 +95,8 @@ function getItemObject(item) {
 
 	let imgLink = item.href;
 	if (imgLink) {
-		let codeMatches = isCosmo ? /shohin_images\/hcd\/[A-Z0-9]+\/(.*?)_mk_main\.jpg/i.exec(imgLink) : /products_photo\/(.*?)\.jpg/i.exec(imgLink);
-		if (!codeMatches || codeMatches.length <= 1) {
+		let codeMatches = isCosmo ? /shohin_images\/(?:hcd|asd)\/[A-Z0-9-]+\/(.*?)_mk_main\.jpg/i.exec(imgLink) : /products_photo\/(.*?)\.jpg/i.exec(imgLink);
+		if (!codeMatches || codeMatches.length < 1) {
 			Notify.log('No matches found in link for Item!', item);
 			return;
 		}
@@ -120,8 +125,9 @@ function getItemObject(item) {
 
 	let title = getFormattedTitle();
 
-	let materialElem = document.querySelector('#side p.data:nth-of-type(1)');
+	let materialElem = isFashion ? null : document.querySelector('#side p.data:nth-of-type(1)');
 	let material = materialElem?.innerText ?? '';
+	material = material.replace(/\r|\n|\r\n/g, ' ');
 	material = material.replace(/100%[\s]*COTTON/i, '');
 	material = material.replace(/C\/L[\s]*85\/15%/i, '');
 	material = material.replace('C100%', '');
@@ -129,13 +135,23 @@ function getItemObject(item) {
 	material = material.replace('D/GAUZE', 'DOUBLE GAUZE');
 	let special = material.trim().toTitleCase();
 
-	let fibreElem = document.querySelector('#side p.data:nth-of-type(3)');
+	let fibreElem = isFashion ? document.querySelector('#side p.data:nth-of-type(2)') : document.querySelector('#side p.data:nth-of-type(3)');
 	let fibre = fibreElem?.innerText ?? 'C100%';
+	fibre = fibre.replace(/\r|\n|\r\n/g, ' ');
+	fibre = fibre.replace(/ORGANIC-/i, 'ORGANIC ');
+	fibre = fibre.replace(/RECYCLED-/i, 'RECYCLED ');
+	fibre = fibre.replace(/COTTON([0-9]+)%/i, 'C$1%');
+	fibre = fibre.replace(/LINEN([0-9]+)%/i, 'L$1%');
+	fibre = fibre.replace(/NYLON([0-9]+)%/i, 'N$1%');
+	fibre = fibre.replace(/POLYESTER([0-9]+)%/i, 'P$1%');
+	fibre = fibre.replace(/POLYURETHA?NE([0-9]+)%/i, 'PU$1%');
+	fibre = fibre.trim();
 
-	let measureElem = document.querySelector('#side p.data:nth-of-type(2)');
+	let measureElem = isFashion ? document.querySelector('#side p.data:nth-of-type(1)') : document.querySelector('#side p.data:nth-of-type(2)');
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let length = { 'Measurement': '7', 'Unit': 'm' };
 	let measureStr = measureElem?.innerText ?? '45in×7m';
+	measureStr = measureStr.replace(/\r|\n|\r\n/g, ' ').trim();
 	let measureMatches = /([0-9.]+)(cm|m|in)×([0-9.]+)(cm|m|in)/i.exec(measureStr);
 	if (measureMatches && measureMatches.length > 1) {
 		width = { 'Measurement': parseFloat(measureMatches[1]), 'Unit': measureMatches[2].toLowerCase() };
@@ -197,13 +213,20 @@ function formatInformation(itemElement) {
 
 // https://www.cosmo-tex.co.jp/quilt_gate/products_photo/RU2450_11A.jpg
 // https://cosmo-tex.co.jp/ascot_link_files/in/shohin_images/hcd/AN3701/AN3701_1A.jpg
+// https://www.cosmo-tex.co.jp/ascot_link_files/in/shohin_images/hcd/AD10000S/AD10000S_big_mk_sub.jpg => AD10000S_big.jpg
 function formatImage(item) {
 	let imgLink = item.getAttribute('href');
 	let result;
 	if (!imgLink) {
 		let tempTitle = getTempTitle();
 		tempTitle = tempTitle.replace(/[a-zA-Z]+$/, '');
-		let host = isCosmo ? 'https://cosmo-tex.co.jp/ascot_link_files/in/shohin_images/hcd/' + tempTitle : 'https://www.cosmo-tex.co.jp/quilt_gate/products_photo/';
+		let host = '';
+		if (!isCosmo) {
+			host = 'https://www.cosmo-tex.co.jp/quilt_gate/products_photo/';
+		}
+		else {
+			host = (isFashion ? 'https://cosmo-tex.co.jp/ascot_link_files/in/shohin_images/asd/' : 'https://cosmo-tex.co.jp/ascot_link_files/in/shohin_images/hcd/') + tempTitle;
+		}
 		let code = tempTitle + '_' + item.getTextNodeValue(0, true).trim();
 		result = host + '/' + code + '.jpg';
 	}
