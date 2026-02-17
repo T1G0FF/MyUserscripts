@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2025.09.12.1
+// @version      2026.02.17.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -291,7 +291,7 @@ function replaceStockIndicatorsWithIcons() {
 }`;
 	MyStyles._addStyle(cssText);
 
-	cssText = `/* Icon Stock Indicators */
+	cssText = `/* Stock Indicators Icons */
 .stockIndicator span.stockIndicatorText {
 	display: none;
 }
@@ -305,10 +305,10 @@ function replaceStockIndicatorsWithIcons() {
 .stockIndicator span.stockIndicatorIcon,
 .stockIndicator span.stockIndicatorCount {
 	display: inline-block;
-}
+}`;
+	MyStyles.addStyle('StockIndicatorsIcons', cssText);
 
-
-
+	cssText = `/* Stock Indicators Colours */
 .stockColor-instock {
 	background-color: ${COLOURFUL ? GreenBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? GreenFG : defFGColour};
@@ -328,7 +328,7 @@ function replaceStockIndicatorsWithIcons() {
 	background-color: ${COLOURFUL ? BlueBG : defBGColour};
 	color: ${COLOURFUL_TEXT ? BlueFG : defFGColour};
 }`;
-	MyStyles.addStyle('StockIndicatorsIcon', cssText);
+	MyStyles.addStyle('StockIndicatorsColours', cssText);
 
 	let collection = document.querySelectorAll('.stockIndicator');
 	for (const stockContainerElem of collection) {
@@ -1381,7 +1381,9 @@ function getCodeFromItem(currentItem) {
 }
 
 function testFilterAgainst(item) {
-	return item.querySelector('.galleryName')?.innerText;
+	let str = item.querySelector('.galleryName')?.innerText ?? '';
+	str = str.replace(/[\t]/g, '');
+	return str.trim();
 }
 
 function addFilterMatchStyle(item) {
@@ -1393,6 +1395,13 @@ function removeFilterMatchStyle(item) {
 	let elem = item.querySelector('h2.galleryName');
 	if (elem) elem.style.boxShadow = '';
 }
+
+addSortBy('Default', (item) => {
+	let tempCode = item.querySelector('.galleryName')?.innerText ?? '';
+	tempCode = tempCode.replace(/[\t]/g, '');
+	tempCode = tempCode.replace(/(\d+)/, m => zeroPad(parseInt(m), 10));
+	return tempCode.trim();
+});
 
 addSortBy('Stock', (item) => {
 	return stockIndicatorToSortable(item.querySelector('div.stockIndicator span.stockIndicatorText')?.innerText);
