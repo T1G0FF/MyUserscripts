@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Hoffman
 // @namespace    http://www.tgoff.me/
-// @version      2023.08.28.1
+// @version      2026.02.16.1
 // @description  Gets the names and codes from a Hoffman Collection
 // @author       www.tgoff.me
 // @match        *://hoffmancaliforniafabrics.net/php/catalog/fabricshop.php*
@@ -23,6 +23,7 @@ let isCollectionPage = false;
 	addSortFilterInputs(inputLoc);
 })();
 
+let kitRegEx = /(?:KIT|LK)-[0-9]+-/;
 let hoffmanRegEx = /(([a-zA-Z]{1,3})?([0-9]+))[ -]([a-zA-Z]?)([0-9]+)([a-zA-Z]?)[ -]([\w- ]+)/;
 let RegexEnum = {
 	'Collection': 1,
@@ -70,7 +71,9 @@ function getItemObject(item) {
 	hoffmanRegEx.lastIndex = 0;
 	let matches = hoffmanRegEx.exec(givenCode);
 	if (!matches || matches.length <= 1) {
-		Notify.log('No matches found for Item!', item);
+		if (!kitRegEx.exec(givenCode)) {
+			Notify.log('No matches found for Item!', item);
+		}
 		return;
 	}
 
@@ -207,9 +210,12 @@ function getCodeFromItem(item) {
 }
 
 addSortBy('Codes', (item) => {
-	let matches = hoffmanRegEx.exec(getCodeFromItem(item));
+	let givenCode = getCodeFromItem(item);
+	let matches = hoffmanRegEx.exec(givenCode);
 	if (!matches || matches.length <= 1) {
-		Notify.log('No matches found for Item!', item);
+		if (!kitRegEx.exec(givenCode)) {
+			//Notify.log('No matches found for Item!', item);
+		}
 		return 0;
 	}
 
