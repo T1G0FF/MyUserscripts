@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.02.17.1
+// @version      2026.04.24.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -57,7 +57,7 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
-	if (WEBADD_CONFIG.SORT_CODES) await addSortFilterInputs(undefined, document.querySelectorAll('div.col-md-4.col-sm-4.item'));
+	if (WEBADD_CONFIG.SORT_CODES) await _addSortFilterInputs(undefined, document.querySelectorAll('div.col-md-4.col-sm-4.item'));
 	if (WEBADD_CONFIG.ADD_WHOLESALE) await addWholesalePrice();
 
 
@@ -70,6 +70,133 @@ var cachedChildlessCollection = undefined;
 
 	if (WEBADD_CONFIG.ADD_SHOPPINGCART_BTNS) addShoppingCartButtons();
 })();
+
+var filtersHidden = true;
+async function _addSortFilterInputs(locationElement = getTitleElement(), collection = undefined) {
+	collection = (collection || await getCollection());
+	let reqsNotMet = false;
+	let testItem = collection[0];
+	if (!getItemContainer()) {
+		console.warn('WARN: Define getItemContainer() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (testItem && !getCodeFromItem(testItem)) {
+		console.warn('WARN: Define getCodeFromItem() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (testItem && !testFilterAgainst(testItem)) {
+		console.warn('WARN: Define testFilterAgainst() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	reqsNotMet = reqsNotMet || !testItem;
+	if (reqsNotMet) {
+		console.warn('WARN: Requirements for Sorting/Filtering not met.');
+		return;
+	}
+	testItem = undefined;
+
+	let loc = getTopPagerLocation();
+	if (!loc.targetElem) return;
+
+	let divider = document.querySelector('div.productDetailDivider');
+	let clearFloat = document.querySelector('br.clearfloat');
+
+	let outerContainer = document.createElement('div');
+	loc.targetElem.insertAdjacentElement('afterEnd', outerContainer);
+	outerContainer.classList.add('form-horizontal');
+	outerContainer.style.display = 'none';
+	outerContainer.append(divider.cloneNode(true));
+
+	let hideFilters = document.createElement('button');
+	hideFilters.classList.add('pull-right');
+	hideFilters.innerText = '🕵';
+	hideFilters.onclick = (event) => {
+		filtersHidden = !filtersHidden;
+		outerContainer.style.display = filtersHidden ? 'none' : 'block';
+	};
+	loc.targetElem.insertAdjacentElement('beforeEnd', hideFilters);
+	loc.targetElem.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
+
+	/////////////////
+	// Sort Container
+	let sortContainer = document.createElement('div');
+	sortContainer.classList.add('pull-left');
+	// Sort DropDown
+	let sortSelect = document.createElement('select');
+	sortSelect.id = 'tg-sortby-select';
+	sortSelect.classList.add('form-control');
+	sortSelect.style.display = 'inline-block';
+	sortSelect.style.width = 'unset';
+	for (const sortBy in SORT_BY_LOOKUP) {
+		if (SORT_BY_LOOKUP.hasOwnProperty(sortBy)) {
+			let sortOption = document.createElement('option');
+			sortOption.value = sortBy;
+			sortOption.innerText = SORT_BY_LOOKUP[sortBy].string;
+			sortSelect.append(sortOption);
+		}
+	}
+	sortSelect.onchange = (event) => {
+		resetWarnings();
+		SORT_BY = event.target.selectedIndex;
+		window.localStorage.setItem('EXTRACT-LIB_SortBy', SORT_BY);
+		updateForSort(undefined, undefined);
+	};
+	let sortLabel = document.createElement('span');
+	sortLabel.innerText = 'Sort by:\xa0';
+	sortLabel.append(sortSelect);
+	sortContainer.append(sortLabel);
+
+	// Sort Dir Button
+	let sortDirButton = document.createElement('button');
+	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
+	sortDirButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionDir(sortDirButton, event.ctrlKey ? -1 : +1) };
+	sortContainer.append(sortDirButton);
+
+	outerContainer.append(sortContainer);
+
+	////////////////////
+	// Filter Container
+	let filterContainer = document.createElement('div');
+	filterContainer.classList.add('pull-right');
+	// Filter Textbox
+	let filterLabel = document.createElement('span');
+	filterLabel.innerText = 'Filter\xa0';
+	filterContainer.append(filterLabel);
+	let filterTextbox = document.createElement('input');
+	filterTextbox.id = 'tg-filter-input';
+	filterTextbox.classList.add('form-control');
+	filterTextbox.style.display = 'inline-block';
+	filterTextbox.style.width = 'unset';
+	filterTextbox.type = 'text';
+	filterTextbox.value = '';
+	filterTextbox.style.minWidth = '120px';
+	filterTextbox.typingTimer = {};
+	filterTextbox.doneTypingInterval = 750;
+
+	filterTextbox.addEventListener('keyup', () => {
+		clearTimeout(filterTextbox.typingTimer);
+		filterTextbox.typingTimer = setTimeout(() => { typeAction_filterCollection(filterButton) }, filterTextbox.doneTypingInterval);
+	});
+	filterTextbox.addEventListener('keydown', () => {
+		clearTimeout(filterTextbox.typingTimer);
+	});
+	filterContainer.append(filterTextbox);
+
+	// Filter Button
+	let filterButton = document.createElement('button');
+	filterButton.style.width = '50px';
+	filterButton.innerText = 'X';
+	filterButton.onclick = (event) => { resetWarnings(); btnAction_filterCollection(filterButton) };
+	filterContainer.append(filterButton);
+
+	outerContainer.append(filterContainer);
+
+	outerContainer.append(clearFloat.cloneNode(true));
+	//outerContainer.append(divider.cloneNode(true));
+
+	filterCollection();
+	updateForSort(sortDirButton, undefined);
+}
 
 function addMiscCSS() {
 	let cssText = '';
@@ -217,6 +344,15 @@ div.onSpecial > span {
 	transform: rotate(-35deg) translateX(-58%) translateY(-25%);
 }`;
 	MyStyles.addStyle('SpecialStar', cssText, true); // Disabled by Default
+
+	cssText = `/* Show Search Tags */
+#SearchTags {
+	display: block !important;
+	text-align: right;
+	font-style: italic;
+	font-size: 75%;
+}`;
+	MyStyles.addStyle('ShowSearchTags', cssText);
 
 	cssText = `/* Small Stock Indicators */
 .stockIndicator {
@@ -596,20 +732,29 @@ function changePagerButtonText(element, page, text) {
 	return button;
 }
 
-function addPagerOptionsAtTop(pagerWrappers) {
+function getTopPagerLocation() {
 	let isBlogPage = true;
 	let targetElem = document.querySelector('div#Blog');
 	if (!targetElem) {
 		isBlogPage = false;
 		targetElem = document.querySelector('#mainContent h1');
 	}
-	if (!targetElem) return;
+
+	return {
+		'isBlogPage': isBlogPage,
+		'targetElem': targetElem
+	}
+}
+
+function addPagerOptionsAtTop(pagerWrappers) {
+	let loc = getTopPagerLocation();
+	if (!loc.targetElem) return;
 
 	let divider = document.querySelector('div.productDetailDivider');
 	let clearFloat = document.querySelector('br.clearfloat');
 
 	let pagerContainer = document.createElement('div');
-	if (!isBlogPage) pagerContainer.append(divider.cloneNode(true));
+	if (!loc.isBlogPage) pagerContainer.append(divider.cloneNode(true));
 
 	for (const pagerWrapper of pagerWrappers) {
 		pagerContainer.append(pagerWrapper.cloneNode(true));
@@ -617,11 +762,11 @@ function addPagerOptionsAtTop(pagerWrappers) {
 	pagerContainer.append(clearFloat.cloneNode(true));
 	pagerContainer.append(divider.cloneNode(true));
 
-	if (isBlogPage) {
-		targetElem.before(pagerContainer);
+	if (loc.isBlogPage) {
+		loc.targetElem.before(pagerContainer);
 	}
 	else {
-		targetElem.after(pagerContainer);
+		loc.targetElem.after(pagerContainer);
 	}
 }
 
