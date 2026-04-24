@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.29.3
+// @version      2026.04.24.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -708,7 +708,7 @@ var SORT_DIR = JSON.parse(window.localStorage.getItem('EXTRACT-LIB_SortDirection
 const SORT_DIR_LOOKUP = [
 	{
 		'direction': 0,
-		'string': '-'
+		'string': '—'
 	},
 	{
 		'direction': 1,
