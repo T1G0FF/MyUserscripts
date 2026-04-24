@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.04.24.1
+// @version      2026.04.24.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -148,6 +148,9 @@ async function _addSortFilterInputs(locationElement = getTitleElement(), collect
 
 	// Sort Dir Button
 	let sortDirButton = document.createElement('button');
+	sortDirButton.classList.add('form-control');
+	sortDirButton.style.display = 'inline-block';
+	sortDirButton.style.width = 'unset';
 	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
 	sortDirButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionDir(sortDirButton, event.ctrlKey ? -1 : +1) };
 	sortContainer.append(sortDirButton);
@@ -184,6 +187,8 @@ async function _addSortFilterInputs(locationElement = getTitleElement(), collect
 
 	// Filter Button
 	let filterButton = document.createElement('button');
+	filterButton.classList.add('form-control');
+	filterButton.style.display = 'inline-block';
 	filterButton.style.width = '50px';
 	filterButton.innerText = 'X';
 	filterButton.onclick = (event) => { resetWarnings(); btnAction_filterCollection(filterButton) };
