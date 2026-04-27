@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.04.24.2
+// @version      2026.04.27.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -109,6 +109,9 @@ async function _addSortFilterInputs(locationElement = getTitleElement(), collect
 
 	let hideFilters = document.createElement('button');
 	hideFilters.classList.add('pull-right');
+	hideFilters.classList.add('form-control');
+	hideFilters.style.display = 'inline-block';
+	hideFilters.style.width = 'unset';
 	hideFilters.innerText = '🕵';
 	hideFilters.onclick = (event) => {
 		filtersHidden = !filtersHidden;
@@ -135,6 +138,7 @@ async function _addSortFilterInputs(locationElement = getTitleElement(), collect
 			sortSelect.append(sortOption);
 		}
 	}
+	sortSelect.selectedIndex = JSON.parse(window.localStorage.getItem('EXTRACT-LIB_SortBy')) ?? 0;
 	sortSelect.onchange = (event) => {
 		resetWarnings();
 		SORT_BY = event.target.selectedIndex;
