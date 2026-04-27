@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.04.27.1
+// @version      2026.04.27.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -29,6 +29,7 @@ const WEBADD_CONFIG = {
 	'FIND_CHILDLESS': true,
 	'SORT_CODES': true,
 	'SCRAPE_TEMP_PARENTS': true,
+	'SCRAPE_COLLECTION_CODES': true,
 	'SCRAPE_COLLECTION_COUNT': true,
 	'SCRAPE_IMAGELESS': true,
 	'ADD_WHOLESALE': true,
@@ -65,147 +66,12 @@ var cachedChildlessCollection = undefined;
 		addScraperOptions();
 	}
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_CODES) createButton('Scrape Codes', btnAction_scrapeCodes, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'beforeEnd');
 	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'beforeEnd');
 
 	if (WEBADD_CONFIG.ADD_SHOPPINGCART_BTNS) addShoppingCartButtons();
 })();
-
-var filtersHidden = true;
-async function _addSortFilterInputs(locationElement = getTitleElement(), collection = undefined) {
-	collection = (collection || await getCollection());
-	let reqsNotMet = false;
-	let testItem = collection[0];
-	if (!getItemContainer()) {
-		console.warn('WARN: Define getItemContainer() in order to use Sorting/Filtering.');
-		reqsNotMet = true;
-	}
-	if (testItem && !getCodeFromItem(testItem)) {
-		console.warn('WARN: Define getCodeFromItem() in order to use Sorting/Filtering.');
-		reqsNotMet = true;
-	}
-	if (testItem && !testFilterAgainst(testItem)) {
-		console.warn('WARN: Define testFilterAgainst() in order to use Sorting/Filtering.');
-		reqsNotMet = true;
-	}
-	reqsNotMet = reqsNotMet || !testItem;
-	if (reqsNotMet) {
-		console.warn('WARN: Requirements for Sorting/Filtering not met.');
-		return;
-	}
-	testItem = undefined;
-
-	let loc = getTopPagerLocation();
-	if (!loc.targetElem) return;
-
-	let divider = document.querySelector('div.productDetailDivider');
-	let clearFloat = document.querySelector('br.clearfloat');
-
-	let outerContainer = document.createElement('div');
-	loc.targetElem.insertAdjacentElement('afterEnd', outerContainer);
-	outerContainer.classList.add('form-horizontal');
-	outerContainer.style.display = 'none';
-	outerContainer.append(divider.cloneNode(true));
-
-	let hideFilters = document.createElement('button');
-	hideFilters.classList.add('pull-right');
-	hideFilters.classList.add('form-control');
-	hideFilters.style.display = 'inline-block';
-	hideFilters.style.width = 'unset';
-	hideFilters.innerText = '🕵';
-	hideFilters.onclick = (event) => {
-		filtersHidden = !filtersHidden;
-		outerContainer.style.display = filtersHidden ? 'none' : 'block';
-	};
-	loc.targetElem.insertAdjacentElement('beforeEnd', hideFilters);
-	loc.targetElem.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
-
-	/////////////////
-	// Sort Container
-	let sortContainer = document.createElement('div');
-	sortContainer.classList.add('pull-left');
-	// Sort DropDown
-	let sortSelect = document.createElement('select');
-	sortSelect.id = 'tg-sortby-select';
-	sortSelect.classList.add('form-control');
-	sortSelect.style.display = 'inline-block';
-	sortSelect.style.width = 'unset';
-	for (const sortBy in SORT_BY_LOOKUP) {
-		if (SORT_BY_LOOKUP.hasOwnProperty(sortBy)) {
-			let sortOption = document.createElement('option');
-			sortOption.value = sortBy;
-			sortOption.innerText = SORT_BY_LOOKUP[sortBy].string;
-			sortSelect.append(sortOption);
-		}
-	}
-	sortSelect.selectedIndex = JSON.parse(window.localStorage.getItem('EXTRACT-LIB_SortBy')) ?? 0;
-	sortSelect.onchange = (event) => {
-		resetWarnings();
-		SORT_BY = event.target.selectedIndex;
-		window.localStorage.setItem('EXTRACT-LIB_SortBy', SORT_BY);
-		updateForSort(undefined, undefined);
-	};
-	let sortLabel = document.createElement('span');
-	sortLabel.innerText = 'Sort by:\xa0';
-	sortLabel.append(sortSelect);
-	sortContainer.append(sortLabel);
-
-	// Sort Dir Button
-	let sortDirButton = document.createElement('button');
-	sortDirButton.classList.add('form-control');
-	sortDirButton.style.display = 'inline-block';
-	sortDirButton.style.width = 'unset';
-	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
-	sortDirButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionDir(sortDirButton, event.ctrlKey ? -1 : +1) };
-	sortContainer.append(sortDirButton);
-
-	outerContainer.append(sortContainer);
-
-	////////////////////
-	// Filter Container
-	let filterContainer = document.createElement('div');
-	filterContainer.classList.add('pull-right');
-	// Filter Textbox
-	let filterLabel = document.createElement('span');
-	filterLabel.innerText = 'Filter\xa0';
-	filterContainer.append(filterLabel);
-	let filterTextbox = document.createElement('input');
-	filterTextbox.id = 'tg-filter-input';
-	filterTextbox.classList.add('form-control');
-	filterTextbox.style.display = 'inline-block';
-	filterTextbox.style.width = 'unset';
-	filterTextbox.type = 'text';
-	filterTextbox.value = '';
-	filterTextbox.style.minWidth = '120px';
-	filterTextbox.typingTimer = {};
-	filterTextbox.doneTypingInterval = 750;
-
-	filterTextbox.addEventListener('keyup', () => {
-		clearTimeout(filterTextbox.typingTimer);
-		filterTextbox.typingTimer = setTimeout(() => { typeAction_filterCollection(filterButton) }, filterTextbox.doneTypingInterval);
-	});
-	filterTextbox.addEventListener('keydown', () => {
-		clearTimeout(filterTextbox.typingTimer);
-	});
-	filterContainer.append(filterTextbox);
-
-	// Filter Button
-	let filterButton = document.createElement('button');
-	filterButton.classList.add('form-control');
-	filterButton.style.display = 'inline-block';
-	filterButton.style.width = '50px';
-	filterButton.innerText = 'X';
-	filterButton.onclick = (event) => { resetWarnings(); btnAction_filterCollection(filterButton) };
-	filterContainer.append(filterButton);
-
-	outerContainer.append(filterContainer);
-
-	outerContainer.append(clearFloat.cloneNode(true));
-	//outerContainer.append(divider.cloneNode(true));
-
-	filterCollection();
-	updateForSort(sortDirButton, undefined);
-}
 
 function addMiscCSS() {
 	let cssText = '';
@@ -1304,6 +1170,51 @@ async function btnAction_scrapeImageless() {
 	);
 }
 
+async function btnAction_scrapeCodes() {
+	await scrapeCollectionWithIFrame(
+		await getCollection(),
+		() => { // initResult
+			return [];
+		},
+		(iFrameScraper) => { // onFrameLoad
+			let iFrameDocument = iFrameScraper.contentDocument;
+			return getCollection(iFrameDocument);
+		},
+		(scrapedResult) => { // onFrameReturn
+			return scrapedResult;
+		},
+		(result, scrapedResult) => { // aggregateItem
+			Array.prototype.push.apply(result, scrapedResult);
+
+			// SLEEP - THIS IS BAD, I KNOW.
+			let start = new Date().getTime();
+			for (let i = 0; i < 1e7; i++) {
+				if ((new Date().getTime() - start) > 1000) {
+					break;
+				}
+			}
+
+			return result;
+		},
+		async (resultCount, resultCollection) => { // onEnd
+			let result = '';
+			let count = 0;
+			for (const currentItem of resultCollection) {
+				let productCode = getCodeFromItem(currentItem);
+				let productName = currentItem.querySelector('img').getAttribute('title');
+				result += productCode + '\t' + productName + '\n';
+				count++;
+			}
+			let msg = 'None found!';
+			if (count > 0) {
+				GM_setClipboard(result);
+				msg = count + ' found and copied!';
+			}
+			if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
+		}
+	);
+}
+
 async function btnAction_countCollection(fast = false) {
 	// Faster but returns a range of values where a collection has multiple pages.
 	if (fast) {
@@ -1513,6 +1424,142 @@ async function btnAction_countCollection(fast = false) {
 /***********************************************
  * Collection Sorting & Filtering
  ***********************************************/
+var filtersHidden = true;
+async function _addSortFilterInputs(locationElement = getTitleElement(), collection = undefined) {
+	collection = (collection || await getCollection());
+	let reqsNotMet = false;
+	let testItem = collection[0];
+	if (!getItemContainer()) {
+		console.warn('WARN: Define getItemContainer() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (testItem && !getCodeFromItem(testItem)) {
+		console.warn('WARN: Define getCodeFromItem() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	if (testItem && !testFilterAgainst(testItem)) {
+		console.warn('WARN: Define testFilterAgainst() in order to use Sorting/Filtering.');
+		reqsNotMet = true;
+	}
+	reqsNotMet = reqsNotMet || !testItem;
+	if (reqsNotMet) {
+		console.warn('WARN: Requirements for Sorting/Filtering not met.');
+		return;
+	}
+	testItem = undefined;
+
+	let loc = getTopPagerLocation();
+	if (!loc.targetElem) return;
+
+	let divider = document.querySelector('div.productDetailDivider');
+	let clearFloat = document.querySelector('br.clearfloat');
+
+	let outerContainer = document.createElement('div');
+	loc.targetElem.insertAdjacentElement('afterEnd', outerContainer);
+	outerContainer.classList.add('form-horizontal');
+	outerContainer.style.display = 'none';
+	outerContainer.append(divider.cloneNode(true));
+
+	let hideFilters = document.createElement('button');
+	hideFilters.classList.add('pull-right');
+	hideFilters.classList.add('form-control');
+	hideFilters.style.display = 'inline-block';
+	hideFilters.style.width = 'unset';
+	hideFilters.innerText = '🕵';
+	hideFilters.onclick = (event) => {
+		filtersHidden = !filtersHidden;
+		outerContainer.style.display = filtersHidden ? 'none' : 'block';
+	};
+	loc.targetElem.insertAdjacentElement('beforeEnd', hideFilters);
+	loc.targetElem.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
+
+	/////////////////
+	// Sort Container
+	let sortContainer = document.createElement('div');
+	sortContainer.classList.add('pull-left');
+	// Sort DropDown
+	let sortSelect = document.createElement('select');
+	sortSelect.id = 'tg-sortby-select';
+	sortSelect.classList.add('form-control');
+	sortSelect.style.display = 'inline-block';
+	sortSelect.style.width = 'unset';
+	for (const sortBy in SORT_BY_LOOKUP) {
+		if (SORT_BY_LOOKUP.hasOwnProperty(sortBy)) {
+			let sortOption = document.createElement('option');
+			sortOption.value = sortBy;
+			sortOption.innerText = SORT_BY_LOOKUP[sortBy].string;
+			sortSelect.append(sortOption);
+		}
+	}
+	sortSelect.selectedIndex = JSON.parse(window.localStorage.getItem('EXTRACT-LIB_SortBy')) ?? 0;
+	sortSelect.onchange = (event) => {
+		resetWarnings();
+		SORT_BY = event.target.selectedIndex;
+		window.localStorage.setItem('EXTRACT-LIB_SortBy', SORT_BY);
+		updateForSort(undefined, undefined);
+	};
+	let sortLabel = document.createElement('span');
+	sortLabel.innerText = 'Sort by:\xa0';
+	sortLabel.append(sortSelect);
+	sortContainer.append(sortLabel);
+
+	// Sort Dir Button
+	let sortDirButton = document.createElement('button');
+	sortDirButton.classList.add('form-control');
+	sortDirButton.style.display = 'inline-block';
+	sortDirButton.style.width = 'unset';
+	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
+	sortDirButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionDir(sortDirButton, event.ctrlKey ? -1 : +1) };
+	sortContainer.append(sortDirButton);
+
+	outerContainer.append(sortContainer);
+
+	////////////////////
+	// Filter Container
+	let filterContainer = document.createElement('div');
+	filterContainer.classList.add('pull-right');
+	// Filter Textbox
+	let filterLabel = document.createElement('span');
+	filterLabel.innerText = 'Filter\xa0';
+	filterContainer.append(filterLabel);
+	let filterTextbox = document.createElement('input');
+	filterTextbox.id = 'tg-filter-input';
+	filterTextbox.classList.add('form-control');
+	filterTextbox.style.display = 'inline-block';
+	filterTextbox.style.width = 'unset';
+	filterTextbox.type = 'text';
+	filterTextbox.value = '';
+	filterTextbox.style.minWidth = '120px';
+	filterTextbox.typingTimer = {};
+	filterTextbox.doneTypingInterval = 750;
+
+	filterTextbox.addEventListener('keyup', () => {
+		clearTimeout(filterTextbox.typingTimer);
+		filterTextbox.typingTimer = setTimeout(() => { typeAction_filterCollection(filterButton) }, filterTextbox.doneTypingInterval);
+	});
+	filterTextbox.addEventListener('keydown', () => {
+		clearTimeout(filterTextbox.typingTimer);
+	});
+	filterContainer.append(filterTextbox);
+
+	// Filter Button
+	let filterButton = document.createElement('button');
+	filterButton.classList.add('form-control');
+	filterButton.style.display = 'inline-block';
+	filterButton.style.width = '50px';
+	filterButton.innerText = 'X';
+	filterButton.onclick = (event) => { resetWarnings(); btnAction_filterCollection(filterButton) };
+	filterContainer.append(filterButton);
+
+	outerContainer.append(filterContainer);
+
+	outerContainer.append(clearFloat.cloneNode(true));
+	//outerContainer.append(divider.cloneNode(true));
+
+	filterCollection();
+	updateForSort(sortDirButton, undefined);
+}
+
 function getItemContainer() {
 	return document.querySelector('div#Gallery');
 }
