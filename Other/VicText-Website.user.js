@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.04.27.2
+// @version      2026.05.01.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -54,24 +54,99 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.HOVER_PREVIEW) addHoverPreview();
 	if (WEBADD_CONFIG.FIX_IMAGES) fixBrokenImages();
 
-	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'beforeEnd');
-	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'beforeEnd');
-	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
-	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'beforeEnd', (await getChildlessCollection())?.length > 0);
-	if (WEBADD_CONFIG.SORT_CODES) await _addSortFilterInputs(undefined, document.querySelectorAll('div.col-md-4.col-sm-4.item'));
 	if (WEBADD_CONFIG.ADD_WHOLESALE) await addWholesalePrice();
+	if (WEBADD_CONFIG.ADD_SHOPPINGCART_BTNS) addShoppingCartButtons();
 
+	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, getTitleElement(), 'pull-left');
+	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, getTitleElement(), 'pull-left');
+	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, getTitleElement(), 'pull-left', (await getImagelessCollection())?.Collection?.length > 0);
+	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'pull-left', (await getChildlessCollection())?.length > 0);
+	if (WEBADD_CONFIG.SORT_CODES) await _addSortFilterInputs(undefined, document.querySelectorAll('div.col-md-4.col-sm-4.item'));
+
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'pull-right', (await getImagelessCollection())?.Collection?.length > 0);
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_CODES) createButton('Scrape Codes', btnAction_scrapeCodes, getTitleElement(), 'pull-right');
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'pull-right');
+	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'pull-right');
 
 	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
 		addScraperOptions();
 	}
-	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'beforeEnd', (await getImagelessCollection())?.Collection?.length > 0);
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_CODES) createButton('Scrape Codes', btnAction_scrapeCodes, getTitleElement(), 'beforeEnd');
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'beforeEnd');
-	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'beforeEnd');
-
-	if (WEBADD_CONFIG.ADD_SHOPPINGCART_BTNS) addShoppingCartButtons();
 })();
+
+var buttonsHidden = true;
+function addElementToDropdownContainer(locationElement, elementsToAdd, location = 'beforeEnd', showIf = true) {
+	let loc = getTopPagerLocation();
+	if (!loc.targetElem) return;
+
+	let divider = document.querySelector('div.productDetailDivider');
+	let clearFloat = document.createElement('span'); //.querySelector('br.clearfloat');
+	clearFloat.classList.add('clearfloat');
+
+	if (!document.querySelector('#tg-hidebuttons-btn')) {
+		let outerContainer = document.createElement('div');
+		loc.targetElem.insertAdjacentElement('afterEnd', outerContainer);
+		outerContainer.id = 'tg-buttons-container';
+		outerContainer.classList.add('form-horizontal');
+		outerContainer.style.display = 'none';
+		outerContainer.append(divider.cloneNode(true));
+
+		let hideButtons = document.createElement('button');
+		hideButtons.id = 'tg-hidebuttons-btn';
+		hideButtons.classList.add('pull-right');
+		hideButtons.classList.add('form-control');
+		hideButtons.style.display = 'inline-block';
+		hideButtons.style.width = 'unset';
+		hideButtons.innerText = '🧰';
+		hideButtons.onclick = (event) => {
+			buttonsHidden = !buttonsHidden;
+			outerContainer.style.display = buttonsHidden ? 'none' : 'block';
+		};
+		loc.targetElem.insertAdjacentElement('beforeEnd', hideButtons);
+		//loc.targetElem.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
+	}
+
+	let outerContainer = document.querySelector('#tg-buttons-container');
+	if (!outerContainer) return;
+	outerContainer.querySelectorAll('.clearfloat').forEach(elem => elem.remove());
+
+	if (showIf) {
+		let thisContainer = document.createElement('span');
+		thisContainer.style.float = 'none';
+		thisContainer.style.padding = '2px 0px';
+		thisContainer.style.fontSize = 'unset';
+		thisContainer.style.lineHeight = 'unset';
+		thisContainer.style.whiteSpace = 'nowrap';
+
+		if (Array.isArray(elementsToAdd)) {
+			for (let i in elementsToAdd) {
+				let obj = elementsToAdd[i];
+				if (isElement(obj)) {
+					thisContainer.insertAdjacentElement('beforeEnd', obj);
+					obj.classList.remove('tg-dropdown-option');
+					if (!obj.matches('.tg-table') && !obj.matches('.tg-table-header')) {
+						obj.classList.add('form-control');
+						obj.classList.add(location);
+						obj.style.display = 'inline-block';
+						obj.style.width = 'unset';
+					}
+				}
+			}
+		} else {
+			if (isElement(elementsToAdd)) {
+				thisContainer.insertAdjacentElement('beforeEnd', elementsToAdd);
+				elementsToAdd.classList.remove('tg-dropdown-option');
+				if (!elementsToAdd.matches('.tg-table') && !elementsToAdd.matches('.tg-table-header')) {
+					elementsToAdd.classList.add('form-control');
+					elementsToAdd.classList.add(location);
+					elementsToAdd.style.display = 'inline-block';
+					elementsToAdd.style.width = 'unset';
+				}
+			}
+		}
+		outerContainer.insertAdjacentElement('beforeEnd', thisContainer);
+	}
+	outerContainer.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
+}
 
 function addMiscCSS() {
 	let cssText = '';
@@ -648,7 +723,6 @@ function addPagerOptionsAtTop(pagerWrappers) {
 /***********************************************
  * Shopping Cart Buttons
  ***********************************************/
-
 function addShoppingCartButtons() {
 	let shoppingCartForm = document.querySelector('form#ShoppingCartForm div#fullCart');
 	if (shoppingCartForm) {
@@ -1012,16 +1086,19 @@ function addScraperOptions() {
 	let titleElement = getTitleElement();
 	if (!titleElement) return;
 
+	initDropdownContainer(undefined);
+
 	let table = document.createElement('table');
 	table.id = 'scraperOptions';
-	table.classList.add('tg-dropdown-option');
+	//table.classList.add('tg-dropdown-option');
 	table.classList.add('tg-table');
+	table.style.width = 'unset';
 	table.innerHTML =
 		`<tbody>
 	<tr class="tg-table-header">
-		<td colspan="2" class="tg-dropdown-text">Scraper Options</td>
+		<td colspan="2" class="form-control" style="display:table-cell; width:unset;">Scraper Options</td>
 	</tr>
-	<tr class="tg-table-row tg-table-text">
+	<tr class="tg-table-row">
 		<td>Offset</td>
 		<td>Max</td>
 	</tr>
@@ -1456,11 +1533,13 @@ async function _addSortFilterInputs(locationElement = getTitleElement(), collect
 
 	let outerContainer = document.createElement('div');
 	loc.targetElem.insertAdjacentElement('afterEnd', outerContainer);
+	outerContainer.id = 'tg-sortfilter-container';
 	outerContainer.classList.add('form-horizontal');
 	outerContainer.style.display = 'none';
 	outerContainer.append(divider.cloneNode(true));
 
 	let hideFilters = document.createElement('button');
+	hideFilters.id = 'tg-hidefilters-btn';
 	hideFilters.classList.add('pull-right');
 	hideFilters.classList.add('form-control');
 	hideFilters.style.display = 'inline-block';
