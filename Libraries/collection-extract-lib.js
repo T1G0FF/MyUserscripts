@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2026.04.24.1
+// @version      2026.05.01.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -382,7 +382,6 @@ async function saveImages() {
  ***********************************************/
 var DROPDOWN_CONTAINERS = undefined;
 function initDropdownContainer(locationElement, location = 'beforeEnd', direction = 'right') {
-	if (!locationElement) return;
 	if (!DROPDOWN_CONTAINERS) {
 		let cssText = `/* Hide the dropdown container by Default */
 .tg-dropdown-container {
@@ -545,6 +544,7 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 		}
 		DROPDOWN_CONTAINERS = {};
 	}
+	if (!locationElement) return;
 
 	// Reset dropdown container if it has been removed from the DOM
 	if (DROPDOWN_CONTAINERS[locationElement] && !document.querySelector('span.tg-dropdown-container')) {
