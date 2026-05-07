@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.07.1
+// @version      2026.05.07.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -155,6 +155,10 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 	}
 	innerContainer.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
 	outerContainer.querySelectorAll('div > .clearfloat:not(:last-of-type)').forEach(elem => elem.remove());
+
+	let pagerForm = document.querySelector('div.pagerPageSelectWrapper > form');
+	outerContainer.insertAdjacentElement('beforeEnd', divider.cloneNode(true));
+	outerContainer.querySelectorAll(':scope > .productDetailDivider' + (pagerForm ? '' : ':not(:last-of-type)')).forEach(elem => elem.remove());
 }
 
 function addMiscCSS() {
