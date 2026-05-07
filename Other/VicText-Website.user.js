@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.01.1
+// @version      2026.05.07.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -63,12 +63,12 @@ var cachedChildlessCollection = undefined;
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, getTitleElement(), 'pull-left', (await getChildlessCollection())?.length > 0);
 	if (WEBADD_CONFIG.SORT_CODES) await _addSortFilterInputs(undefined, document.querySelectorAll('div.col-md-4.col-sm-4.item'));
 
-	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, getTitleElement(), 'pull-right', (await getImagelessCollection())?.Collection?.length > 0);
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_CODES) createButton('Scrape Codes', btnAction_scrapeCodes, getTitleElement(), 'pull-right');
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, getTitleElement(), 'pull-right');
-	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, getTitleElement(), 'pull-right');
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_CODES) createButton('Scrape Codes', btnAction_scrapeCodes, 'scraperBar', 'pull-left');
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, 'scraperBar', 'pull-left');
+	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, 'scraperBar', 'pull-left');
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, 'scraperBar', 'pull-left', (await getImagelessCollection())?.Collection?.length > 0);
 
-	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS || WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT || WEBADD_CONFIG.SCRAPE_IMAGELESS) {
+	if (document.querySelector('#tg-buttons-container-scraper')) {
 		addScraperOptions();
 	}
 })();
@@ -78,8 +78,9 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 	let loc = getTopPagerLocation();
 	if (!loc.targetElem) return;
 
-	let divider = document.querySelector('div.productDetailDivider');
-	let clearFloat = document.createElement('span'); //.querySelector('br.clearfloat');
+	let divider = document.createElement('div');
+	divider.classList.add('productDetailDivider');
+	let clearFloat = document.createElement('br');
 	clearFloat.classList.add('clearfloat');
 
 	if (!document.querySelector('#tg-hidebuttons-btn')) {
@@ -88,7 +89,6 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 		outerContainer.id = 'tg-buttons-container';
 		outerContainer.classList.add('form-horizontal');
 		outerContainer.style.display = 'none';
-		outerContainer.append(divider.cloneNode(true));
 
 		let hideButtons = document.createElement('button');
 		hideButtons.id = 'tg-hidebuttons-btn';
@@ -102,12 +102,20 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 			outerContainer.style.display = buttonsHidden ? 'none' : 'block';
 		};
 		loc.targetElem.insertAdjacentElement('beforeEnd', hideButtons);
-		//loc.targetElem.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
 	}
 
 	let outerContainer = document.querySelector('#tg-buttons-container');
 	if (!outerContainer) return;
-	outerContainer.querySelectorAll('.clearfloat').forEach(elem => elem.remove());
+
+	let innerContainerId = locationElement === 'scraperBar' ? 'tg-buttons-container-scraper' : 'tg-buttons-container-inner';
+	let innerContainer = document.querySelector('#' + innerContainerId);
+	if (!innerContainer) {
+		innerContainer = document.createElement('div');
+		innerContainer.append(divider.cloneNode(true));
+		outerContainer.append(innerContainer);
+		innerContainer.id = innerContainerId;
+		innerContainer.classList.add('form-horizontal');
+	}
 
 	if (showIf) {
 		let thisContainer = document.createElement('span');
@@ -143,9 +151,10 @@ function addElementToDropdownContainer(locationElement, elementsToAdd, location 
 				}
 			}
 		}
-		outerContainer.insertAdjacentElement('beforeEnd', thisContainer);
+		innerContainer.append(thisContainer);
 	}
-	outerContainer.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
+	innerContainer.insertAdjacentElement('beforeEnd', clearFloat.cloneNode(true));
+	outerContainer.querySelectorAll('div > .clearfloat:not(:last-of-type)').forEach(elem => elem.remove());
 }
 
 function addMiscCSS() {
@@ -700,8 +709,10 @@ function addPagerOptionsAtTop(pagerWrappers) {
 	let loc = getTopPagerLocation();
 	if (!loc.targetElem) return;
 
-	let divider = document.querySelector('div.productDetailDivider');
-	let clearFloat = document.querySelector('br.clearfloat');
+	let divider = document.createElement('div');
+	divider.classList.add('productDetailDivider');
+	let clearFloat = document.createElement('br');
+	clearFloat.classList.add('clearfloat');
 
 	let pagerContainer = document.createElement('div');
 	if (!loc.isBlogPage) pagerContainer.append(divider.cloneNode(true));
@@ -1092,6 +1103,7 @@ function addScraperOptions() {
 	table.id = 'scraperOptions';
 	//table.classList.add('tg-dropdown-option');
 	table.classList.add('tg-table');
+	table.classList.add('pull-right');
 	table.style.width = 'unset';
 	table.innerHTML =
 		`<tbody>
@@ -1107,7 +1119,7 @@ function addScraperOptions() {
 		<td><input id="tg-max-calls-field"></td>
 	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
-	addElementToDropdownContainer(titleElement, [table], 'beforeEnd');
+	addElementToDropdownContainer('scraperBar', [table], 'beforeEnd');
 
 	let tableElement = document.querySelector('table#scraperOptions');
 	hideDropdownTableElements(tableElement);
@@ -1528,8 +1540,10 @@ async function _addSortFilterInputs(locationElement = getTitleElement(), collect
 	let loc = getTopPagerLocation();
 	if (!loc.targetElem) return;
 
-	let divider = document.querySelector('div.productDetailDivider');
-	let clearFloat = document.querySelector('br.clearfloat');
+	let divider = document.createElement('div');
+	divider.classList.add('productDetailDivider');
+	let clearFloat = document.createElement('br');
+	clearFloat.classList.add('clearfloat');
 
 	let outerContainer = document.createElement('div');
 	loc.targetElem.insertAdjacentElement('afterEnd', outerContainer);
