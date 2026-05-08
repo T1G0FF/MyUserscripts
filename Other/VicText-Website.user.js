@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.08.1
+// @version      2026.05.08.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -59,15 +59,19 @@ var cachedChildlessCollection = undefined;
 
 	if (WEBADD_CONFIG.SORT_CODES) await _addSortFilterInputs(undefined, document.querySelectorAll('div.col-md-4.col-sm-4.item'));
 
+	let hasCollections = document.querySelectorAll('div.col-md-4.col-sm-4:not(.item)')?.length > 0 ?? false;
+	let hasImageless = (await getImagelessCollection())?.Collection?.length > 0 ?? false;
+	let hasChildless = (await getChildlessCollection())?.length > 0 ?? false;
+
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, 'copyBar', 'pull-left');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, 'copyBar', 'pull-left');
-	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, 'copyBar', 'pull-left', (await getImagelessCollection())?.Collection?.length > 0);
-	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, 'copyBar', 'pull-left', (await getChildlessCollection())?.length > 0);
+	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, 'copyBar', 'pull-left', hasImageless);
+	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, 'copyBar', 'pull-left', hasChildless);
 
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_CODES) createButton('Scrape Codes', btnAction_scrapeCodes, 'scraperBar', 'pull-left');
-	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, 'scraperBar', 'pull-left');
-	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, 'scraperBar', 'pull-left');
-	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, 'scraperBar', 'pull-left', (await getImagelessCollection())?.Collection?.length > 0);
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_CODES) createButton('Scrape Codes', btnAction_scrapeCodes, 'scraperBar', 'pull-left', hasCollections);
+	if (WEBADD_CONFIG.SCRAPE_COLLECTION_COUNT) createButtonWithAlts('Collection Count', (event) => { btnAction_countCollection(false) }, { 'CTRL': (event) => { btnAction_countCollection(true) } }, 'scraperBar', 'pull-left', hasCollections);
+	if (WEBADD_CONFIG.SCRAPE_IMAGELESS) createButton('Scrape Imageless', btnAction_scrapeImageless, 'scraperBar', 'pull-left', hasCollections);
+	if (WEBADD_CONFIG.SCRAPE_TEMP_PARENTS) createButton('Scrape Temp Parents', btnAction_scrapeFirstImage, 'scraperBar', 'pull-left', hasImageless);
 
 	if (document.querySelector('#tg-container-toolbar-scrape')) {
 		addScraperOptions();
