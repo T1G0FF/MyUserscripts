@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.01.1
+// @version      2026.05.08.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -65,7 +65,7 @@ function getTitleElement() {
 // Gets title without any formatting so that you can do your own formatting.
 function getTitle(titleElement = getTitleElement()) {
 	let title = !titleElement ? '' : titleElement.innerText.trim();
-	title = title.replace(titleElement.querySelector('.tg-dropdown-container')?.innerText, '').trim();
+	title = title.replace(titleElement.querySelector('.tg-container-dropdown')?.innerText, '').trim();
 	return title;
 }
 
@@ -384,7 +384,7 @@ var DROPDOWN_CONTAINERS = undefined;
 function initDropdownContainer(locationElement, location = 'beforeEnd', direction = 'right') {
 	if (!DROPDOWN_CONTAINERS) {
 		let cssText = `/* Hide the dropdown container by Default */
-.tg-dropdown-container {
+.tg-container-dropdown {
 	display: none;
 }
 
@@ -417,14 +417,14 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 
 		cssText = `
 /* The container <div> - needed to position the dropdown content */
-.tg-dropdown-container {
+.tg-container-dropdown {
 	float: none;
 	padding: 2px 0px;
 	font-size: unset;
 	line-height: unset;
 }
 
-.tg-dropdown-container, .tg-dropdown, .tg-dropleft, .tg-dropright, .tg-dropup {
+.tg-container-dropdown, .tg-drop-down, .tg-drop-left, .tg-drop-right, .tg-drop-up {
 	position: relative;
 	display: inline-flex;
 	margin: 0.5rem;
@@ -500,7 +500,7 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	box-shadow: 4px 4px 4px 0px rgba(0,0,0,0.6);
 }
 
-.tg-dropleft .tg-dropdown-menu {
+.tg-drop-left .tg-dropdown-menu {
 	top: 0;
 	right: 100%;
 	left: auto;
@@ -508,7 +508,7 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	margin-right: 0.125rem;
 }
 
-.tg-dropright .tg-dropdown-menu {
+.tg-drop-right .tg-dropdown-menu {
 	top: 0;
 	right: auto;
 	left: 100%;
@@ -516,7 +516,7 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	margin-left: 0.125rem;
 }
 
-.tg-dropup .tg-dropdown-menu {
+.tg-drop-up .tg-dropdown-menu {
 	top: auto;
 	bottom: 100%;
 	margin-top: 0;
@@ -547,26 +547,26 @@ function initDropdownContainer(locationElement, location = 'beforeEnd', directio
 	if (!locationElement) return;
 
 	// Reset dropdown container if it has been removed from the DOM
-	if (DROPDOWN_CONTAINERS[locationElement] && !document.querySelector('span.tg-dropdown-container')) {
+	if (DROPDOWN_CONTAINERS[locationElement] && !document.querySelector('span.tg-container-dropdown')) {
 		DROPDOWN_CONTAINERS[locationElement] = undefined;
 	}
 
 	if (!DROPDOWN_CONTAINERS[locationElement]) {
 		let dropdownContainer = document.createElement('span');
-		dropdownContainer.classList.add('tg-dropdown-container');
+		dropdownContainer.classList.add('tg-container-dropdown');
 		switch (direction) {
 			case 'down':
-				dropdownContainer.classList.add('tg-dropdown');
+				dropdownContainer.classList.add('tg-drop-down');
 				break;
 			case 'left':
-				dropdownContainer.classList.add('tg-dropleft');
+				dropdownContainer.classList.add('tg-drop-left');
 				break;
 			default:
 			case 'right':
-				dropdownContainer.classList.add('tg-dropright');
+				dropdownContainer.classList.add('tg-drop-right');
 				break;
 			case 'up':
-				dropdownContainer.classList.add('tg-dropup');
+				dropdownContainer.classList.add('tg-drop-up');
 				break;
 		}
 
@@ -771,8 +771,8 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 		<td>By</td>
 	</tr>
 	<tr class="tg-table-row">
-		<td><button id="tg-sortdir-button"></button></td>
-		<td><button id="tg-sortby-button"></button></td>
+		<td><button id="tg-button-sortdir"></button></td>
+		<td><button id="tg-button-sortby"></button></td>
 	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
 	addElementToDropdownContainer(locationElement, [table], 'beforeEnd');
@@ -780,12 +780,12 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 	let tableElement = document.querySelector('table#sortOptions');
 	hideDropdownTableElements(tableElement);
 
-	let sortDirButton = tableElement.querySelector('button#tg-sortdir-button');
+	let sortDirButton = tableElement.querySelector('button#tg-button-sortdir');
 	sortDirButton.classList.add('tg-dropdown-option-half');
 	sortDirButton.innerText = SORT_DIR_LOOKUP[SORT_DIR].string;
 	sortDirButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionDir(sortDirButton, event.ctrlKey ? -1 : +1) };
 
-	let sortByButton = tableElement.querySelector('button#tg-sortby-button');
+	let sortByButton = tableElement.querySelector('button#tg-button-sortby');
 	sortByButton.classList.add('tg-dropdown-option-half');
 	sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
 	sortByButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionBy(sortByButton, event.ctrlKey ? -1 : +1) };
@@ -800,8 +800,8 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 		<td colspan="2" class="tg-dropdown-text">Filter Options</td>
 	</tr>
 	<tr class="tg-table-row">
-		<td><input id="tg-filter-input"></td>
-		<td><button id="tg-filter-button"></button></td>
+		<td><input id="tg-input-filter"></td>
+		<td><button id="tg-button-filter"></button></td>
 	</tr>
 </tbody>`.replace(/\r\n|\n|\r|\t/gm, '');
 	addElementToDropdownContainer(locationElement, [table], 'beforeEnd');
@@ -809,13 +809,13 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 	tableElement = document.querySelector('table#filterOptions');
 	hideDropdownTableElements(tableElement);
 
-	let filterButton = tableElement.querySelector('button#tg-filter-button');
+	let filterButton = tableElement.querySelector('button#tg-button-filter');
 	filterButton.classList.add('tg-dropdown-option-half');
 	filterButton.style.width = '50px';
 	filterButton.innerText = 'X';
 	filterButton.onclick = (event) => { resetWarnings(); btnAction_filterCollection(filterButton) };
 
-	let filterTextbox = tableElement.querySelector('input#tg-filter-input');
+	let filterTextbox = tableElement.querySelector('input#tg-input-filter');
 	filterTextbox.classList.add('tg-input');
 	filterTextbox.type = 'text';
 	filterTextbox.value = '';
@@ -982,7 +982,7 @@ async function refreshCollection(itemContainer = getItemContainer(), itemList = 
 }
 
 function getFilterElement() {
-	return document.querySelector('#tg-filter-input');
+	return document.querySelector('#tg-input-filter');
 }
 
 function getFilterText() {
