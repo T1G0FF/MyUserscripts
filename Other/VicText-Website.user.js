@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.08.4
+// @version      2026.05.08.5
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -955,7 +955,7 @@ async function getImagelessCollection(doc) {
 		let result = [];
 		for (const currentItem of collection) {
 			let currentImage = currentItem.querySelector('img');
-			let _compareSize = !currentImage.matches('.extraImageThumb') ? compareSize : 50; // For Extra Images
+			let _compareSize = !currentItem.matches('.extraImageThumb') ? compareSize : 50; // For Extra Images
 
 			if (currentImage.getAttribute('src').includes('NoImage.gif')
 				|| (currentImage.naturalWidth > 0 && currentImage.naturalWidth < _compareSize)
