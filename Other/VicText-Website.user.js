@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.08.5
+// @version      2026.05.21.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -930,7 +930,21 @@ async function getCollection(doc) {
 		cachedCollection = cachedCollection || {};
 		cachedCollection[doc] = cachedCollection[doc] || {};
 		cachedCollection[doc]['timestamp'] = now;
-		cachedCollection[doc]['collection'] = doc.querySelectorAll('div.col-md-4.col-sm-4'); // .item
+
+		let tempCol = doc.querySelectorAll('#productListWrapper > div.col-md-4.col-sm-4,' // Product List collections
+										   + '#Gallery .item,' // Product List items
+										   + '#productDetailWrapper #productDetailImage,' // Product Details main image
+										   + '#productDetailWrapper .extraImageThumb,' // Product Details additional images
+										   + '.swatcher-container .swatcher-swatch' // Product Details swatch images
+										  );
+
+		// For Swatch Pages but not on the Parent remove duplicate first element
+		var swatches = document.querySelectorAll('.swatcher-container .swatcher-swatch');
+		if (swatches && swatches.length > 0 && window.location.href.indexOf('WEB_dash_') < 0) {
+			tempCol = Array.prototype.slice.call(tempCol, 1);
+		}
+
+		cachedCollection[doc]['collection'] = tempCol;
 	}
 	return cachedCollection[doc]['collection'];
 }
@@ -946,16 +960,10 @@ async function getImagelessCollection(doc) {
 		let collection = await getCollection(doc);
 		let compareSize = 250;
 
-		// For Swatch Pages
-		if (collection.length < 1) {
-			collection = doc.querySelectorAll('.swatcher-swatch');
-			compareSize = 50;
-		}
-
 		let result = [];
 		for (const currentItem of collection) {
 			let currentImage = currentItem.querySelector('img');
-			let _compareSize = !currentItem.matches('.extraImageThumb') ? compareSize : 50; // For Extra Images
+			let _compareSize = !currentItem.matches('.extraImageThumb, .swatch-product-img') ? compareSize : 50; // For Swatches or Extra Images
 
 			if (currentImage.getAttribute('src').includes('NoImage.gif')
 				|| (currentImage.naturalWidth > 0 && currentImage.naturalWidth < _compareSize)
@@ -993,22 +1001,12 @@ async function getChildlessCollection(doc) {
 async function getCodesOnPage() {
 	let result = '';
 	let count = 0;
-	if (window.location.href.indexOf('WEB_dash_') > 0) {
-		let url = window.location.href;
-		let parentRegex = /((?:WEB_dash_)[a-zA-Z0-9\_]+)\/(.*)\//;
-		let matches = parentRegex.exec(url);
-		if (matches && matches.length > 1) {
-			result += ss_decode(matches[1]) + '\t' + ss_decode(matches[2]) + '\n';
-			count++;
-		}
-	}
 
 	let collection = await getCollection();
-	// For Swatch Pages
-	if (collection.length < 1) collection = document.querySelectorAll('.swatcher-swatch');
 	for (const currentItem of collection) {
 		let productCode = getCodeFromItem(currentItem);
-		let productName = currentItem.querySelector('img').getAttribute('title');
+		let imgElem = currentItem.querySelector('img');
+		let productName = imgElem.getAttribute('title') || imgElem.getAttribute('alt');
 		result += productCode + '\t' + productName + '\n';
 		count++;
 	}
@@ -1022,18 +1020,12 @@ async function getCodesOnPage() {
 
 async function getImagesOnPage() {
 	let imageHtml = '<html>\n<body>\n';
-	let collection = Array.prototype.map.call(await getCollection(), el => el.querySelector('img'));
-	let compareSize = 250;
-	// For Swatch Pages
-	if (collection.length < 1) {
-		collection = document.querySelectorAll('.swatcher-swatch img:not(.swatch-product-img)');
-		compareSize = 50;
-	}
 	let count = 0;
+
+	let collection = Array.prototype.map.call(await getCollection(), el => el.querySelector('img:not(.swatch-product-img)'));
 	for (const currentItem of collection) {
-		//if (DEBUG) console.log(compareSize + ': ' + currentItem.naturalWidth + 'x' + currentItem.naturalHeight);
 		let givenURL = currentItem.getAttribute('src');
-		let currentURL = getAbsolutePath(givenURL).replaceAll('thumbnails/swatches/', '');
+		let currentURL = getAbsolutePath(givenURL).replaceAll('thumbnails/swatches/', '').replaceAll('thumbnails/', '');
 		imageHtml = imageHtml + '<img src="' + currentURL + '">\n';
 		count++;
 	}
@@ -1698,10 +1690,17 @@ function getItemContainer() {
 }
 
 function getCodeFromItem(currentItem) {
-	let productCode = currentItem.getAttribute('id');
+	let _currentItem = currentItem;
+	if (_currentItem.matches('#productDetailImage, .extraImageThumb')) {
+		_currentItem = _currentItem.querySelector('a[rel="prodgroup1"]');
+	}
+	let productCode = _currentItem.getAttribute('id');
 	if (!productCode) {
-		let codeRegEx = /https?:\/\/www\.victoriantextiles\.com\.au\/(.*?)\/.*\/pd\.php/g;
-		let matches = codeRegEx.exec(currentItem.getAttribute('href'));
+		// https://www.victoriantextiles.com.au/Kits-SK4300/Studio-Kat-Sling-Along-Bag-Kit/pd.php
+		let linkCodeRegEx = /https?:\/\/www\.victoriantextiles\.com\.au\/(.*?)\/.*\/pd\.php/g;
+		// https://www.victoriantextiles.com.au/productimages/Kits SK4300.jpg
+		let imgCodeRegEx = /https?:\/\/www\.victoriantextiles\.com\.au\/productimages\/(.*?)\.(?:jpg)/g;
+		let matches = linkCodeRegEx.exec(_currentItem.getAttribute('href')) || imgCodeRegEx.exec(_currentItem.getAttribute('href'));
 		if (matches) {
 			productCode = matches[1];
 		} else {
