@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.08.1
+// @version      2026.05.28.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -76,6 +76,7 @@ function getFormattedTitle(titleElement = getTitleElement()) {
 
 // Removes strings known to accompany title.
 function formatTitle(title) {
+	title = normalizeUnicodePunctuation(title);
 	title = title.replaceAll('["â€³]', '');
 	title = title.replaceAll('Search Results: ', '');
 	title = title.replaceAll('Search Results For: ', '');
@@ -250,8 +251,60 @@ function formatPurchaseCode(itemCode) {
 	return itemCode;
 }
 
+function normalizeUnicodePunctuation(text, avoidWhitespaceChanges = true) {
+	text = text.replaceAll('\r', '');
+	// normalize unicode punctuation
+	text = text.replaceAll('\u00A0', ' ');
+	text = text.replaceAll('„', '\"');
+	text = text.replaceAll('“', '\"');
+	text = text.replaceAll('”', '\"');
+	text = text.replaceAll('–', avoidWhitespaceChanges ? '-' : ' - ');
+	text = text.replaceAll('—', avoidWhitespaceChanges ? '-' : ' - ');
+	text = text.replaceAll('´', '\'');
+	text = text.replaceAll('([A-Za-z])‘([a-z])', '$1\'$2');
+	text = text.replaceAll('([A-Za-z])’([a-z])', '$1\'$2');
+	text = text.replaceAll('‘', "'");
+	text = text.replaceAll('‚', ',');
+	text = text.replaceAll('’', "'");
+	text = text.replaceAll("''", '\"');
+	text = text.replaceAll('´´', '\"');
+	text = text.replaceAll('…', '...');
+	// French quotes
+	text = text.replaceAll('� «� ', ' \"');
+	text = text.replaceAll('«� ', '\"');
+	text = text.replaceAll('«', '\"');
+	text = text.replaceAll('� »� ', '\" ');
+	text = text.replaceAll('� »', '\"');
+	text = text.replaceAll('»', '\"');
+	// handle pseudo-spaces
+	text = text.replaceAll('� %', '%');
+	text = text.replaceAll('nº� ', 'nº ');
+	text = text.replaceAll('� :', ':');
+	text = text.replaceAll('� ºC', ' ºC');
+	text = text.replaceAll('� cm', ' cm');
+	text = text.replaceAll('� ?', '?');
+	text = text.replaceAll('� !', '!');
+	text = text.replaceAll('� ;', ';');
+	text = text.replaceAll(',� /, /g; s/ +', ' ');
+	text = text.replaceAll('\"([,.] +)', '$1\"');
+	if (!avoidWhitespaceChanges) {
+		// remove extra spaces
+		text = text.replaceAll('\(', ' (');
+		text = text.replaceAll('\)', ') ');
+		text = text.replaceAll(' +', ' ');
+		text = text.replaceAll('\) ([.!:?;,])', ')$1');
+		text = text.replaceAll('\( ', '(');
+		text = text.replaceAll(' \)', ')');
+		text = text.replaceAll('(\d) %', '$1%');
+		text = text.replaceAll(' :', ':');
+		text = text.replaceAll(' ;', ';');
+	}
+	return text;
+}
+
 function fixColourName(colourName) {
 	colourName = colourName.trim();
+	colourName = normalizeUnicodePunctuation(colourName);
 	colourName = colourName.replaceAll('Lt[. ]', 'Light ');
 	colourName = colourName.replaceAll('Med[. ]', 'Medium ');
 	colourName = colourName.replaceAll('Md[. ]', 'Medium ');
@@ -260,6 +313,7 @@ function fixColourName(colourName) {
 	colourName = colourName.replaceAll('[\'\"]', '');  // Remove Quotes
 	colourName = colourName.replaceAll('-', ' ');  // Remove Dashes
 	colourName = colourName.replaceAll('[.]', ' ');  // Remove Periods
+	colourName = colourName.replaceAll('[\u00a0\u1680​\u180e\u2000-\u2009\u200a​\u200b​\u202f\u205f​\u3000]', ' ');  // Remove invisible unicode space characters
 	colourName = colourName.replaceAll('[ ]+', ' ');  // Replace Double Spaces
 	colourName = colourName.toTitleCase();
 	return colourName;
