@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Dear Stella / Timeless Treasures
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.25.1
+// @version      2025.28.25.1
 // @description  Gets the names and codes from a Dear Stella or Timeless Treasures Collection
 // @author       www.tgoff.me
 // @match        *://ttfabrics.com/category/*
@@ -176,6 +176,7 @@ function getItemObject(itemElement) {
 		return;
 	}
 	let givenDesc = descElement.innerText.trim();
+	givenDesc = normalizeUnicodePunctuation(givenDesc);
 	let patternName = givenDesc.replaceAll('["″]', 'in').toTitleCase();
 
 	let title = getFormattedTitle();
