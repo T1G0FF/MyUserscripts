@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.21.1
+// @version      2026.05.21.2
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -1137,7 +1137,7 @@ async function addHoverPreview() {
 				iFramePreview.style.top = x + 'px';
 				iFramePreview.style.left = y + 'px';
 
-				let src = target.querySelector('a').getAttribute('href');
+				let src = target.querySelector('div.galleryProduct a[type="button"].btn-info').getAttribute('href');
 				MyiFrame.show(iFramePreview, src, target);
 			}
 		};
