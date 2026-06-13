@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # General - Accessibility Menu (Colour Blind Filter, ADHD Friendly Reading Mask)
 // @namespace    http://www.tgoff.me/
-// @version      2025.08.09.3
+// @version      2026.06.14.1
 // @description  Simulates the website as a color vision impaired person would see. Based on leocardz.com's Chrome Extension Colorblinding. Which is based on SVG data at https://github.com/Altreus/colourblind and Data matrices at http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/
 // @author       www.tgoff.me
 // @match        *://*/*
@@ -92,14 +92,33 @@ let readingMask = {
 
 let readingGuide = {
 	enabled: JSON.parse(window.localStorage.getItem('ACCESS-MENU_ReadingGuideEnabled')) ?? false,
-	guideElement: {},
+	elements: {
+		container: {},
+		guide: {},
+		pointer: {},
+		pointerCover: {},
+	},
 	create: function () {
 		if (document.querySelectorAll('.ReadingGuide').length) return;
 
 		document.body.classList.add('ReadingGuide');
-		readingGuide.guideElement = document.createElement('div');
-		readingGuide.guideElement.classList.add('ReadingGuideRuler');
-		document.body.appendChild(readingGuide.guideElement);
+
+		readingGuide.elements.container = document.createElement('div');
+		readingGuide.elements.container.id = 'ReadingGuideContainer';
+		document.body.appendChild(readingGuide.elements.container);
+
+		readingGuide.elements.guide = document.createElement('div');
+		readingGuide.elements.guide.classList.add('ReadingGuideRuler');
+		readingGuide.elements.container.appendChild(readingGuide.elements.guide);
+
+		readingGuide.elements.pointer = document.createElement('div');
+		readingGuide.elements.pointer.classList.add('ReadingGuidePointer');
+		readingGuide.elements.container.appendChild(readingGuide.elements.pointer);
+
+		readingGuide.elements.pointerCover = document.createElement('div');
+		readingGuide.elements.pointerCover.classList.add('ReadingGuidePointerCover');
+		readingGuide.elements.container.appendChild(readingGuide.elements.pointerCover);
+
 		document.addEventListener('mousemove', readingGuide.move);
 		document.addEventListener('click', readingGuide.move);
 	},
@@ -111,13 +130,21 @@ let readingGuide = {
 		let readingGuideHeight = 12;//(window.outerHeight + window.innerHeight) * 0.015;
 		let halfHeight = Math.round(readingGuideHeight / 2);
 		let left = Math.min(Math.max(mouseX - halfWidth, 0), window.innerWidth - readingGuideWidth);
-		readingGuide.guideElement.style.left = left + 'px';
-		readingGuide.guideElement.style.top = mouseY - halfHeight + 'px';
-		readingGuide.guideElement.style.pointerEvents = 'none';
+		readingGuide.elements.guide.style.left = left + 'px';
+		readingGuide.elements.guide.style.top = mouseY + 'px';
+		readingGuide.elements.guide.style.pointerEvents = 'none';
+
+		readingGuide.elements.pointer.style.left = mouseX + 'px';
+		readingGuide.elements.pointer.style.top = mouseY - halfHeight + 'px';
+		readingGuide.elements.pointer.style.pointerEvents = 'none';
+
+		readingGuide.elements.pointerCover.style.left = mouseX - 8 + 'px';
+		readingGuide.elements.pointerCover.style.top = mouseY + 2 + 'px';
+		readingGuide.elements.pointerCover.style.pointerEvents = 'none';
 	},
 	remove: function () {
 		document.body.classList.remove('ReadingGuide');
-		readingGuide.guideElement.remove();
+		readingGuide.elements.container.remove();
 		document.removeEventListener('mousemove', readingGuide.move);
 		document.removeEventListener('click', readingGuide.move);
 	}
@@ -190,17 +217,44 @@ body.ReadingMask .ReadingMaskBottom {
 	top: auto;
 }
 
-body.ReadingGuide .ReadingGuideRuler {
+body.ReadingGuide {
+	cursor: none;
+}
+
+body.ReadingGuide .ReadingGuideRuler,
+body.ReadingGuide .ReadingGuidePointer {
 	background: #000000;
 	border: 2px solid #FFFF00;
 	display: block;
 	position: fixed;
+	z-index: 999999;
+}
+
+body.ReadingGuide .ReadingGuideRuler {
 	left: 0;
 	right: 0;
 	width: 40vw;
 	min-width: 200px;
 	height: 12px;
+}
+
+body.ReadingGuide .ReadingGuidePointer {
+	left: 0;
+	right: 0;
+	width: 12px;
+	height: 12px;
+	transform: rotateY(0deg) rotate(45deg) translateY(5px) translateX(-3px);
+}
+
+body.ReadingGuide .ReadingGuidePointerCover {
+	background: #000000;
+	display: block;
+	position: fixed;
 	z-index: 999999;
+	left: 0;
+	right: 0;
+	width: 17px; /* Pythag 12px */
+	height: 8px;
 }
 
 html.genericDarkmode,
@@ -214,6 +268,7 @@ html.genericDarkmodeExImages img {
 }
 `;
 
+var timeout;
 (function () {
 	'use strict';
 	setTimeout(function () {
@@ -227,12 +282,37 @@ html.genericDarkmodeExImages img {
 		_addGenericDarkmodeToggle(container);
 		_addColorBlindToggles(container);
 
-		setTimeout(function () {
-			let container = document.querySelector('#AccessibilityToggleContainer');
-			container.style.right = document.querySelector('#CSSToggleContainer') ? 'calc(1px + 14px + 1px)' : '1px';
-		}, 500);
+		startWaitTimer();
 	}, 500);
 })();
+
+let waitTimer;
+let waitCounter = 25;
+function startWaitTimer() {
+	waitTimer = setTimeout(function () {
+		console.log('Accessibility Menu: Waiting for container...');
+		let container = document.querySelector('#AccessibilityToggleContainer');
+		if (!container) {
+			clearTimeout(waitTimer);
+			waitCounter = waitCounter--;
+			if (waitCounter <= 0) {
+				console.log('Accessibility Menu: ...stopped waiting');
+				return;
+			}
+			startWaitTimer();
+		}
+		else {
+			console.log('Accessibility Menu: Container found!');
+			if (document.querySelector('#CSSToggleContainer')) {
+				console.log('Accessibility Menu: CSS Toggle Container exists! Updating position.');
+				container.style.right = 'calc(1px + 14px + 1px)';
+			}
+			else {
+				container.style.right = '1px';
+			}
+		}
+	}, 500);
+}
 
 function _addStyle(css) {
 	let node = {};
