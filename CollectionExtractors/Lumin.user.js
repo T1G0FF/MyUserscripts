@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Lumin Fabrics
 // @namespace    http://www.tgoff.me/
-// @version      2026.06.16.2
+// @version      2026.06.16.3
 // @description  Gets the names and codes from a Island Bariks, White Owl Textiles, Ecco Cotton, or Tide+Loom Collections
 // @author       www.tgoff.me
 // @match        *://luminfabrics.com/shop/*
@@ -187,6 +187,7 @@ function getItemObject(itemElement) {
 	}
 	if (isWideback) {
 		itemCode = itemCode + 'WB';
+		boltLength = { 'Measurement': '18', 'Unit': 'yd' };
 	}
 
 	// Shipping Now!
