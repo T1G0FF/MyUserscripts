@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.28.1
+// @version      2026.06.16.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -160,6 +160,7 @@ function getReleaseDates(availDate = getAvailabilityDate(), delDelay = 3) {
 	let delDate = recDate;
 	if (availDate) {
 		delDate = new Date(availDate);
+		if (delDate < recDate) delDate = recDate;
 		delDelay = 2;
 	}
 	delDate.setMonth(delDate.getMonth() + delDelay);
