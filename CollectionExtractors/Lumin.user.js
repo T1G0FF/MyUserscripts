@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Lumin Fabrics
 // @namespace    http://www.tgoff.me/
-// @version      2026.06.16.1
+// @version      2026.06.16.2
 // @description  Gets the names and codes from a Island Bariks, White Owl Textiles, Ecco Cotton, or Tide+Loom Collections
 // @author       www.tgoff.me
 // @match        *://luminfabrics.com/shop/*
@@ -25,9 +25,6 @@ const Company = {
 	WhiteOwl: 4,
 }
 
-let CONFIG_IGNORE_BASICS = !true;
-
-let isSearch = false;
 let companyEnum = Company.LuminFabrics;
 (function () {
 	'use strict';
@@ -87,8 +84,16 @@ function getCollection() {
 	return collection;
 }
 
-var collections = {
-	'ECCO Cotton': { 'title': 'ECCO Cotton', 'desc': 'Solid' },
+var knownCollections = {
+	'ECCO Cotton': { 'title': 'ECCO Cotton', 'desc': 'Solid', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+	'Codici': { 'title': 'Codici', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+	'Cortina': { 'title': 'Cortina', 'desc': '', 'width': { 'Measurement': '56', 'Unit': 'in' }, 'boltLength': { 'Measurement': '12', 'Unit': 'yd' } },
+	'Florette': { 'title': 'Florette', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+	'Foliage': { 'title': 'Foliage', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+	'Gesso': { 'title': 'Gesso', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+	'Peppercorn': { 'title': 'Peppercorn', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+	'Stucco': { 'title': 'Stucco', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+	'Subtle Symmetry': { 'title': 'Subtle Symmetry', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
 };
 
 function getItemObject(itemElement) {
@@ -139,8 +144,8 @@ function getItemObject(itemElement) {
 	}
 
 	let title = getTitle()
-	if ((!patternName || patternName == '') && collections.hasOwnProperty(title)) {
-		patternName = collections[title].desc;
+	if ((!patternName || patternName == '') && knownCollections.hasOwnProperty(title)) {
+		patternName = knownCollections[title].desc;
 	}
 
 	let purchaseCode = formatPurchaseCode(givenCode);
@@ -152,6 +157,12 @@ function getItemObject(itemElement) {
 	let material = 'C100%';
 	let width = { 'Measurement': '45', 'Unit': 'in' };
 	let repeat = '';
+	let boltLength = { 'Measurement': '7', 'Unit': 'm' };
+
+	if (knownCollections.hasOwnProperty(title)) {
+		width = knownCollections[title].width;
+		boltLength = knownCollections[title].boltLength;
+	}
 
 	let isWideback = givenCode.startsWith('WB-')
 	let itemCode = givenCode;
@@ -203,6 +214,7 @@ function getItemObject(itemElement) {
 		'Material': material,
 		'Width': width,
 		'Repeat': repeat,
+		'BoltLength': boltLength,
 		'ReleaseDates': dates,
 		'IsWideback': isWideback
 	};
@@ -230,7 +242,10 @@ function formatInformation(itemElement) {
 
 	let webCategory = company
 
-	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'webCategory': webCategory };
+	let boltLength = item.BoltLength.Unit === 'm' ? item.BoltLength.Measurement : (item.BoltLength.Measurement * 0.9144);
+	boltLength = Math.round((boltLength + Number.EPSILON) * 10) / 10;
+
+	let result = { 'itemCode': itemCode, 'barCode': barCode, 'description': description, 'webName': webName, 'webDesc': webDesc, 'delDate': delDateString, 'purchaseCode': item.PurchaseCode, 'boltLength': boltLength, 'webCategory': webCategory };
 	return result;
 }
 
