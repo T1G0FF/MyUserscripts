@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Lumin Fabrics
 // @namespace    http://www.tgoff.me/
-// @version      2026.06.16.3
+// @version      2026.06.16.4
 // @description  Gets the names and codes from a Island Bariks, White Owl Textiles, Ecco Cotton, or Tide+Loom Collections
 // @author       www.tgoff.me
 // @match        *://luminfabrics.com/shop/*
@@ -28,16 +28,16 @@ const Company = {
 let companyEnum = Company.LuminFabrics;
 (function () {
 	'use strict';
-	if (window.location.hostname.includes('ecco-cotton')) {
+	if (window.location.pathname.includes('ecco-cotton')) {
 		companyEnum = Company.EccoCotton;
 	}
-	else if (window.location.hostname.includes('island-batik')) {
+	else if (window.location.pathname.includes('island-batik')) {
 		companyEnum = Company.IslandBatik;
 	}
-	else if (window.location.hostname.includes('tide-loom')) {
+	else if (window.location.pathname.includes('tide-loom')) {
 		companyEnum = Company.TideLoom;
 	}
-	else if (window.location.hostname.includes('white-owl-textiles')) {
+	else if (window.location.pathname.includes('white-owl-textiles')) {
 		companyEnum = Company.WhiteOwl;
 	}
 
