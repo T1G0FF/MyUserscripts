@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Lumin Fabrics
 // @namespace    http://www.tgoff.me/
-// @version      2026.06.16.4
-// @description  Gets the names and codes from a Island Bariks, White Owl Textiles, Ecco Cotton, or Tide+Loom Collections
+// @version      2026.06.17.1
+// @description  Gets the names and codes from a Ecco Cotton, Island Batik, Tide+Loom Collections, or White Owl Textiles
 // @author       www.tgoff.me
 // @match        *://luminfabrics.com/shop/*
 // @match        *://*.luminfabrics.com/shop/*
@@ -85,6 +85,7 @@ function getCollection() {
 }
 
 var knownCollections = {
+	'108" Widebacks': { 'title': 'Widebacks', 'desc': '', 'width': { 'Measurement': '108', 'Unit': 'in' }, 'boltLength': { 'Measurement': '18', 'Unit': 'yd' } },
 	'ECCO Cotton': { 'title': 'ECCO Cotton', 'desc': 'Solid', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
 	'Codici': { 'title': 'Codici', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
 	'Cortina': { 'title': 'Cortina', 'desc': '', 'width': { 'Measurement': '56', 'Unit': 'in' }, 'boltLength': { 'Measurement': '12', 'Unit': 'yd' } },
@@ -94,6 +95,14 @@ var knownCollections = {
 	'Peppercorn': { 'title': 'Peppercorn', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
 	'Stucco': { 'title': 'Stucco', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
 	'Subtle Symmetry': { 'title': 'Subtle Symmetry', 'desc': '', 'width': { 'Measurement': '45', 'Unit': 'in' }, 'boltLength': { 'Measurement': '10', 'Unit': 'yd' } },
+};
+
+let monthRegex = '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(?:uary|ruary|ch|il|e|y|ust|tember|ober|ember|ember)?';
+let dateRegex = new RegExp(`Shipping: ${monthRegex}(?:/${monthRegex})?[ .]([0-9]{4})`);
+let RegexEnum = {
+	'Month1': 1,
+	'Month2': 2,
+	'Year': 3,
 };
 
 function getItemObject(itemElement) {
@@ -190,17 +199,40 @@ function getItemObject(itemElement) {
 		boltLength = { 'Measurement': '18', 'Unit': 'yd' };
 	}
 
+	let dates = {};
+	// Available Now!
+	// Shipping: Jan/Feb 2026
+	// Shipping: March/April 2026
+	let catHeader = document.querySelector('#category_header.o_wsale_category_description');
+	if (isObjectEmpty(dates) && catHeader) {
+		if (catHeader.innerText.includes('Available Now')) {
+			dates = getReleaseDates();
+		}
+		else if (catHeader.innerText.includes('Shipping:')) {
+			let expectedDate = catHeader.innerText.trim();
+			let matches = dateRegex.exec(expectedDate)
+			if (matches && matches.length > 1) {
+				dates = getReleaseDates(`${matches[RegexEnum.Month2]} ${matches[RegexEnum.Year]}`);
+			}
+		}
+	}
+
 	// Shipping Now!
 	// Est. Ship Nov 2026
-	let dates = getReleaseDates();
 	let ribbon = itemElement.querySelector('span.o_ribbons');
-	if (ribbon && ribbon.innerText.includes('Est. Ship')) {
-		let expectedDate = ribbon.innerText.trim();
-		expectedDate = expectedDate.replace('Est. Ship', '').trim();
-		dates = getReleaseDates(expectedDate);
+	if (isObjectEmpty(dates) && ribbon) {
+		if (ribbon.innerText.includes('Shipping Now')) {
+			dates = getReleaseDates();
+		}
+		else if (ribbon.innerText.includes('Est. Ship')) {
+			let expectedDate = ribbon.innerText.trim();
+			expectedDate = expectedDate.replace('Est. Ship', '').trim();
+			dates = getReleaseDates(expectedDate);
+		}
 	}
-	if (ribbon && ribbon.innerText.includes('Shipping Now')) {
-		dates = getReleaseDates();
+
+	if (isObjectEmpty(dates)) {
+		dates = getReleaseDates()
 	}
 
 	return {
