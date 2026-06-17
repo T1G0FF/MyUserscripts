@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TG Function Library
 // @namespace    http://www.tgoff.me/
-// @version      2026.06.16.1
+// @version      2026.06.17.1
 // @description  Contains various useful functions; includes CSS Style Manager, Toast notifications, a simple Queue, a Download Queue, URL Parameters & an iFrame.
 // @author       www.tgoff.me
 // ==/UserScript==
@@ -263,6 +263,13 @@ function addSvgFallback(element, svgSrc, fallbackSrc) {
 		element.src = fallbackSrc;
 		element.onerror = null;
 	};
+}
+
+function isObjectEmpty(obj) {
+	for (const i in obj) {
+		return false;
+	}
+	return true;
 }
 
 HTMLElement.prototype.addClass = function (classes) {
