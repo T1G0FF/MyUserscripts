@@ -89,7 +89,7 @@ function addStyle(css) {
 function addMiscCSS() {
 	let cssText = '';
 	cssText =
-		`div.shadow-card:has(img.object-cover) {
+`div.shadow-card:has(img.object-cover) {
     overflow: visible;
 }
 
@@ -106,7 +106,7 @@ img.object-cover:hover {
 	addStyle(cssText);
 
 	cssText =
-		`.sourceTag {
+`.sourceTag {
 	display: inline-flex;
     align-items: center;
     border-radius: 9999px;
@@ -117,7 +117,7 @@ img.object-cover:hover {
 	addStyle(cssText);
 
 	cssText =
-		`.source-primary,
+`.source-primary,
 .source-success,
 .source-warning,
 .source-warning-light,
@@ -153,7 +153,7 @@ img.object-cover:hover {
 	addStyle(cssText);
 
 	cssText =
-		`.addedLink:hover {
+`.addedLink:hover {
 	text-decoration: underline;
 	text-decoration-color: white;
 }`;
@@ -311,7 +311,7 @@ function addSourceTags(element) {
 	}
 	// Groups
 	else if (nextLink.includes('asuracomic.net') ||
-		nextLink.includes('asurascans.com')) {
+			 nextLink.includes('asurascans.com')) {
 		tagName = 'Asura Scans';
 	}
 	else if (nextLink.includes('reader.deathtollscans.net')) {
