@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Kenmei Additions
 // @namespace    http://www.tgoff.me/
-// @version      2026.06.20.1
+// @version      2026.06.26.1
 // @description  Adds visible tags for which source is used. Also adds links back to chapter numbers.
 // @author       www.tgoff.me
 // @match        *://*.kenmei.co/*
@@ -11,8 +11,9 @@
 // ==/UserScript==
 
 var DEBUG = false;
-var ROW_ID = 'data-v-a48f9e68';
-var ROW_SELECTOR = 'li[' + ROW_ID + ']';
+//var ROW_ID = 'data-v-a48f9e68';
+//var ROW_SELECTOR = 'li[' + ROW_ID + ']';
+var ROW_SELECTOR = 'div.the-dashboard > ul li:has(div.list-row)';
 
 function createMutationObserver(addedCallback, removedCallback, baseElement = document) {
 	if (!addedCallback && !removedCallback) return;
@@ -59,7 +60,7 @@ function createCallbackTimer(callback, selector, timeout = 500) {
 
 function isElement(element) {
 	if (!(element instanceof Element)) {
-		if (element.nodeType !== Node.TEXT_NODE) {
+		if (element.nodeType !== Node.TEXT_NODE && element.nodeType !== Node.COMMENT_NODE) {
 			let type = Object.prototype.toString.call(element);
 			if (DEBUG) console.log(type);
 		}
@@ -185,22 +186,39 @@ async function addChapterLinks(element) {
 			}
 		}, 50);
 	});
+	/*
+	let moreElem = actBar.querySelector('button:has(svg.lucide-ellipsis-vertical)');
+	moreElem.click();
+	let cmdBar = await new Promise((resolve, reject) => {
+		let thisTimer = setInterval(() => {
+			let _cmdBar = document.querySelector('div[data-radix-popper-content-wrapper]');
+			if (_cmdBar) {
+				resolve(_cmdBar);
+				clearInterval(thisTimer);
+			}
+		}, 25);
+	});
+	let sourceElem = cmdBar.querySelector('div[role="menuitem"]:has(svg.lucide-external-link)');
+	*/
 
 	let noNewChapters = element.querySelector('div.actions-bar.command-bar > a').innerText === 'No new chapters';
 
-	let minusElem = element.querySelector('button:has(svg.lucide-minus)');
-	let plusElem = element.querySelector('button:has(svg.lucide-plus)');
-	let saveElem = element.querySelector('button:has(svg.lucide-check-check)');
-	let discardElem = element.querySelector('button:has(svg.lucide-x)');
-	if (!minusElem || !plusElem || !saveElem || !discardElem) return false;
+	let minusElem = actBar.querySelector('button:has(svg.lucide-minus)');
+	let plusElem = actBar.querySelector('button:has(svg.lucide-plus)');
+	let saveElem = actBar.querySelector('button:has(svg.lucide-check-check)');
+	let discardElem = actBar.querySelector('button:has(svg.lucide-x)');
+	if (!minusElem || !plusElem || !saveElem || !discardElem) {
+		if (DEBUG) console.log(`Elements Found: ${(minusElem ? 'Minus, ' : '')}${(plusElem ? 'Plus, ' : '')}${(saveElem ? 'Save, ' : '')}${(discardElem ? 'Discard, ' : '')}`);
+		return false;
+	}
 
 	let currChapLink = '';
 	let nextChapLink = '';
 	if (noNewChapters) {
-		nextChapLink = await getPrevChap(element);
+		nextChapLink = await getPrevChap(actBar);
 		let outdatedSource = element.querySelector('div.actions-bar.command-bar > a').innerText === 'No new chapters';
 		if (outdatedSource) {
-			nextChapLink = await getPrevChap(element);
+			nextChapLink = await getPrevChap(actBar);
 		}
 		else {
 			currChapLink = nextChapLink;
@@ -209,7 +227,7 @@ async function addChapterLinks(element) {
 	}
 	else {
 		nextChapLink = await getCurrChap(element);
-		currChapLink = await getPrevChap(element);
+		currChapLink = await getPrevChap(actBar);
 		await discardElem.click();
 	}
 
@@ -251,14 +269,19 @@ function addSourceTags(element) {
 	let sourceTag = element.querySelector('.sourceTag');
 	if (sourceTag) return true;
 
-	let spacer = element.querySelector('div.row-body > div:nth-child(4)');
-	let status = element.querySelector('div.row-body > div:nth-child(5) > span');
-	let currChap = element.querySelector('div.row-content a:has(span.ch-now)');// 'div.actions-bar.command-bar > a'); //
-	let nextChap = element.querySelector('div.row-content a:has(span.ch-latest)');// 'div.actions-bar.command-bar > a'); //
-	if (!spacer || !status || !currChap || !nextChap) return false;
+	let spacer = element.querySelector('div.row-body > div.flex.min-w-0.items-center:is(:not(:has(span)),:has(span.secondary[class*="px-2.5"][class*="py-0.5"]))');
+	let status = element.querySelector('div.row-body > div.flex.min-w-0.items-center > span[class*="px-2.5"][class*="py-0.5"]:is(.success,.warning-light,.warning,.danger)');
+	let currChap = element.querySelector('div.row-content a:has(span.ch-now)');
+	let nextChap = element.querySelector('div.row-content a:has(span.ch-latest)');
+	let actBar = element.querySelector('div.actions-bar.command-bar');
+	if (!spacer || !status || !currChap || !nextChap || !actBar) {
+		if (DEBUG) console.log(`Elements Found: ${(spacer ? 'Spacer/Rating, ' : '')}${(status ? 'Status, ' : '')}${(currChap ? 'CurrentChap, ' : '')}${(nextChap ? 'NextChap, ' : '')}${(actBar ? 'ActionBar, ' : '')}`);
+		return false;
+	}
 
 	let tagName = '';
 	let tagClass = 'source-success';
+	let tagLink = '';
 	let currLink = currChap.href.toLowerCase();
 	let nextLink = nextChap.href.toLowerCase();
 
@@ -284,6 +307,9 @@ function addSourceTags(element) {
 	else if (nextLink.includes('kmanga.kodansha.com')) {
 		tagName = 'K Manga';
 		tagClass = 'source-warning-light';
+		// https://kmanga.kodansha.com/title/10577/episode/352736
+		// https://kmanga.kodansha.com/title/10577
+		tagLink = nextChap.href.replace(/\/episode\/[0-9]+$/, '');
 	}
 	else if (nextLink.includes('mangaplus.shueisha.co.jp')) {
 		tagName = 'Manga Plus';
@@ -292,6 +318,9 @@ function addSourceTags(element) {
 	else if (nextLink.includes('manga-up.com')) {
 		tagName = 'Manga Up';
 		tagClass = 'source-warning-light';
+		// https://global.manga-up.com/manga/48/3880
+		// https://global.manga-up.com/manga/48
+		tagLink = nextChap.href.replace(/[0-9]+$/, '');
 	}
 	else if (nextLink.includes('pocketcomics.com')) {
 		tagName = 'Pocket Comics';
@@ -308,11 +337,17 @@ function addSourceTags(element) {
 	else if (nextLink.includes('webtoons.com')) {
 		tagName = 'Webtoons';
 		tagClass = 'source-warning-light';
+		// https://www.webtoons.com/en/action/hiding-out-in-an-apocalypse/episode-85/viewer?title_no=6469&episode_no=86
+		// https://www.webtoons.com/en/action/hiding-out-in-an-apocalypse/list?title_no=6469
+		tagLink = nextChap.href.replace(/episode-[0-9]+\/viewer\?/, 'list?');
 	}
 	// Groups
 	else if (nextLink.includes('asuracomic.net') ||
 			 nextLink.includes('asurascans.com')) {
 		tagName = 'Asura Scans';
+		// https://asurascans.com/comics/trash-of-the-counts-family-19cdf401/chapter/172
+		// https://asurascans.com/comics/trash-of-the-counts-family-19cdf401
+		tagLink = nextChap.href.replace(/\/chapter\/[0-9]+$/, '');
 	}
 	else if (nextLink.includes('reader.deathtollscans.net')) {
 		tagName = 'Death Toll Scans';
@@ -331,9 +366,15 @@ function addSourceTags(element) {
 	}
 	else if (nextLink.includes('ksgroupscans.com')) {
 		tagName = 'KS Group Scans';
+		// https://ksgroupscans.com/manga/hero-of-the-rebellion-use-your-skills-to-control-the-mind-and-body-of-the-maddened-princess/chapter-17-2/
+		// https://ksgroupscans.com/manga/hero-of-the-rebellion-use-your-skills-to-control-the-mind-and-body-of-the-maddened-princess/
+		tagLink = nextChap.href.replace(/chapter-(?:[0-9]+)(?:-[0-9]+)?\/$/, '');
 	}
 	else if (nextLink.includes('lhtranslation.net')) {
 		tagName = 'LHTranslation';
+		// https://lhtranslation.net/manga/kuro-no-shoukanshi/chapter-187/
+		// https://lhtranslation.net/manga/kuro-no-shoukanshi/
+		tagLink = nextChap.href.replace(/chapter-[0-9]+\/$/, '');
 	}
 	else if (nextLink.includes('mangasushi.org')) {
 		tagName = 'Manga Sushi';
@@ -352,6 +393,9 @@ function addSourceTags(element) {
 	}
 	else if (nextLink.includes('en-thunderscans.com')) {
 		tagName = 'Thunder Scans';
+		// https://en-thunderscans.com/the-strongest-assassin-gets-transferred-to-another-world-with-his-whole-class-chapter-111/
+		// https://en-thunderscans.com/comics/the-strongest-assassin-gets-transferred-to-another-world-with-his-whole-class/
+		tagLink = nextChap.href.replace(/chapter-[0-9]+\/$/, '');
 	}
 	else if (nextLink.includes('tritinia.org')) {
 		tagName = 'Tritinia Scans';
@@ -363,6 +407,10 @@ function addSourceTags(element) {
 	else if (nextLink.includes('atsu.moe')) {
 		tagName = 'Atsumaru';
 		tagClass = 'source-primary';
+		// https://atsu.moe/read/rSbY/OHTIsg
+		// https://atsu.moe/manga/rSbY
+		tagLink = nextChap.href.substring(0, nextChap.href.lastIndexOf('/') + 1);
+		tagLink = tagLink.replace('/read/', '/manga/');
 	}
 	else if (nextLink.includes('comick.io')) {
 		tagName = 'Comick';
@@ -371,6 +419,8 @@ function addSourceTags(element) {
 	else if (nextLink.includes('mangadex.org')) {
 		tagName = 'MangaDex';
 		tagClass = 'source-primary';
+		// https://mangadex.org/chapter/7bfdd3a6-9aa2-4625-b509-544cd39842e5
+		// https://mangadex.org/title/c3976c84-73c1-409f-9a98-83a7369a8436
 	}
 	// Unknown
 	else {
@@ -385,11 +435,18 @@ function addSourceTags(element) {
 		tagElem.classList.add(tagClass);
 		tagElem.innerText = tagName.replace(/[ ]/g, '\u00a0');
 
+		let linkParent = document.createElement('a');
+		linkParent.classList.add('addedLink');
+		if (tagLink != '') {
+			linkParent.target = '_blank';
+			linkParent.rel = 'noreferrer';
+			linkParent.href = tagLink;
+		}
+		linkParent.insertAdjacentElement('beforeEnd', tagElem)
+
 		status.parentElement.style.flexWrap = 'wrap';
 		status.parentElement.style.justifyContent = 'center';
-		status.insertAdjacentElement('afterEnd', tagElem);
+		status.insertAdjacentElement('afterEnd', linkParent);
 	}
 	return true;
 }
-
-
