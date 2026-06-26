@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # VicText Collection Extractor - Cosmo Textiles / Quilt Gate
 // @namespace    http://www.tgoff.me/
-// @version      2025.11.07.1
+// @version      2026.06.26.1
 // @description  Gets the names and codes from a Cosmo Textiles / Quilt Gate Collection
 // @author       www.tgoff.me
 // @match        *://quilt-gate.com/eng/detail.php?*
@@ -46,7 +46,7 @@ function getTempTitle() {
 function getTitle() {
 	let titleElement = getTitleElement();
 	let title = titleElement?.innerText.trim();
-	title = title.replace(titleElement.querySelector('span.tg-dropdown-container')?.innerText, '').trim();
+	title = title.replace(titleElement.querySelector('span.tg-container-dropdown')?.innerText, '').trim();
 	title = title.replace(/\r|\n|\r\n/g, ' ').trim();
 
 	if (isCosmo) {
