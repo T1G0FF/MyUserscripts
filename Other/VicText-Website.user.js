@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         # Victorian Textiles - Enhancements
 // @namespace    http://www.tgoff.me/
-// @version      2026.05.21.2
+// @version      2026.06.26.1
 // @description  Adds Misc CSS, Item codes to swatch images, the option to show more items per page and a button to find items without images. Implements Toast popups.
 // @author       www.tgoff.me
 // @match        *://victoriantextiles.com.au/*
@@ -65,6 +65,7 @@ var cachedChildlessCollection = undefined;
 
 	if (WEBADD_CONFIG.COPY_CODES) createButton('Copy Codes', getCodesOnPage, 'copyBar', 'pull-left');
 	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy Images', getImagesOnPage, 'copyBar', 'pull-left');
+	if (WEBADD_CONFIG.COPY_IMAGES) createButton('Copy InStock', getStockOnPage, 'copyBar', 'pull-left');
 	if (WEBADD_CONFIG.FIND_IMAGELESS) createButton('Copy Imageless', getImagelessOnPage, 'copyBar', 'pull-left', hasImageless);
 	if (WEBADD_CONFIG.FIND_CHILDLESS) createButton('Copy Childless', getChildlessOnPage, 'copyBar', 'pull-left', hasChildless);
 
@@ -1034,6 +1035,29 @@ async function getImagesOnPage() {
 	let msg = 'None found!';
 	if (count > 0) {
 		GM_setClipboard(imageHtml);
+		msg = count + ' found and copied!';
+	}
+	if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
+}
+
+async function getStockOnPage() {
+	let result = '';
+	let count = 0;
+
+	let collection = await getCollection();
+	for (const currentItem of collection) {
+		let productCode = getCodeFromItem(currentItem);
+		let stock = stockIndicatorToSortable(currentItem.querySelector('div.stockIndicator span.stockIndicatorText')?.innerText);
+		if (stock > 0) {
+			let imgElem = currentItem.querySelector('img');
+			let productName = imgElem.getAttribute('title') || imgElem.getAttribute('alt');
+			result += productCode + '\t' + productName + '\t' + stock + '\n';
+			count++;
+		}
+	}
+	let msg = 'None found!';
+	if (count > 0) {
+		GM_setClipboard(result);
 		msg = count + ' found and copied!';
 	}
 	if (Toast.CONFIG_TOAST_POPUPS) await Toast.enqueue(msg);
