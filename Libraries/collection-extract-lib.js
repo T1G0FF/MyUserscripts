@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Collection Extraction Library
 // @namespace    http://www.tgoff.me/
-// @version      2026.06.16.1
+// @version      2026.06.30.1
 // @description  Implements the base functionality of downloading a Fabric Collection
 // @author       www.tgoff.me
 // @require      https://raw.githubusercontent.com/T1G0FF/MyUserscripts/main/Libraries/tg-lib.js
@@ -845,8 +845,10 @@ async function addSortFilterInputs(locationElement = getTitleElement(), collecti
 	sortByButton.innerText = SORT_BY_LOOKUP[SORT_BY].string;
 	sortByButton.onclick = (event) => { resetWarnings(); btnAction_sortCollectionBy(sortByButton, event.ctrlKey ? -1 : +1) };
 
+	let tooltip = 'JS-style regex literals supported: /pattern/flags';
 	table = document.createElement('table');
 	table.id = 'filterOptions';
+	table.title = tooltip;
 	table.classList.add('tg-dropdown-option');
 	table.classList.add('tg-table');
 	table.innerHTML =
@@ -1048,21 +1050,19 @@ function getFilterText() {
 function testFilter(filter, str) {
 	if (!str || !str.length > 0) return false;
 	if (!filter || !filter.length > 0) return false;
-	try {
-		let filterRegex = new RegExp(filter, 'i');
-		if (filterRegex) {
-			return filterRegex.test(str);
+
+	const isRegexRegex = new RegExp('^\/(.*)\/([dgimsuvy]*)$');
+	let isRegexMatches = isRegexRegex.exec(filter);
+	if (isRegexMatches && isRegexMatches.length > 1) {
+		let typedRegex = new RegExp(isRegexMatches[1], isRegexMatches[2]);
+		if (typedRegex) {
+			return typedRegex.test(str);
 		}
 	}
-	catch (ex) {
-		if (ex.message.startsWith('Invalid regular expression')) {
-			filter = filter.toLowerCase();
-			str = str.toLowerCase();
-			return str.indexOf(filter) >= 0;
-		}
-		else {
-			throw ex;
-		}
+	else {
+		filter = filter.toLowerCase();
+		str = str.toLowerCase();
+		return str.indexOf(filter) >= 0;
 	}
 }
 
